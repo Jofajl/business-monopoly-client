@@ -347,22 +347,42 @@
         /* Player Pieces */
         .player-piece {
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             border: 3px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 12px;
             color: white;
             z-index: 100;
-            transition: all 0.5s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             cursor: pointer;
-            top: 5px;
-            left: 5px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .player-piece:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
+
+        .player-piece.moving {
+            animation: bounce 0.8s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.3); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .player-piece-0 { background: #ff6b6b; }
@@ -1123,7 +1143,10 @@
 
         function buyProperty() {
             if (canBuyProperty && propertyToBuy !== null) {
-                socket.emit('buyProperty', { roomCode: currentRoom, propertyIndex: propertyToBuy });
+                // Use the player's current position as the property index
+                const currentPlayerData = gameData.players[gameData.currentPlayer];
+                const propertyIndex = currentPlayerData.position;
+                socket.emit('buyProperty', { roomCode: currentRoom, propertyIndex: propertyIndex });
             }
         }
 
@@ -1164,6 +1187,7 @@
                 const piece = document.createElement('div');
                 piece.className = `player-piece player-piece-${index}`;
                 piece.textContent = player.name.charAt(0).toUpperCase();
+                piece.title = `${player.name} - £${player.money}`;
                 
                 // Position the piece on the board
                 const position = player.position;
@@ -1171,9 +1195,23 @@
                 
                 if (property) {
                     property.appendChild(piece);
-                    // Offset multiple pieces
+                    
+                    // Position multiple pieces in a circle around the center
                     const existingPieces = property.querySelectorAll('.player-piece').length;
-                    piece.style.left = `${5 + (existingPieces - 1) * 25}px`;
+                    if (existingPieces > 1) {
+                        const angle = (existingPieces - 1) * (360 / gameData.players.length);
+                        const radius = 15;
+                        const x = Math.cos(angle * Math.PI / 180) * radius;
+                        const y = Math.sin(angle * Math.PI / 180) * radius;
+                        piece.style.left = `calc(50% + ${x}px)`;
+                        piece.style.top = `calc(50% + ${y}px)`;
+                    }
+                    
+                    // Add moving animation for current player
+                    if (index === gameData.currentPlayer) {
+                        piece.classList.add('moving');
+                        setTimeout(() => piece.classList.remove('moving'), 800);
+                    }
                 }
             });
         }
@@ -1182,6 +1220,7 @@
             const indicator = document.getElementById('turn-indicator');
             if (!gameData || !gameData.gameStarted) {
                 indicator.textContent = 'Waiting to start...';
+                indicator.style.background = '#6c757d';
                 return;
             }
             
@@ -1190,6 +1229,13 @@
             
             indicator.textContent = isMyTurn ? 'Your Turn' : `${currentPlayerData.name}'s Turn`;
             indicator.style.background = isMyTurn ? '#ff6b6b' : '#4CAF50';
+            
+            // Pulse animation for current player
+            if (isMyTurn) {
+                indicator.style.animation = 'pulse 2s infinite';
+            } else {
+                indicator.style.animation = 'none';
+            }
         }
 
         function updateGameControls() {
@@ -1210,6 +1256,18 @@
             } else if (gamePhase === 'property' && canBuyProperty) {
                 document.getElementById('buy-property-btn').classList.remove('hidden');
                 document.getElementById('end-turn-btn').classList.remove('hidden');
+                
+                // Highlight the property they can buy
+                const currentPlayerData = gameData.players[gameData.currentPlayer];
+                const propertyElement = document.querySelector(`[data-index="${currentPlayerData.position}"]`);
+                if (propertyElement) {
+                    propertyElement.style.boxShadow = '0 0 20px #4CAF50';
+                    propertyElement.style.border = '3px solid #4CAF50';
+                    setTimeout(() => {
+                        propertyElement.style.boxShadow = '';
+                        propertyElement.style.border = '';
+                    }, 3000);
+                }
             } else if (gamePhase === 'endTurn') {
                 document.getElementById('end-turn-btn').classList.remove('hidden');
             }
@@ -1385,9 +1443,11 @@
             `;
             diceResult.classList.remove('hidden');
             
+            // Update property buying variables
             canBuyProperty = result.canBuyProperty;
             propertyToBuy = result.canBuyProperty ? gameData.players[gameData.currentPlayer].position : null;
             
+            // Show movement and landing messages
             if (result.passedGo) {
                 showMessage('🎯 Passed GO! Collect £200', 'success');
             }
@@ -1396,6 +1456,23 @@
                 showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
             }
             
+            if (result.canBuyProperty) {
+                const currentPlayerData = gameData.players[gameData.currentPlayer];
+                const propertyNames = [
+                    'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
+                    "King's Cross Station", 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
+                    'Jail', 'Pall Mall', 'Electric Company', 'Whitehall', 'Northumberland Avenue',
+                    'Marylebone Station', 'Bow Street', 'Community Chest', 'Marlborough Street', 'Vine Street',
+                    'Free Parking', 'The Strand', 'Chance', 'Fleet Street', 'Trafalgar Square',
+                    'Fenchurch St Station', 'Leicester Square', 'Coventry Street', 'Water Works', 'Piccadilly',
+                    'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
+                    'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
+                ];
+                const propertyName = propertyNames[currentPlayerData.position] || 'Property';
+                showMessage(`🏠 You can buy ${propertyName}!`, 'info');
+            }
+            
+            // Animate player movement with delay
             setTimeout(() => {
                 updatePlayerPieces();
                 updateGameControls();
