@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import { Users, DollarSign, Clock, Trophy, Target, BookOpen } from 'lucide-react';
+import { Users, DollarSign, Clock, Trophy, Target, BookOpen, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Home, Building } from 'lucide-react';
 
 const App = () => {
   const [socket, setSocket] = useState(null);
-  const [gameState, setGameState] = useState('menu'); // menu, lobby, playing
+  const [gameState, setGameState] = useState('menu');
   const [roomCode, setRoomCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [players, setPlayers] = useState([]);
@@ -15,23 +15,61 @@ const App = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [showResults, setShowResults] = useState(false);
   const [lastAnswer, setLastAnswer] = useState(null);
-  const [difficulty, setDifficulty] = useState('medium');
-  const [category, setCategory] = useState('general');
+
   const [showStats, setShowStats] = useState(false);
   const [playerStats, setPlayerStats] = useState({});
+  const [diceValues, setDiceValues] = useState([1, 1]);
+  const [showDice, setShowDice] = useState(false);
+  const [showPropertyModal, setShowPropertyModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [gamePhase, setGamePhase] = useState('question'); // 'question', 'dice', 'property', 'endTurn'
 
-  const difficulties = ['easy', 'medium', 'hard'];
-  const categories = ['general', 'finance', 'marketing', 'strategy', 'operations'];
 
+  
+  const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
+
+  // Enhanced Monopoly board with real properties
   const boardSpaces = [
-    'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
-    'King\'s Cross Station', 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
-    'Jail', 'Pall Mall', 'Electric Company', 'Whitehall', 'Northumberland Avenue',
-    'Marylebone Station', 'Bow Street', 'Community Chest', 'Marlborough Street', 'Vine Street',
-    'Free Parking', 'The Strand', 'Chance', 'Fleet Street', 'Trafalgar Square',
-    'Fenchurch St Station', 'Leicester Square', 'Coventry Street', 'Water Works', 'Piccadilly',
-    'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
-    'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
+    { name: 'GO', type: 'corner', color: '', price: 0, rent: [0], position: 'bottom-right' },
+    { name: 'Old Kent Road', type: 'property', color: 'brown', price: 60, rent: [2, 10, 30, 90, 160, 250], group: 'brown' },
+    { name: 'Community Chest', type: 'chest', color: '', price: 0, rent: [0] },
+    { name: 'Whitechapel Road', type: 'property', color: 'brown', price: 60, rent: [4, 20, 60, 180, 320, 450], group: 'brown' },
+    { name: 'Income Tax', type: 'tax', color: '', price: 0, rent: [200] },
+    { name: "King's Cross Station", type: 'station', color: 'black', price: 200, rent: [25, 50, 100, 200] },
+    { name: 'The Angel Islington', type: 'property', color: 'lightblue', price: 100, rent: [6, 30, 90, 270, 400, 550], group: 'lightblue' },
+    { name: 'Chance', type: 'chance', color: '', price: 0, rent: [0] },
+    { name: 'Euston Road', type: 'property', color: 'lightblue', price: 100, rent: [6, 30, 90, 270, 400, 550], group: 'lightblue' },
+    { name: 'Pentonville Road', type: 'property', color: 'lightblue', price: 120, rent: [8, 40, 100, 300, 450, 600], group: 'lightblue' },
+    { name: 'Jail', type: 'corner', color: '', price: 0, rent: [0], position: 'bottom-left' },
+    { name: 'Pall Mall', type: 'property', color: 'pink', price: 140, rent: [10, 50, 150, 450, 625, 750], group: 'pink' },
+    { name: 'Electric Company', type: 'utility', color: 'yellow', price: 150, rent: [0] },
+    { name: 'Whitehall', type: 'property', color: 'pink', price: 140, rent: [10, 50, 150, 450, 625, 750], group: 'pink' },
+    { name: 'Northumberland Avenue', type: 'property', color: 'pink', price: 160, rent: [12, 60, 180, 500, 700, 900], group: 'pink' },
+    { name: 'Marylebone Station', type: 'station', color: 'black', price: 200, rent: [25, 50, 100, 200] },
+    { name: 'Bow Street', type: 'property', color: 'orange', price: 180, rent: [14, 70, 200, 550, 750, 950], group: 'orange' },
+    { name: 'Community Chest', type: 'chest', color: '', price: 0, rent: [0] },
+    { name: 'Marlborough Street', type: 'property', color: 'orange', price: 180, rent: [14, 70, 200, 550, 750, 950], group: 'orange' },
+    { name: 'Vine Street', type: 'property', color: 'orange', price: 200, rent: [16, 80, 220, 600, 800, 1000], group: 'orange' },
+    { name: 'Free Parking', type: 'corner', color: '', price: 0, rent: [0], position: 'top-left' },
+    { name: 'The Strand', type: 'property', color: 'red', price: 220, rent: [18, 90, 250, 700, 875, 1050], group: 'red' },
+    { name: 'Chance', type: 'chance', color: '', price: 0, rent: [0] },
+    { name: 'Fleet Street', type: 'property', color: 'red', price: 220, rent: [18, 90, 250, 700, 875, 1050], group: 'red' },
+    { name: 'Trafalgar Square', type: 'property', color: 'red', price: 240, rent: [20, 100, 300, 750, 925, 1100], group: 'red' },
+    { name: 'Fenchurch St Station', type: 'station', color: 'black', price: 200, rent: [25, 50, 100, 200] },
+    { name: 'Leicester Square', type: 'property', color: 'yellow', price: 260, rent: [22, 110, 330, 800, 975, 1150], group: 'yellow' },
+    { name: 'Coventry Street', type: 'property', color: 'yellow', price: 260, rent: [22, 110, 330, 800, 975, 1150], group: 'yellow' },
+    { name: 'Water Works', type: 'utility', color: 'yellow', price: 150, rent: [0] },
+    { name: 'Piccadilly', type: 'property', color: 'yellow', price: 280, rent: [24, 120, 360, 850, 1025, 1200], group: 'yellow' },
+    { name: 'Go To Jail', type: 'corner', color: '', price: 0, rent: [0], position: 'top-right' },
+    { name: 'Regent Street', type: 'property', color: 'green', price: 300, rent: [26, 130, 390, 900, 1100, 1275], group: 'green' },
+    { name: 'Oxford Street', type: 'property', color: 'green', price: 300, rent: [26, 130, 390, 900, 1100, 1275], group: 'green' },
+    { name: 'Community Chest', type: 'chest', color: '', price: 0, rent: [0] },
+    { name: 'Bond Street', type: 'property', color: 'green', price: 320, rent: [28, 150, 450, 1000, 1200, 1400], group: 'green' },
+    { name: 'Liverpool St Station', type: 'station', color: 'black', price: 200, rent: [25, 50, 100, 200] },
+    { name: 'Chance', type: 'chance', color: '', price: 0, rent: [0] },
+    { name: 'Park Lane', type: 'property', color: 'blue', price: 350, rent: [35, 175, 500, 1100, 1300, 1500], group: 'blue' },
+    { name: 'Super Tax', type: 'tax', color: '', price: 0, rent: [100] },
+    { name: 'Mayfair', type: 'property', color: 'blue', price: 400, rent: [50, 200, 600, 1400, 1700, 2000], group: 'blue' }
   ];
 
   useEffect(() => {
@@ -56,6 +94,7 @@ const App = () => {
     newSocket.on('gameStarted', (data) => {
       setGameData(data);
       setGameState('playing');
+      setGamePhase('question');
     });
 
     newSocket.on('gameUpdated', (data) => {
@@ -69,12 +108,42 @@ const App = () => {
       setTimeLeft(questionData.timeLimit || 30);
       setShowResults(false);
       setLastAnswer(null);
+      setGamePhase('question');
     });
 
     newSocket.on('answerResult', (result) => {
       setLastAnswer(result);
       setShowResults(true);
       setTimeLeft(0);
+      if (result.correct) {
+        setGamePhase('dice');
+      } else {
+        setTimeout(() => {
+          setGamePhase('question');
+          nextPlayerTurn();
+        }, 3000);
+      }
+    });
+
+    newSocket.on('diceRolled', ({ dice, newPosition, canBuyProperty }) => {
+      setDiceValues(dice);
+      setShowDice(true);
+      setTimeout(() => {
+        setShowDice(false);
+        if (canBuyProperty) {
+          setSelectedProperty(boardSpaces[newPosition]);
+          setShowPropertyModal(true);
+          setGamePhase('property');
+        } else {
+          setGamePhase('endTurn');
+        }
+      }, 2000);
+    });
+
+    newSocket.on('propertyPurchased', (data) => {
+      setGameData(data.gameData);
+      setShowPropertyModal(false);
+      setGamePhase('endTurn');
     });
 
     newSocket.on('statsUpdated', (stats) => {
@@ -90,7 +159,7 @@ const App = () => {
 
   const createRoom = () => {
     if (playerName.trim()) {
-      socket.emit('createRoom', { playerName: playerName.trim(), difficulty, category });
+      socket.emit('createRoom', { playerName: playerName.trim() });
     }
   };
 
@@ -107,8 +176,8 @@ const App = () => {
     socket.emit('startGame', roomCode);
   };
 
-  const rollDice = () => {
-    socket.emit('rollDice', roomCode);
+  const startTurn = () => {
+    socket.emit('startTurn', roomCode);
   };
 
   const answerQuestion = () => {
@@ -120,60 +189,69 @@ const App = () => {
     }
   };
 
-  const changeDifficulty = (newDifficulty) => {
-    setDifficulty(newDifficulty);
-    if (socket && roomCode) {
-      socket.emit('changeDifficulty', { roomCode, difficulty: newDifficulty });
-    }
+  const rollDice = () => {
+    socket.emit('rollDice', roomCode);
   };
 
-  const changeCategory = (newCategory) => {
-    setCategory(newCategory);
-    if (socket && roomCode) {
-      socket.emit('changeCategory', { roomCode, category: newCategory });
-    }
+  const buyProperty = () => {
+    socket.emit('buyProperty', { roomCode, propertyIndex: selectedProperty.index });
+  };
+
+  const skipProperty = () => {
+    setShowPropertyModal(false);
+    setGamePhase('endTurn');
+  };
+
+  const endTurn = () => {
+    socket.emit('endTurn', roomCode);
+    setGamePhase('question');
+  };
+
+  const nextPlayerTurn = () => {
+    setTimeout(() => {
+      socket.emit('nextPlayer', roomCode);
+    }, 1000);
+  };
+
+  const getPropertyColor = (color) => {
+    const colors = {
+      brown: 'bg-amber-800',
+      lightblue: 'bg-sky-300',
+      pink: 'bg-pink-400',
+      orange: 'bg-orange-500',
+      red: 'bg-red-500',
+      yellow: 'bg-yellow-400',
+      green: 'bg-green-500',
+      blue: 'bg-blue-600',
+      black: 'bg-gray-800'
+    };
+    return colors[color] || 'bg-gray-200';
   };
 
   const getPlayerPosition = (position) => {
-    const corners = [0, 10, 20, 30];
-    if (corners.includes(position)) {
-      const cornerPositions = {
-        0: { bottom: '0', right: '0' },
-        10: { bottom: '0', left: '0' },
-        20: { top: '0', left: '0' },
-        30: { top: '0', right: '0' }
-      };
-      return cornerPositions[position];
-    }
+    // Corner positions
+    if (position === 0) return { bottom: '0', right: '0', width: '80px', height: '80px' };
+    if (position === 10) return { bottom: '0', left: '0', width: '80px', height: '80px' };
+    if (position === 20) return { top: '0', left: '0', width: '80px', height: '80px' };
+    if (position === 30) return { top: '0', right: '0', width: '80px', height: '80px' };
 
+    // Side positions
     if (position < 10) {
-      return { bottom: '0', right: `${(10 - position) * 10}%` };
+      return { bottom: '0', right: `${80 + (10 - position - 1) * 60}px`, width: '60px', height: '80px' };
     } else if (position < 20) {
-      return { left: '0', bottom: `${(position - 10) * 10}%` };
+      return { left: '0', bottom: `${80 + (position - 10 - 1) * 60}px`, width: '80px', height: '60px' };
     } else if (position < 30) {
-      return { top: '0', left: `${(position - 20) * 10}%` };
+      return { top: '0', left: `${80 + (position - 20 - 1) * 60}px`, width: '60px', height: '80px' };
     } else {
-      return { right: '0', top: `${(position - 30) * 10}%` };
+      return { right: '0', top: `${80 + (40 - position - 1) * 60}px`, width: '80px', height: '60px' };
     }
   };
 
-  const getDifficultyColor = (diff) => {
-    switch(diff) {
-      case 'easy': return 'text-green-600';
-      case 'medium': return 'text-yellow-600';
-      case 'hard': return 'text-red-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  const getCategoryIcon = (cat) => {
-    switch(cat) {
-      case 'finance': return <DollarSign className="w-4 h-4" />;
-      case 'marketing': return <Target className="w-4 h-4" />;
-      case 'strategy': return <Trophy className="w-4 h-4" />;
-      case 'operations': return <BookOpen className="w-4 h-4" />;
-      default: return <Users className="w-4 h-4" />;
-    }
+  const getBuildingDisplay = (property, houses, hotel) => {
+    if (hotel) return <Building className="w-3 h-3 text-red-600" />;
+    return Array.from({ length: houses }, (_, i) => (
+      <Home key={i} className="w-2 h-2 text-green-600" />
+    ));
   };
 
   if (gameState === 'menu') {
@@ -192,49 +270,6 @@ const App = () => {
               onChange={(e) => setPlayerName(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Difficulty Level
-              </label>
-              <div className="flex space-x-2">
-                {difficulties.map((diff) => (
-                  <button
-                    key={diff}
-                    onClick={() => setDifficulty(diff)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium capitalize ${
-                      difficulty === diff 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {diff}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Question Category
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategory(cat)}
-                    className={`p-2 rounded-lg text-sm font-medium capitalize flex items-center justify-center space-x-1 ${
-                      category === cat 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {getCategoryIcon(cat)}
-                    <span>{cat}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
             
             <button
               onClick={createRoom}
@@ -298,22 +333,6 @@ const App = () => {
               ))}
             </div>
           </div>
-
-          <div className="mb-6 text-sm text-gray-600">
-            <div className="flex items-center justify-between mb-2">
-              <span>Difficulty:</span>
-              <span className={`font-medium capitalize ${getDifficultyColor(difficulty)}`}>
-                {difficulty}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Category:</span>
-              <span className="font-medium capitalize flex items-center space-x-1">
-                {getCategoryIcon(category)}
-                <span>{category}</span>
-              </span>
-            </div>
-          </div>
           
           {players.find(p => p.name === playerName)?.isHost && (
             <button
@@ -332,23 +351,16 @@ const App = () => {
   if (gameState === 'playing' && gameData) {
     const currentPlayerData = gameData.players[currentPlayer];
     const isMyTurn = currentPlayerData?.name === playerName;
+    const myPlayer = gameData.players.find(p => p.name === playerName);
 
     return (
       <div className="min-h-screen bg-gray-100 p-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-lg p-4 mb-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold">Business Monopoly</h1>
               <span className="text-sm text-gray-600">Room: {roomCode}</span>
-              <div className="flex items-center space-x-2 text-sm">
-                <span className={getDifficultyColor(difficulty)}>{difficulty}</span>
-                <span>•</span>
-                <span className="flex items-center space-x-1">
-                  {getCategoryIcon(category)}
-                  <span>{category}</span>
-                </span>
-              </div>
             </div>
             <button
               onClick={() => setShowStats(!showStats)}
@@ -359,53 +371,49 @@ const App = () => {
             </button>
           </div>
 
-          {/* Stats Panel */}
-          {showStats && (
-            <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-              <h3 className="text-lg font-bold mb-4">Player Statistics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gameData.players.map((player, index) => {
-                  const stats = playerStats[player.name] || { 
-                    questionsAnswered: 0, 
-                    correctAnswers: 0, 
-                    accuracy: 0,
-                    totalEarnings: 0,
-                    averageTime: 0
-                  };
-                  return (
-                    <div key={index} className="p-3 border rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className={`w-3 h-3 rounded-full bg-${['red', 'blue', 'green', 'yellow', 'purple', 'pink'][index]}-500`}></div>
-                        <span className="font-medium">{player.name}</span>
-                      </div>
-                      <div className="text-sm space-y-1">
-                        <div>Questions: {stats.questionsAnswered}</div>
-                        <div>Correct: {stats.correctAnswers}</div>
-                        <div>Accuracy: {stats.accuracy}%</div>
-                        <div>Avg Time: {stats.averageTime}s</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col xl:flex-row gap-4">
             {/* Game Board */}
             <div className="flex-1">
               <div className="bg-white rounded-lg shadow-lg p-4">
-                <div className="relative w-full aspect-square max-w-2xl mx-auto bg-green-100 border-4 border-green-800">
+                <div className="relative w-full aspect-square max-w-4xl mx-auto bg-green-200 border-4 border-green-800">
                   {/* Board spaces */}
                   {boardSpaces.map((space, index) => {
                     const position = getPlayerPosition(index);
+                    const property = gameData.properties?.find(p => p.index === index);
+                    const isOwned = property?.owner;
+                    
                     return (
                       <div
                         key={index}
-                        className="absolute w-16 h-16 bg-white border border-gray-400 flex items-center justify-center text-xs font-bold text-center"
+                        className={`absolute border border-gray-400 flex flex-col items-center justify-center text-xs font-bold text-center p-1 ${
+                          space.type === 'corner' ? 'bg-yellow-100' : 'bg-white'
+                        }`}
                         style={position}
                       >
-                        {space}
+                        {/* Property color bar */}
+                        {space.color && (
+                          <div className={`w-full h-2 ${getPropertyColor(space.color)} mb-1`}></div>
+                        )}
+                        
+                        {/* Property name */}
+                        <div className="text-xs leading-tight">{space.name}</div>
+                        
+                        {/* Price */}
+                        {space.price > 0 && (
+                          <div className="text-xs text-gray-600">£{space.price}</div>
+                        )}
+                        
+                        {/* Houses/Hotels */}
+                        {property?.houses > 0 && (
+                          <div className="flex space-x-0.5 mt-1">
+                            {getBuildingDisplay(space, property.houses, property.hotel)}
+                          </div>
+                        )}
+                        
+                        {/* Owner indicator */}
+                        {isOwned && (
+                          <div className={`w-2 h-2 rounded-full mt-1 bg-${['red', 'blue', 'green', 'yellow', 'purple', 'pink'][gameData.players.findIndex(p => p.name === property.owner)]}-500`}></div>
+                        )}
                       </div>
                     );
                   })}
@@ -417,24 +425,43 @@ const App = () => {
                     return (
                       <div
                         key={playerIndex}
-                        className={`absolute w-4 h-4 rounded-full bg-${colors[playerIndex]}-500 border-2 border-white transform -translate-x-1/2 -translate-y-1/2`}
+                        className={`absolute w-6 h-6 rounded-full bg-${colors[playerIndex]}-500 border-2 border-white transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-xs font-bold`}
                         style={{
-                          ...position,
-                          left: position.left ? `calc(${position.left} + ${(playerIndex % 3) * 6}px)` : undefined,
-                          right: position.right ? `calc(${position.right} + ${(playerIndex % 3) * 6}px)` : undefined,
-                          top: position.top ? `calc(${position.top} + ${Math.floor(playerIndex / 3) * 6}px)` : undefined,
-                          bottom: position.bottom ? `calc(${position.bottom} + ${Math.floor(playerIndex / 3) * 6}px)` : undefined,
+                          left: position.left ? `calc(${position.left} + ${(playerIndex % 3) * 8}px + 40px)` : undefined,
+                          right: position.right ? `calc(${position.right} + ${(playerIndex % 3) * 8}px + 40px)` : undefined,
+                          top: position.top ? `calc(${position.top} + ${Math.floor(playerIndex / 3) * 8}px + 40px)` : undefined,
+                          bottom: position.bottom ? `calc(${position.bottom} + ${Math.floor(playerIndex / 3) * 8}px + 40px)` : undefined,
                         }}
-                      />
+                      >
+                        {player.name.charAt(0).toUpperCase()}
+                      </div>
                     );
                   })}
                   
-                  {/* Center Logo */}
+                  {/* Center Logo and Dice */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white rounded-full w-32 h-32 flex items-center justify-center shadow-lg border-4 border-gray-300">
-                      <div className="text-center">
+                    <div className="bg-white rounded-full w-48 h-48 flex flex-col items-center justify-center shadow-lg border-4 border-gray-300">
+                      <div className="text-center mb-4">
                         <div className="text-xl font-bold">BUSINESS</div>
                         <div className="text-lg font-bold">MONOPOLY</div>
+                      </div>
+                      
+                      {/* Dice Display */}
+                      {showDice && (
+                        <div className="flex space-x-2 mb-4">
+                          {diceValues.map((value, index) => {
+                            const DiceIcon = diceIcons[value - 1];
+                            return <DiceIcon key={index} className="w-8 h-8 text-red-600" />;
+                          })}
+                        </div>
+                      )}
+                      
+                      {/* Current Player */}
+                      <div className="text-sm text-center">
+                        <div className="font-semibold">{currentPlayerData?.name}'s Turn</div>
+                        {isMyTurn && (
+                          <div className="text-green-600 font-bold">YOUR TURN</div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -443,28 +470,74 @@ const App = () => {
             </div>
 
             {/* Side Panel */}
-            <div className="w-full lg:w-96 space-y-4">
-              {/* Current Turn */}
-              <div className="bg-white rounded-lg shadow-lg p-4">
-                <h3 className="text-lg font-bold mb-3">Current Turn</h3>
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className={`w-6 h-6 rounded-full bg-${['red', 'blue', 'green', 'yellow', 'purple', 'pink'][currentPlayer]}-500`}></div>
-                  <span className="font-semibold">{currentPlayerData?.name}</span>
-                  {isMyTurn && <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Your Turn</span>}
+            <div className="w-full xl:w-96 space-y-4">
+              {/* My Properties */}
+              {myPlayer && (
+                <div className="bg-white rounded-lg shadow-lg p-4">
+                  <h3 className="text-lg font-bold mb-3 flex items-center">
+                    <Home className="w-5 h-5 mr-2" />
+                    My Properties
+                  </h3>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {myPlayer.properties && myPlayer.properties.length > 0 ? (
+                      myPlayer.properties.map((propIndex, index) => {
+                        const space = boardSpaces[propIndex];
+                        return (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div className="flex items-center space-x-2">
+                              {space.color && (
+                                <div className={`w-3 h-3 ${getPropertyColor(space.color)}`}></div>
+                              )}
+                              <span className="text-sm font-medium">{space.name}</span>
+                            </div>
+                            <span className="text-xs text-gray-600">£{space.price}</span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-sm text-gray-500">No properties owned</p>
+                    )}
+                  </div>
                 </div>
-                
-                {isMyTurn && !question && (
-                  <button
-                    onClick={rollDice}
-                    className="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
-                  >
-                    Roll Dice
-                  </button>
-                )}
-              </div>
+              )}
+
+              {/* Turn Actions */}
+              {isMyTurn && (
+                <div className="bg-white rounded-lg shadow-lg p-4">
+                  <h3 className="text-lg font-bold mb-3">Your Turn</h3>
+                  
+                  {gamePhase === 'question' && !question && (
+                    <button
+                      onClick={startTurn}
+                      className="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+                    >
+                      Start Turn - Answer Question
+                    </button>
+                  )}
+                  
+                  {gamePhase === 'dice' && (
+                    <button
+                      onClick={rollDice}
+                      className="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+                    >
+                      <Dice1 className="w-5 h-5" />
+                      <span>Roll Dice</span>
+                    </button>
+                  )}
+                  
+                  {gamePhase === 'endTurn' && (
+                    <button
+                      onClick={endTurn}
+                      className="w-full bg-gray-500 text-white p-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                    >
+                      End Turn
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Question */}
-              {question && (
+              {question && gamePhase === 'question' && (
                 <div className="bg-white rounded-lg shadow-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-bold">Business Question</h3>
@@ -474,15 +547,6 @@ const App = () => {
                         {timeLeft}s
                       </span>
                     </div>
-                  </div>
-                  
-                  <div className="mb-2 text-sm text-gray-600 flex items-center space-x-2">
-                    <span className={getDifficultyColor(question.difficulty)}>{question.difficulty}</span>
-                    <span>•</span>
-                    <span className="flex items-center space-x-1">
-                      {getCategoryIcon(question.category)}
-                      <span>{question.category}</span>
-                    </span>
                   </div>
                   
                   <p className="mb-4 font-medium">{question.question}</p>
@@ -510,18 +574,12 @@ const App = () => {
                     }`}>
                       <div className="flex items-center space-x-2 mb-2">
                         <span className={`font-bold ${lastAnswer.correct ? 'text-green-800' : 'text-red-800'}`}>
-                          {lastAnswer.correct ? '✓ Correct!' : '✗ Incorrect'}
+                          {lastAnswer.correct ? '✓ Correct! You can roll dice!' : '✗ Incorrect - Turn skipped'}
                         </span>
-                        {lastAnswer.correct && (
-                          <span className="text-green-600 font-medium">+£100</span>
-                        )}
                       </div>
                       {lastAnswer.explanation && (
                         <p className="text-sm text-gray-700">{lastAnswer.explanation}</p>
                       )}
-                      <p className="text-sm text-gray-600 mt-1">
-                        Correct answer: {String.fromCharCode(65 + question.correctAnswer)} - {question.options[question.correctAnswer]}
-                      </p>
                     </div>
                   )}
                   
@@ -549,9 +607,16 @@ const App = () => {
                         <div className={`w-4 h-4 rounded-full bg-${['red', 'blue', 'green', 'yellow', 'purple', 'pink'][index]}-500`}></div>
                         <span className="font-medium">{player.name}</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-sm">
-                        <DollarSign className="w-4 h-4 text-green-600" />
-                        <span className="font-semibold">£{player.money}</span>
+                      <div className="text-sm">
+                        <div className="flex items-center space-x-1">
+                          <DollarSign className="w-4 h-4 text-green-600" />
+                          <span className="font-semibold">£{player.money}</span>
+                        </div>
+                        {player.properties && (
+                          <div className="text-xs text-gray-600">
+                            {player.properties.length} properties
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -560,6 +625,41 @@ const App = () => {
             </div>
           </div>
         </div>
+
+        {/* Property Purchase Modal */}
+        {showPropertyModal && selectedProperty && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold mb-4">Purchase Property</h3>
+              <div className="mb-4">
+                {selectedProperty.color && (
+                  <div className={`w-full h-4 ${getPropertyColor(selectedProperty.color)} mb-2`}></div>
+                )}
+                <h4 className="text-lg font-semibold">{selectedProperty.name}</h4>
+                <p className="text-2xl font-bold text-green-600">£{selectedProperty.price}</p>
+                <div className="mt-2 text-sm text-gray-600">
+                  <p>Rent: £{selectedProperty.rent[0]}</p>
+                  <p>With full color group: £{selectedProperty.rent[1]}</p>
+                </div>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={buyProperty}
+                  disabled={myPlayer?.money < selectedProperty.price}
+                  className="flex-1 bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  Buy Property
+                </button>
+                <button
+                  onClick={skipProperty}
+                  className="flex-1 bg-gray-500 text-white p-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                >
+                  Skip
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
