@@ -5,23 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Monopoly - T-Level Game</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
+        /* CSS Variables */
+        :root {
+            --black: #080808;
+            --brown: #640303;
+            --board: #fafaf8;
+            --dark-purple: #5e3577;
+            --light-blue: #d2eaf5;
+            --purple: #b02f7c;
+            --orange: #fa811d;
+            --red: #f50c2b;
+            --yellow: #ffed20;
+            --green: #41994e;
+            --dark-blue: #5a6dba;
+        }
+
+        /* Global Styles */
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            margin: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 400;
+            font-size: 10px;
+            color: var(--black);
+            text-transform: uppercase;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
         }
 
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0;
+        }
+
+        /* Property Colors */
+        .dark-purple { background: var(--dark-purple); }
+        .light-blue { background: var(--light-blue); }
+        .purple { background: var(--purple); }
+        .orange { background: var(--orange); }
+        .red { background: var(--red); }
+        .yellow { background: var(--yellow); }
+        .green { background: var(--green); }
+        .dark-blue { background: var(--dark-blue); }
+
+        /* Game Container */
         .game-container {
             max-width: 1400px;
             width: 100%;
@@ -30,161 +65,321 @@
             padding: 20px;
         }
 
-        .monopoly-board {
-            width: 800px;
-            height: 800px;
-            background: #f0f8f0;
-            border: 8px solid #2c5f2d;
-            border-radius: 10px;
-            position: relative;
-            display: grid;
-            grid-template-columns: 1fr 6fr 1fr;
-            grid-template-rows: 1fr 6fr 1fr;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .game-container.single-column {
+            flex-direction: column;
+            align-items: center;
         }
 
-        .corner {
-            display: flex;
+        /* Board Layout */
+        .table {
+            padding: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: 125px repeat(9, 80px) 125px;
+            grid-template-rows: 125px repeat(9, 80px) 125px;
+            grid-gap: 2px;
+            width: 994px;
+            height: 994px;
+            background: var(--black);
+            border: 2px solid var(--black);
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        /* Center Area */
+        .center {
+            grid-column: 2 / 11;
+            grid-row: 2 / 11;
+            background: var(--board);
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(7, 1fr);
+            justify-items: center;
             align-items: center;
-            justify-content: center;
-            background: #f5f5f5;
-            border: 2px solid #333;
+            border-radius: 8px;
+        }
+
+        .title {
+            grid-column: 1 / 8;
+            grid-row: 3 / 4;
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: 8px;
+            color: var(--red);
+            text-align: center;
+        }
+
+        .business-subtitle {
+            grid-column: 1 / 8;
+            grid-row: 4 / 5;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--black);
+            text-align: center;
+        }
+
+        .turn-indicator {
+            grid-column: 1 / 8;
+            grid-row: 5 / 6;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
             font-weight: bold;
             text-align: center;
-            position: relative;
+            font-size: 14px;
+            letter-spacing: 1px;
         }
 
-        .corner.go {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            border-radius: 10px 0 0 0;
+        /* Rows of spaces */
+        .row {
+            display: grid;
+            grid-gap: 2px;
         }
 
-        .corner.jail {
-            background: linear-gradient(45deg, #ffa500, #ffb84d);
-            border-radius: 0 0 0 10px;
+        .horizontal-row {
+            grid-template-columns: repeat(9, 80px);
+            grid-template-rows: 125px;
         }
 
-        .corner.free-parking {
-            background: linear-gradient(45deg, #4ecdc4, #6ed0ca);
-            border-radius: 0 10px 0 0;
+        .vertical-row {
+            grid-template-columns: 125px;
+            grid-template-rows: repeat(9, 80px);
         }
 
-        .corner.go-to-jail {
-            background: linear-gradient(45deg, #ff4757, #ff6b7a);
-            border-radius: 0 0 10px 0;
+        .vertical-row .container {
+            top: 50%;
+            left: 50%;
         }
 
-        .board-side {
-            display: flex;
+        .bottom-row {
+            grid-column: 2 / 11;
+            grid-row: 11;
         }
 
-        .board-side.top {
-            flex-direction: row-reverse;
+        .left-row {
+            grid-column: 1;
+            grid-row: 2 / 11;
         }
 
-        .board-side.right {
-            flex-direction: column;
+        .left-row .container {
+            transform: translate(-50%, -50%) rotate(90deg);
         }
 
-        .board-side.bottom {
-            flex-direction: row;
+        .top-row {
+            grid-column: 2 / 11;
+            grid-row: 1;
         }
 
-        .board-side.left {
-            flex-direction: column-reverse;
+        .top-row .container {
+            transform: rotate(180deg);
         }
 
-        .property {
-            flex: 1;
-            border: 2px solid #333;
-            display: flex;
-            flex-direction: column;
-            font-size: 10px;
+        .right-row {
+            grid-column: 11;
+            grid-row: 2 / 11;
+        }
+
+        .right-row .container {
+            transform: translate(-50%, -50%) rotate(270deg);
+        }
+
+        /* Spaces */
+        .space {
+            background: var(--board);
             text-align: center;
             position: relative;
-            background: white;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .property:hover {
-            transform: scale(1.05);
+        .space:hover {
+            transform: scale(1.02);
             z-index: 10;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .property-color {
-            height: 20px;
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transform-origin: center;
+            height: 125px;
+            width: 80px;
+            padding: 5px;
+        }
+
+        .name,
+        .instructions {
+            padding-left: 8px;
+            padding-right: 8px;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+
+        .price {
+            font-size: 7px;
+            font-weight: 400;
+            padding-bottom: 5px;
+        }
+
+        /* Corner Spaces */
+        .corner .container {
+            justify-content: space-around;
+            height: 100%;
             width: 100%;
         }
 
-        .property-name {
-            flex: 1;
-            display: flex;
-            align-items: center;
+        .corner .name {
+            padding: 0;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Property Spaces */
+        .property .color-bar {
+            height: 25px;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .property .name {
+            padding-bottom: 40px;
+            font-weight: 500;
+        }
+
+        /* Specific Corners */
+        .go {
+            grid-column: 11;
+            grid-row: 11;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border-radius: 0 0 10px 0;
+        }
+
+        .go .container {
             justify-content: center;
-            padding: 5px;
-            font-weight: bold;
-            background: white;
+            transform: rotate(315deg);
         }
 
-        .property-price {
-            background: #f0f0f0;
-            padding: 2px;
-            font-size: 8px;
-            border-top: 1px solid #ccc;
-        }
-
-        /* Property Colors */
-        .brown { background-color: #8B4513; }
-        .lightblue { background-color: #87CEEB; }
-        .pink { background-color: #FF69B4; }
-        .orange { background-color: #FFA500; }
-        .red { background-color: #FF0000; }
-        .yellow { background-color: #FFFF00; }
-        .green { background-color: #00FF00; }
-        .blue { background-color: #0000FF; }
-        .station { background-color: #000000; }
-        .utility { background-color: #FFD700; }
-
-        /* Center area */
-        .center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
-            border: 3px solid #333;
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .center-logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c5f2d;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .turn-indicator {
-            background: #4CAF50;
+        .go .go-word {
+            font-size: 36px;
             color: white;
-            padding: 10px;
-            border-radius: 20px;
-            font-weight: bold;
-            text-align: center;
-            min-width: 150px;
+            font-weight: 600;
         }
+
+        .jail {
+            grid-column: 1;
+            grid-row: 11;
+            background: linear-gradient(45deg, #ffa500, #ffb84d);
+            border-radius: 0 0 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jail .name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .free-parking {
+            grid-column: 1;
+            grid-row: 1;
+            background: linear-gradient(45deg, #4ecdc4, #6ed0ca);
+            border-radius: 10px 0 0 0;
+        }
+
+        .free-parking .container {
+            justify-content: center;
+            transform: rotate(135deg);
+        }
+
+        .free-parking .name {
+            font-size: 14px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .go-to-jail {
+            grid-column: 11;
+            grid-row: 1;
+            background: linear-gradient(45deg, #ff4757, #ff6b7a);
+            border-radius: 0 10px 0 0;
+        }
+
+        .go-to-jail .container {
+            justify-content: center;
+            transform: rotate(225deg);
+        }
+
+        .go-to-jail .name {
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Special Spaces */
+        .chance .container,
+        .community-chest .container {
+            justify-content: center;
+        }
+
+        .chance .drawing {
+            font-size: 40px;
+            color: var(--red);
+        }
+
+        .community-chest .drawing {
+            font-size: 30px;
+            color: var(--light-blue);
+        }
+
+        .railroad .drawing,
+        .utility .drawing {
+            font-size: 30px;
+            color: var(--black);
+        }
+
+        /* Player Pieces */
+        .player-piece {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 10px;
+            color: white;
+            z-index: 100;
+            transition: all 0.5s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            top: 5px;
+            left: 5px;
+        }
+
+        .player-piece-0 { background: #ff6b6b; }
+        .player-piece-1 { background: #4ecdc4; }
+        .player-piece-2 { background: #45b7d1; }
+        .player-piece-3 { background: #f39c12; }
+        .player-piece-4 { background: #9b59b6; }
+        .player-piece-5 { background: #e74c3c; }
 
         /* Game Panel */
         .game-panel {
-            width: 400px;
+            width: 350px;
             background: white;
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            max-height: 800px;
+            max-height: 994px;
             overflow-y: auto;
         }
 
@@ -196,10 +391,11 @@
         }
 
         .panel-section h3 {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #2c5f2d;
             border-bottom: 2px solid #4CAF50;
             padding-bottom: 5px;
+            font-size: 16px;
         }
 
         .players-list {
@@ -212,10 +408,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
             background: white;
             border-radius: 8px;
             border-left: 4px solid #4CAF50;
+            font-size: 12px;
         }
 
         .player-item.current {
@@ -238,11 +435,12 @@
             padding: 12px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-primary {
@@ -271,6 +469,27 @@
             transform: none;
         }
 
+        .dice-result {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .dice {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid var(--black);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
         /* Question Modal */
         .question-modal {
             position: fixed;
@@ -296,15 +515,18 @@
         }
 
         .question-title {
-            color: #2c5f2d;
+            color: var(--red);
             margin-bottom: 20px;
             font-size: 24px;
+            font-weight: 600;
         }
 
         .question-text {
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 25px;
             line-height: 1.6;
+            text-transform: none;
+            color: #333;
         }
 
         .question-options {
@@ -321,6 +543,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: #f8f9fa;
+            text-transform: none;
+            font-size: 14px;
         }
 
         .question-option:hover {
@@ -355,31 +579,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Player pieces */
-        .player-piece {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 10px;
-            color: white;
-            z-index: 100;
-            transition: all 0.5s ease;
-        }
-
-        .player-piece-0 { background: #ff6b6b; }
-        .player-piece-1 { background: #4ecdc4; }
-        .player-piece-2 { background: #45b7d1; }
-        .player-piece-3 { background: #f39c12; }
-        .player-piece-4 { background: #9b59b6; }
-        .player-piece-5 { background: #e74c3c; }
-
-        /* Room setup */
+        /* Room Setup */
         .room-setup {
             text-align: center;
             background: white;
@@ -406,6 +606,7 @@
             margin-bottom: 5px;
             font-weight: bold;
             color: #333;
+            text-transform: none;
         }
 
         .input-group input {
@@ -440,68 +641,62 @@
             letter-spacing: 2px;
         }
 
-        /* Responsive design */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
         @media (max-width: 1200px) {
             .game-container {
                 flex-direction: column;
                 align-items: center;
             }
             
-            .monopoly-board {
-                width: 600px;
-                height: 600px;
+            .board {
+                width: 700px;
+                height: 700px;
+                grid-template-columns: 90px repeat(9, 55px) 90px;
+                grid-template-rows: 90px repeat(9, 55px) 90px;
+            }
+
+            .container {
+                height: 90px;
+                width: 55px;
             }
             
             .game-panel {
                 width: 100%;
-                max-width: 600px;
+                max-width: 700px;
             }
         }
 
         @media (max-width: 768px) {
-            .monopoly-board {
-                width: 400px;
-                height: 400px;
+            .board {
+                width: 500px;
+                height: 500px;
+                grid-template-columns: 65px repeat(9, 40px) 65px;
+                grid-template-rows: 65px repeat(9, 40px) 65px;
+            }
+
+            .container {
+                height: 65px;
+                width: 40px;
             }
             
-            .property {
-                font-size: 8px;
+            .name {
+                font-size: 7px !important;
             }
-            
-            .property-color {
-                height: 15px;
+
+            .price {
+                font-size: 6px !important;
             }
-        }
-
-        .dice-result {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 10px 0;
-        }
-
-        .dice {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
 <body>
     <div id="room-setup" class="room-setup">
         <h1>🎓 Business Monopoly</h1>
-        <p style="margin-bottom: 30px; color: #666;">T-Level Business Education Game</p>
+        <p style="margin-bottom: 30px; color: #666; text-transform: none;">T-Level Business Education Game</p>
         
         <div class="input-group">
             <label for="playerName">Your Name:</label>
@@ -523,7 +718,7 @@
         
         <div id="room-created" class="hidden">
             <div class="room-code-display">
-                <p>Share this code with other players:</p>
+                <p style="text-transform: none;">Share this code with other players:</p>
                 <div id="room-code" class="room-code"></div>
             </div>
             <div id="waiting-players"></div>
@@ -532,246 +727,304 @@
     </div>
 
     <div id="game-container" class="game-container hidden">
-        <div class="monopoly-board">
-            <!-- Corner: GO -->
-            <div class="corner go">
-                <div style="text-align: center;">
-                    <div style="font-size: 16px;">🎯</div>
-                    <div>GO</div>
-                    <div style="font-size: 8px;">Collect £200</div>
+        <div class="table">
+            <div class="board">
+                <!-- Center -->
+                <div class="center">
+                    <div class="title">BUSINESS</div>
+                    <div class="business-subtitle">MONOPOLY</div>
+                    <div id="turn-indicator" class="turn-indicator">Waiting to start...</div>
                 </div>
-            </div>
-            
-            <!-- Top Side -->
-            <div class="board-side top">
-                <div class="property" data-index="39">
-                    <div class="property-color blue"></div>
-                    <div class="property-name">Mayfair</div>
-                    <div class="property-price">£400</div>
+
+                <!-- Corner: GO -->
+                <div class="space corner go" data-index="0">
+                    <div class="container">
+                        <div class="name">Collect £200</div>
+                        <div class="go-word">GO</div>
+                    </div>
                 </div>
-                <div class="property" data-index="38">
-                    <div class="property-color"></div>
-                    <div class="property-name">Super Tax</div>
-                    <div class="property-price">£100</div>
+
+                <!-- Bottom Row -->
+                <div class="row horizontal-row bottom-row">
+                    <div class="space property" data-index="39">
+                        <div class="container">
+                            <div class="color-bar dark-blue"></div>
+                            <div class="name">Mayfair</div>
+                            <div class="price">£400</div>
+                        </div>
+                    </div>
+                    <div class="space fee" data-index="38">
+                        <div class="container">
+                            <div class="name">Super Tax</div>
+                            <div class="instructions">Pay £100</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="37">
+                        <div class="container">
+                            <div class="color-bar dark-blue"></div>
+                            <div class="name">Park Lane</div>
+                            <div class="price">£350</div>
+                        </div>
+                    </div>
+                    <div class="space chance" data-index="36">
+                        <div class="container">
+                            <div class="name">Chance</div>
+                            <i class="drawing fa fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="35">
+                        <div class="container">
+                            <div class="name">Liverpool St</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="34">
+                        <div class="container">
+                            <div class="color-bar green"></div>
+                            <div class="name">Bond Street</div>
+                            <div class="price">£320</div>
+                        </div>
+                    </div>
+                    <div class="space community-chest" data-index="33">
+                        <div class="container">
+                            <div class="name">Community</div>
+                            <i class="drawing fa fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="32">
+                        <div class="container">
+                            <div class="color-bar green"></div>
+                            <div class="name">Oxford St</div>
+                            <div class="price">£300</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="31">
+                        <div class="container">
+                            <div class="color-bar green"></div>
+                            <div class="name">Regent St</div>
+                            <div class="price">£300</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="property" data-index="37">
-                    <div class="property-color blue"></div>
-                    <div class="property-name">Park Lane</div>
-                    <div class="property-price">£350</div>
+
+                <!-- Corner: Free Parking -->
+                <div class="space corner free-parking" data-index="20">
+                    <div class="container">
+                        <div class="name">Free</div>
+                        <i class="fa fa-car" style="font-size: 30px; color: white;"></i>
+                        <div class="name">Parking</div>
+                    </div>
                 </div>
-                <div class="property" data-index="36">
-                    <div class="property-color"></div>
-                    <div class="property-name">Chance</div>
-                    <div class="property-price">❓</div>
+
+                <!-- Right Row -->
+                <div class="row vertical-row right-row">
+                    <div class="space property" data-index="21">
+                        <div class="container">
+                            <div class="color-bar red"></div>
+                            <div class="name">The Strand</div>
+                            <div class="price">£220</div>
+                        </div>
+                    </div>
+                    <div class="space chance" data-index="22">
+                        <div class="container">
+                            <div class="name">Chance</div>
+                            <i class="drawing fa fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="23">
+                        <div class="container">
+                            <div class="color-bar red"></div>
+                            <div class="name">Fleet Street</div>
+                            <div class="price">£220</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="24">
+                        <div class="container">
+                            <div class="color-bar red"></div>
+                            <div class="name">Trafalgar</div>
+                            <div class="price">£240</div>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="25">
+                        <div class="container">
+                            <div class="name">Fenchurch St</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="26">
+                        <div class="container">
+                            <div class="color-bar yellow"></div>
+                            <div class="name">Leicester Sq</div>
+                            <div class="price">£260</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="27">
+                        <div class="container">
+                            <div class="color-bar yellow"></div>
+                            <div class="name">Coventry St</div>
+                            <div class="price">£260</div>
+                        </div>
+                    </div>
+                    <div class="space utility" data-index="28">
+                        <div class="container">
+                            <div class="name">Water Works</div>
+                            <i class="drawing fa fa-tint"></i>
+                            <div class="price">£150</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="29">
+                        <div class="container">
+                            <div class="color-bar yellow"></div>
+                            <div class="name">Piccadilly</div>
+                            <div class="price">£280</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="property" data-index="35">
-                    <div class="property-color station"></div>
-                    <div class="property-name">Liverpool St</div>
-                    <div class="property-price">£200</div>
+
+                <!-- Corner: Go to Jail -->
+                <div class="space corner go-to-jail" data-index="30">
+                    <div class="container">
+                        <div class="name">Go To</div>
+                        <i class="fa fa-gavel" style="font-size: 30px; color: white;"></i>
+                        <div class="name">Jail</div>
+                    </div>
                 </div>
-                <div class="property" data-index="34">
-                    <div class="property-color green"></div>
-                    <div class="property-name">Bond Street</div>
-                    <div class="property-price">£320</div>
+
+                <!-- Top Row -->
+                <div class="row horizontal-row top-row">
+                    <div class="space property" data-index="11">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Pall Mall</div>
+                            <div class="price">£140</div>
+                        </div>
+                    </div>
+                    <div class="space utility" data-index="12">
+                        <div class="container">
+                            <div class="name">Electric Co</div>
+                            <i class="drawing fa fa-lightbulb-o"></i>
+                            <div class="price">£150</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="13">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Whitehall</div>
+                            <div class="price">£140</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="14">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Northumberland</div>
+                            <div class="price">£160</div>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="15">
+                        <div class="container">
+                            <div class="name">Marylebone</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="16">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Bow Street</div>
+                            <div class="price">£180</div>
+                        </div>
+                    </div>
+                    <div class="space community-chest" data-index="17">
+                        <div class="container">
+                            <div class="name">Community</div>
+                            <i class="drawing fa fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="18">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Marlborough</div>
+                            <div class="price">£180</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="19">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Vine Street</div>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="property" data-index="33">
-                    <div class="property-color"></div>
-                    <div class="property-name">Community</div>
-                    <div class="property-price">📦</div>
+
+                <!-- Corner: Jail -->
+                <div class="space corner jail" data-index="10">
+                    <div class="name">Jail</div>
                 </div>
-                <div class="property" data-index="32">
-                    <div class="property-color green"></div>
-                    <div class="property-name">Oxford St</div>
-                    <div class="property-price">£300</div>
-                </div>
-                <div class="property" data-index="31">
-                    <div class="property-color green"></div>
-                    <div class="property-name">Regent St</div>
-                    <div class="property-price">£300</div>
-                </div>
-            </div>
-            
-            <!-- Corner: Free Parking -->
-            <div class="corner free-parking">
-                <div style="text-align: center;">
-                    <div style="font-size: 16px;">🚗</div>
-                    <div>Free</div>
-                    <div>Parking</div>
-                </div>
-            </div>
-            
-            <!-- Right Side -->
-            <div class="board-side right">
-                <div class="property" data-index="21">
-                    <div class="property-color red"></div>
-                    <div class="property-name">The Strand</div>
-                    <div class="property-price">£220</div>
-                </div>
-                <div class="property" data-index="22">
-                    <div class="property-color"></div>
-                    <div class="property-name">Chance</div>
-                    <div class="property-price">❓</div>
-                </div>
-                <div class="property" data-index="23">
-                    <div class="property-color red"></div>
-                    <div class="property-name">Fleet Street</div>
-                    <div class="property-price">£220</div>
-                </div>
-                <div class="property" data-index="24">
-                    <div class="property-color red"></div>
-                    <div class="property-name">Trafalgar Sq</div>
-                    <div class="property-price">£240</div>
-                </div>
-                <div class="property" data-index="25">
-                    <div class="property-color station"></div>
-                    <div class="property-name">Fenchurch St</div>
-                    <div class="property-price">£200</div>
-                </div>
-                <div class="property" data-index="26">
-                    <div class="property-color yellow"></div>
-                    <div class="property-name">Leicester Sq</div>
-                    <div class="property-price">£260</div>
-                </div>
-                <div class="property" data-index="27">
-                    <div class="property-color yellow"></div>
-                    <div class="property-name">Coventry St</div>
-                    <div class="property-price">£260</div>
-                </div>
-                <div class="property" data-index="28">
-                    <div class="property-color utility"></div>
-                    <div class="property-name">Water Works</div>
-                    <div class="property-price">£150</div>
-                </div>
-                <div class="property" data-index="29">
-                    <div class="property-color yellow"></div>
-                    <div class="property-name">Piccadilly</div>
-                    <div class="property-price">£280</div>
-                </div>
-            </div>
-            
-            <!-- Corner: Go to Jail -->
-            <div class="corner go-to-jail">
-                <div style="text-align: center;">
-                    <div style="font-size: 16px;">👮</div>
-                    <div>Go To</div>
-                    <div>Jail</div>
-                </div>
-            </div>
-            
-            <!-- Bottom Side -->
-            <div class="board-side bottom">
-                <div class="property" data-index="11">
-                    <div class="property-color pink"></div>
-                    <div class="property-name">Pall Mall</div>
-                    <div class="property-price">£140</div>
-                </div>
-                <div class="property" data-index="12">
-                    <div class="property-color utility"></div>
-                    <div class="property-name">Electric Co</div>
-                    <div class="property-price">£150</div>
-                </div>
-                <div class="property" data-index="13">
-                    <div class="property-color pink"></div>
-                    <div class="property-name">Whitehall</div>
-                    <div class="property-price">£140</div>
-                </div>
-                <div class="property" data-index="14">
-                    <div class="property-color pink"></div>
-                    <div class="property-name">Northumberland</div>
-                    <div class="property-price">£160</div>
-                </div>
-                <div class="property" data-index="15">
-                    <div class="property-color station"></div>
-                    <div class="property-name">Marylebone</div>
-                    <div class="property-price">£200</div>
-                </div>
-                <div class="property" data-index="16">
-                    <div class="property-color orange"></div>
-                    <div class="property-name">Bow Street</div>
-                    <div class="property-price">£180</div>
-                </div>
-                <div class="property" data-index="17">
-                    <div class="property-color"></div>
-                    <div class="property-name">Community</div>
-                    <div class="property-price">📦</div>
-                </div>
-                <div class="property" data-index="18">
-                    <div class="property-color orange"></div>
-                    <div class="property-name">Marlborough</div>
-                    <div class="property-price">£180</div>
-                </div>
-                <div class="property" data-index="19">
-                    <div class="property-color orange"></div>
-                    <div class="property-name">Vine Street</div>
-                    <div class="property-price">£200</div>
-                </div>
-            </div>
-            
-            <!-- Corner: Jail -->
-            <div class="corner jail">
-                <div style="text-align: center;">
-                    <div style="font-size: 16px;">🏢</div>
-                    <div>Jail</div>
-                    <div style="font-size: 8px;">Just Visiting</div>
-                </div>
-            </div>
-            
-            <!-- Left Side -->
-            <div class="board-side left">
-                <div class="property" data-index="1">
-                    <div class="property-color brown"></div>
-                    <div class="property-name">Old Kent Rd</div>
-                    <div class="property-price">£60</div>
-                </div>
-                <div class="property" data-index="2">
-                    <div class="property-color"></div>
-                    <div class="property-name">Community</div>
-                    <div class="property-price">📦</div>
-                </div>
-                <div class="property" data-index="3">
-                    <div class="property-color brown"></div>
-                    <div class="property-name">Whitechapel</div>
-                    <div class="property-price">£60</div>
-                </div>
-                <div class="property" data-index="4">
-                    <div class="property-color"></div>
-                    <div class="property-name">Income Tax</div>
-                    <div class="property-price">£200</div>
-                </div>
-                <div class="property" data-index="5">
-                    <div class="property-color station"></div>
-                    <div class="property-name">King's Cross</div>
-                    <div class="property-price">£200</div>
-                </div>
-                <div class="property" data-index="6">
-                    <div class="property-color lightblue"></div>
-                    <div class="property-name">Angel Islington</div>
-                    <div class="property-price">£100</div>
-                </div>
-                <div class="property" data-index="7">
-                    <div class="property-color"></div>
-                    <div class="property-name">Chance</div>
-                    <div class="property-price">❓</div>
-                </div>
-                <div class="property" data-index="8">
-                    <div class="property-color lightblue"></div>
-                    <div class="property-name">Euston Road</div>
-                    <div class="property-price">£100</div>
-                </div>
-                <div class="property" data-index="9">
-                    <div class="property-color lightblue"></div>
-                    <div class="property-name">Pentonville</div>
-                    <div class="property-price">£120</div>
-                </div>
-            </div>
-            
-            <!-- Center -->
-            <div class="center">
-                <div class="center-logo">
-                    🎓 BUSINESS<br>MONOPOLY
-                </div>
-                <div id="turn-indicator" class="turn-indicator">
-                    Waiting to start...
+
+                <!-- Left Row -->
+                <div class="row vertical-row left-row">
+                    <div class="space property" data-index="1">
+                        <div class="container">
+                            <div class="color-bar dark-purple"></div>
+                            <div class="name">Old Kent Rd</div>
+                            <div class="price">£60</div>
+                        </div>
+                    </div>
+                    <div class="space community-chest" data-index="2">
+                        <div class="container">
+                            <div class="name">Community</div>
+                            <i class="drawing fa fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="3">
+                        <div class="container">
+                            <div class="color-bar dark-purple"></div>
+                            <div class="name">Whitechapel</div>
+                            <div class="price">£60</div>
+                        </div>
+                    </div>
+                    <div class="space fee" data-index="4">
+                        <div class="container">
+                            <div class="name">Income Tax</div>
+                            <div class="instructions">Pay £200</div>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="5">
+                        <div class="container">
+                            <div class="name">King's Cross</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="6">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Angel</div>
+                            <div class="price">£100</div>
+                        </div>
+                    </div>
+                    <div class="space chance" data-index="7">
+                        <div class="container">
+                            <div class="name">Chance</div>
+                            <i class="drawing fa fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="8">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Euston Road</div>
+                            <div class="price">£100</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="9">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Pentonville</div>
+                            <div class="price">£120</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -821,7 +1074,7 @@
     </div>
 
     <script>
-        const socket = io('https://business-monopoly-server.onrender.com'); // Change this to your server URL
+        const socket = io('https://business-monopoly-server.onrender.com');
         let currentRoom = null;
         let currentPlayer = null;
         let gameData = null;
@@ -893,7 +1146,7 @@
                 playerItem.innerHTML = `
                     <div>
                         <div style="font-weight: bold;">${player.name} ${player.isHost ? '👑' : ''}</div>
-                        <div style="font-size: 12px; color: #666;">${player.properties.length} properties</div>
+                        <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
                     </div>
                     <div class="player-money">£${player.money}</div>
                 `;
@@ -914,14 +1167,13 @@
                 
                 // Position the piece on the board
                 const position = player.position;
-                const property = document.querySelector(`[data-index="${position}"]`) || 
-                                document.querySelector('.corner.go');
+                const property = document.querySelector(`[data-index="${position}"]`);
                 
                 if (property) {
                     property.appendChild(piece);
                     // Offset multiple pieces
                     const existingPieces = property.querySelectorAll('.player-piece').length;
-                    piece.style.left = `${(existingPieces - 1) * 25}px`;
+                    piece.style.left = `${5 + (existingPieces - 1) * 25}px`;
                 }
             });
         }
@@ -975,22 +1227,33 @@
                 return;
             }
             
+            const propertyNames = [
+                'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
+                "King's Cross Station", 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
+                'Jail', 'Pall Mall', 'Electric Company', 'Whitehall', 'Northumberland Avenue',
+                'Marylebone Station', 'Bow Street', 'Community Chest', 'Marlborough Street', 'Vine Street',
+                'Free Parking', 'The Strand', 'Chance', 'Fleet Street', 'Trafalgar Square',
+                'Fenchurch St Station', 'Leicester Square', 'Coventry Street', 'Water Works', 'Piccadilly',
+                'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
+                'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
+            ];
+            
             propertiesList.innerHTML = player.properties.map(propIndex => {
-                // This would need the board spaces data from your backend
-                return `<div style="padding: 5px; border-left: 3px solid #4CAF50; margin: 5px 0;">Property ${propIndex}</div>`;
+                const name = propertyNames[propIndex] || `Property ${propIndex}`;
+                return `<div style="padding: 5px; border-left: 3px solid #4CAF50; margin: 5px 0; font-size: 11px; text-transform: none;">${name}</div>`;
             }).join('');
         }
 
         function updateStatsDisplay(stats) {
             const statsDisplay = document.getElementById('stats-display');
             if (!stats || !currentPlayer || !stats[currentPlayer]) {
-                statsDisplay.innerHTML = '<p>No statistics available</p>';
+                statsDisplay.innerHTML = '<p style="text-transform: none;">No statistics available</p>';
                 return;
             }
             
             const playerStats = stats[currentPlayer];
             statsDisplay.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
                     <div>Questions: ${playerStats.questionsAnswered}</div>
                     <div>Correct: ${playerStats.correctAnswers}</div>
                     <div>Accuracy: ${playerStats.accuracy}%</div>
@@ -1030,6 +1293,27 @@
 
         function hideQuestion() {
             document.getElementById('question-modal').classList.add('hidden');
+        }
+
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.createElement('div');
+            const bgColor = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1';
+            const textColor = type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460';
+            const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
+            
+            messageDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: ${bgColor}; color: ${textColor};
+                padding: 15px; border-radius: 10px; 
+                max-width: 300px; z-index: 1001;
+                border: 2px solid ${borderColor};
+                font-size: 14px; text-transform: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            messageDiv.textContent = text;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => messageDiv.remove(), 5000);
         }
 
         // Socket Event Listeners
@@ -1089,19 +1373,7 @@
                 `✅ Correct! ${result.explanation}` : 
                 `❌ Wrong! ${result.explanation}`;
             
-            const resultDiv = document.createElement('div');
-            resultDiv.style.cssText = `
-                position: fixed; top: 20px; right: 20px; 
-                background: ${result.correct ? '#d4edda' : '#f8d7da'}; 
-                color: ${result.correct ? '#155724' : '#721c24'};
-                padding: 15px; border-radius: 10px; 
-                max-width: 300px; z-index: 1001;
-                border: 2px solid ${result.correct ? '#c3e6cb' : '#f5c6cb'};
-            `;
-            resultDiv.textContent = resultText;
-            document.body.appendChild(resultDiv);
-            
-            setTimeout(() => resultDiv.remove(), 5000);
+            showMessage(resultText, result.correct ? 'success' : 'error');
         });
 
         socket.on('diceRolled', (result) => {
@@ -1109,7 +1381,7 @@
             diceResult.innerHTML = `
                 <div class="dice">${result.dice[0]}</div>
                 <div class="dice">${result.dice[1]}</div>
-                <div style="margin-left: 10px;">Total: ${result.dice[0] + result.dice[1]}</div>
+                <div style="margin-left: 10px; font-size: 14px; align-self: center;">Total: ${result.dice[0] + result.dice[1]}</div>
             `;
             diceResult.classList.remove('hidden');
             
@@ -1117,27 +1389,11 @@
             propertyToBuy = result.canBuyProperty ? gameData.players[gameData.currentPlayer].position : null;
             
             if (result.passedGo) {
-                const goMessage = document.createElement('div');
-                goMessage.style.cssText = `
-                    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-                    background: #d4edda; color: #155724; padding: 15px; 
-                    border-radius: 10px; z-index: 1001; border: 2px solid #c3e6cb;
-                `;
-                goMessage.textContent = '🎯 Passed GO! Collect £200';
-                document.body.appendChild(goMessage);
-                setTimeout(() => goMessage.remove(), 3000);
+                showMessage('🎯 Passed GO! Collect £200', 'success');
             }
             
             if (result.rentOwed > 0) {
-                const rentMessage = document.createElement('div');
-                rentMessage.style.cssText = `
-                    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-                    background: #f8d7da; color: #721c24; padding: 15px; 
-                    border-radius: 10px; z-index: 1001; border: 2px solid #f5c6cb;
-                `;
-                rentMessage.textContent = `💰 Paid £${result.rentOwed} rent`;
-                document.body.appendChild(rentMessage);
-                setTimeout(() => rentMessage.remove(), 3000);
+                showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
             }
             
             setTimeout(() => {
@@ -1147,15 +1403,7 @@
         });
 
         socket.on('propertyPurchased', (data) => {
-            const purchaseMessage = document.createElement('div');
-            purchaseMessage.style.cssText = `
-                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-                background: #d1ecf1; color: #0c5460; padding: 15px; 
-                border-radius: 10px; z-index: 1001; border: 2px solid #bee5eb;
-            `;
-            purchaseMessage.textContent = `🏠 ${data.playerName} bought ${data.propertyName} for £${data.price}`;
-            document.body.appendChild(purchaseMessage);
-            setTimeout(() => purchaseMessage.remove(), 3000);
+            showMessage(`🏠 ${data.playerName} bought ${data.propertyName} for £${data.price}`, 'info');
             
             gameData = data.gameData;
             canBuyProperty = false;
