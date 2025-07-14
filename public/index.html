@@ -1209,6 +1209,30 @@
 
     <script>
         const socket = io('https://business-monopoly-server.onrender.com');
+        /*
+        ===== GAME FLOW DOCUMENTATION =====
+        
+        ORIGINAL TURN FLOW (MUST BE PRESERVED):
+        1. startTurn() → Triggers business question
+        2. questionReceived → Shows question modal
+        3. answerQuestion() → Submit answer
+        4. answerResult → If correct: gamePhase becomes 'dice', if wrong: next player's turn
+        5. rollDice() → Roll dice and animate movement
+        6. diceRolled → Show results and animate player movement
+        7. Land on space → Handle special spaces, property buying, etc.
+        8. endTurn() → Next player's turn
+        
+        NEW BONUS FLOW (ADDITIONAL):
+        - When landing on Chance/Community Chest:
+        - handleChance()/handleCommunityChest() → Request bonus question
+        - bonusQuestionReceived → Show bonus question modal
+        - answerBonusQuestion() → Submit bonus answer
+        - bonusAnswerResult → Award £200 if correct, continue turn flow
+        
+        COLLEGE HUMOR:
+        - When landing on "Go to Jail": Show humorous college message, no jail movement
+        */
+
         let currentRoom = null;
         let currentPlayer = null;
         let gameData = null;
@@ -1813,6 +1837,7 @@
                 const questionText = document.getElementById('question-text');
                 questionText.parentNode.insertBefore(rewardDiv, questionText);
             } else {
+                // Regular business question - RESTORE ORIGINAL FUNCTIONALITY
                 document.getElementById('question-title').textContent = '📚 Business Question';
                 
                 // Remove any existing bonus reward notice
@@ -1833,6 +1858,7 @@
                     if (isBonus) {
                         answerBonusQuestion(index, question.cardType);
                     } else {
+                        // RESTORE: Original question answering for turn progression
                         answerQuestion(index);
                     }
                 };
@@ -1851,6 +1877,11 @@
                     clearInterval(timerInterval);
                 }
             }, 1000);
+        }
+
+        // SEPARATE function for bonus questions to avoid conflicts
+        function showBonusQuestion(question) {
+            showQuestion(question, true);
         }
 
         function answerBonusQuestion(answerIndex, cardType) {
@@ -1947,14 +1978,19 @@
             updateCardsDisplay();
         });
 
+        // RESTORE: Original question flow for turn progression
         socket.on('questionReceived', (question) => {
-            showQuestion(question, false);
+            // This is the ORIGINAL business question that must be answered to progress turn
+            showQuestion(question, false); // false = not a bonus question
         });
 
+        // NEW: Separate handler for bonus questions (doesn't interfere with turn progression)
         socket.on('bonusQuestionReceived', (question) => {
-            showQuestion(question, true);
+            // This is a BONUS question from Chance/Community Chest
+            showBonusQuestion(question);
         });
 
+        // RESTORE: Original answer handling for turn progression
         socket.on('answerResult', (result) => {
             hideQuestion();
             
@@ -1963,8 +1999,12 @@
                 `❌ Wrong! ${result.explanation}`;
             
             showMessage(resultText, result.correct ? 'success' : 'error');
+            
+            // IMPORTANT: This should trigger dice rolling phase if correct
+            // The backend should handle updating gamePhase to 'dice' if answer is correct
         });
 
+        // NEW: Separate handler for bonus question results
         socket.on('bonusAnswerResult', (result) => {
             hideQuestion();
             
@@ -1983,6 +2023,8 @@
                 const resultText = `❌ ${cardTypeName} - Wrong answer! No money awarded. ${result.explanation}`;
                 showMessage(resultText, 'error');
             }
+            
+            // After bonus question, continue with normal turn flow (end turn)
         });
 
         socket.on('diceRolled', (result) => {
