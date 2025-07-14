@@ -101,13 +101,15 @@
         .green { background: var(--green); }
         .dark-blue { background: var(--dark-blue); }
 
-        /* Game Container */
+        /* Game Container - Optimized for standard monitors */
         .game-container {
-            max-width: 1400px;
+            max-width: 1200px;
             width: 100%;
             display: flex;
-            gap: 20px;
-            padding: 20px;
+            gap: 15px;
+            padding: 15px;
+            min-height: 100vh;
+            align-items: flex-start;
         }
 
         .game-container.single-column {
@@ -115,25 +117,25 @@
             align-items: center;
         }
 
-        /* Board Layout */
+        /* Board Layout - Reduced size for better fit */
         .table {
-            padding: 20px;
+            padding: 15px;
         }
 
         .board {
             display: grid;
-            grid-template-columns: 125px repeat(9, 80px) 125px;
-            grid-template-rows: 125px repeat(9, 80px) 125px;
+            grid-template-columns: 100px repeat(9, 65px) 100px;
+            grid-template-rows: 100px repeat(9, 65px) 100px;
             grid-gap: 2px;
-            width: 994px;
-            height: 994px;
+            width: 780px;
+            height: 780px;
             background: var(--black);
             border: 2px solid var(--black);
             border-radius: 10px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
-        /* Center Area */
+        /* Center Area - Adjusted for smaller board */
         .center {
             grid-column: 2 / 11;
             grid-row: 2 / 11;
@@ -144,15 +146,15 @@
             justify-items: center;
             align-items: center;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
         }
 
         .title {
             grid-column: 1 / 8;
             grid-row: 2 / 3;
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 600;
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             color: var(--red);
             text-align: center;
         }
@@ -160,7 +162,7 @@
         .business-subtitle {
             grid-column: 1 / 8;
             grid-row: 3 / 4;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 400;
             letter-spacing: 2px;
             color: var(--black);
@@ -172,11 +174,11 @@
             grid-row: 4 / 5;
             background: #4CAF50;
             color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
+            padding: 12px 25px;
+            border-radius: 20px;
             font-weight: bold;
             text-align: center;
-            font-size: 14px;
+            font-size: 12px;
             letter-spacing: 1px;
         }
 
@@ -185,22 +187,22 @@
             grid-row: 5 / 8;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-width: 300px;
+            max-width: 250px;
         }
 
         .center-controls .btn {
-            padding: 15px 25px;
-            font-size: 14px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 12px 20px;
+            font-size: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
 
         .center-controls .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .center-dice-result {
@@ -210,12 +212,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 10px 0;
-            padding: 15px;
+            margin: 8px 0;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
+            border-radius: 10px;
             border: 2px solid #ddd;
-            min-height: 80px;
+            min-height: 60px;
         }
 
         /* Rows of spaces */
@@ -300,23 +302,23 @@
             justify-content: space-between;
             position: relative;
             transform-origin: center;
-            height: 125px;
-            width: 80px;
-            padding: 5px;
+            height: 100px;
+            width: 65px;
+            padding: 4px;
         }
 
         .name,
         .instructions {
-            padding-left: 8px;
-            padding-right: 8px;
-            font-size: 9px;
-            line-height: 1.2;
+            padding-left: 6px;
+            padding-right: 6px;
+            font-size: 8px;
+            line-height: 1.1;
         }
 
         .price {
-            font-size: 7px;
+            font-size: 6px;
             font-weight: 400;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
         }
 
         /* Property Development Indicators */
@@ -510,14 +512,14 @@
         .player-piece-4 { background: #9b59b6; }
         .player-piece-5 { background: #e74c3c; }
 
-        /* Game Panel */
+        /* Game Panel - Reduced size */
         .game-panel {
-            width: 350px;
+            width: 300px;
             background: white;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            max-height: 994px;
+            max-height: 780px;
             overflow-y: auto;
         }
 
@@ -752,8 +754,116 @@
             transition: width 0.5s ease;
         }
 
-        /* Property Cards */
-        .property-card {
+        /* Property Purchase Modal */
+        .property-purchase-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+        }
+
+        .property-purchase-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .property-purchase-card.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .property-purchase-header {
+            margin-bottom: 25px;
+        }
+
+        .property-purchase-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .property-color-band {
+            height: 8px;
+            width: 100%;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .property-color-band.dark-purple { background: var(--dark-purple); }
+        .property-color-band.light-blue { background: var(--light-blue); }
+        .property-color-band.purple { background: var(--purple); }
+        .property-color-band.orange { background: var(--orange); }
+        .property-color-band.red { background: var(--red); }
+        .property-color-band.yellow { background: var(--yellow); }
+        .property-color-band.green { background: var(--green); }
+        .property-color-band.dark-blue { background: var(--dark-blue); }
+        .property-color-band.railroad { background: var(--black); }
+        .property-color-band.utility { background: #666; }
+
+        .property-purchase-price {
+            font-size: 24px;
+            color: var(--success);
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .property-purchase-rent {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .property-rent-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #333;
+        }
+
+        .property-rent-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+            text-transform: none;
+        }
+
+        .property-purchase-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .property-purchase-actions .btn {
+            flex: 1;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .property-purchase-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
             position: fixed;
             top: 50%;
             left: 50%;
@@ -874,7 +984,69 @@
             background: #e8f5e8;
         }
 
-        /* Property Display with Color Bands */
+        /* Property Cards */
+        .property-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .property-card.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .property-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .property-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .rent-structure {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .rent-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: none;
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
         .property-group {
             margin-bottom: 15px;
         }
@@ -1289,7 +1461,7 @@
             color: white;
         }
 
-        /* Responsive Design */
+        /* Responsive Design - Updated for smaller board */
         @media (max-width: 1200px) {
             .game-container {
                 flex-direction: column;
@@ -1297,20 +1469,20 @@
             }
             
             .board {
-                width: 700px;
-                height: 700px;
-                grid-template-columns: 90px repeat(9, 55px) 90px;
-                grid-template-rows: 90px repeat(9, 55px) 90px;
+                width: 650px;
+                height: 650px;
+                grid-template-columns: 85px repeat(9, 50px) 85px;
+                grid-template-rows: 85px repeat(9, 50px) 85px;
             }
 
             .container {
-                height: 90px;
-                width: 55px;
+                height: 85px;
+                width: 50px;
             }
             
             .game-panel {
                 width: 100%;
-                max-width: 700px;
+                max-width: 650px;
             }
         }
 
@@ -1328,11 +1500,19 @@
             }
             
             .name {
-                font-size: 7px !important;
+                font-size: 6px !important;
             }
 
             .price {
-                font-size: 6px !important;
+                font-size: 5px !important;
+            }
+
+            .title {
+                font-size: 24px !important;
+            }
+
+            .business-subtitle {
+                font-size: 12px !important;
             }
         }
     </style>
@@ -1787,6 +1967,28 @@
             <h2 id="card-title" class="card-title">🃏 Card Drawn</h2>
             <div id="card-text" class="card-text"></div>
             <div id="card-action-text" style="margin-top: 20px; font-size: 14px; color: #666;"></div>
+        </div>
+    </div>
+
+    <!-- Property Purchase Modal -->
+    <div id="property-purchase-modal" class="property-purchase-modal hidden">
+        <div id="property-purchase-card" class="property-purchase-card">
+            <div class="property-purchase-header">
+                <h2 id="purchase-property-title" class="property-purchase-title">Property Available!</h2>
+                <div id="purchase-color-band" class="property-color-band"></div>
+            </div>
+            
+            <div id="purchase-property-price" class="property-purchase-price">£200</div>
+            
+            <div id="purchase-property-rent" class="property-purchase-rent">
+                <div class="property-rent-title">Rent Structure</div>
+                <div id="purchase-rent-details"></div>
+            </div>
+            
+            <div class="property-purchase-actions">
+                <button class="btn btn-danger" onclick="declineProperty()">Pass</button>
+                <button class="btn btn-primary" onclick="confirmPurchaseProperty()">Buy Property</button>
+            </div>
         </div>
     </div>
 
@@ -2392,6 +2594,69 @@
                 // Implementation for development UI would go here
             }
 
+            showPropertyPurchaseModal(propertyIndex) {
+                const property = propertyManager.getProperty(propertyIndex);
+                if (!property) return;
+
+                const modal = document.getElementById('property-purchase-modal');
+                const card = document.getElementById('property-purchase-card');
+                const title = document.getElementById('purchase-property-title');
+                const colorBand = document.getElementById('purchase-color-band');
+                const price = document.getElementById('purchase-property-price');
+                const rentDetails = document.getElementById('purchase-rent-details');
+
+                title.textContent = property.name;
+                price.textContent = `£${property.price}`;
+
+                // Set color band
+                if (property.color) {
+                    colorBand.className = `property-color-band ${property.color}`;
+                } else if (property.type) {
+                    colorBand.className = `property-color-band ${property.type}`;
+                } else {
+                    colorBand.style.display = 'none';
+                }
+
+                // Set rent structure
+                let rentHTML = '';
+                if (property.type === 'railroad') {
+                    rentHTML = `
+                        <div class="property-rent-item"><span>1 Railroad owned:</span><span>£${property.rent[0]}</span></div>
+                        <div class="property-rent-item"><span>2 Railroads owned:</span><span>£${property.rent[1]}</span></div>
+                        <div class="property-rent-item"><span>3 Railroads owned:</span><span>£${property.rent[2]}</span></div>
+                        <div class="property-rent-item"><span>4 Railroads owned:</span><span>£${property.rent[3]}</span></div>
+                    `;
+                } else if (property.type === 'utility') {
+                    rentHTML = `
+                        <div class="property-rent-item"><span>1 Utility owned:</span><span>4x dice roll</span></div>
+                        <div class="property-rent-item"><span>2 Utilities owned:</span><span>10x dice roll</span></div>
+                    `;
+                } else if (property.rent) {
+                    rentHTML = `
+                        <div class="property-rent-item"><span>Base rent:</span><span>£${property.rent[0]}</span></div>
+                        <div class="property-rent-item"><span>With 1 house:</span><span>£${property.rent[1]}</span></div>
+                        <div class="property-rent-item"><span>With 2 houses:</span><span>£${property.rent[2]}</span></div>
+                        <div class="property-rent-item"><span>With 3 houses:</span><span>£${property.rent[3]}</span></div>
+                        <div class="property-rent-item"><span>With 4 houses:</span><span>£${property.rent[4]}</span></div>
+                        <div class="property-rent-item"><span>With hotel:</span><span>£${property.rent[5]}</span></div>
+                    `;
+                }
+                rentDetails.innerHTML = rentHTML;
+
+                modal.classList.remove('hidden');
+                setTimeout(() => card.classList.add('show'), 10);
+            }
+
+            hidePropertyPurchaseModal() {
+                const modal = document.getElementById('property-purchase-modal');
+                const card = document.getElementById('property-purchase-card');
+                
+                card.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
             endTurn() {
                 this.socket.emit('endTurn', this.currentRoom);
             }
@@ -2430,16 +2695,6 @@
                     }, total * 600 + 1000);
                 }
 
-                // Show property purchase option if applicable (after movement completes)
-                if (result.canBuyProperty) {
-                    const property = propertyManager.getProperty(newPosition);
-                    const propertyName = property?.name || 'Property';
-                    
-                    setTimeout(() => {
-                        this.showMessage(`🏠 You can buy ${propertyName}!`, 'info');
-                    }, total * 600 + 1500);
-                }
-
                 // Update the turn indicator
                 this.updateTurnIndicator();
 
@@ -2448,6 +2703,13 @@
                     this.isPlayerMoving = true;
                     this.animatePlayerMovement(this.gameData.currentPlayer, oldPosition, newPosition, total);
                 }, 1000);
+
+                // Show property purchase modal after movement (if applicable)
+                if (result.canBuyProperty) {
+                    setTimeout(() => {
+                        this.showPropertyPurchaseModal(newPosition);
+                    }, total * 600 + 1500);
+                }
             }
 
             animatePlayerMovement(playerIndex, fromPosition, toPosition, totalSteps) {
@@ -2926,7 +3188,7 @@
                     document.getElementById('roll-dice-btn').classList.remove('hidden');
                     document.getElementById('center-dice-result').classList.add('hidden');
                 } else if (gamePhase === 'property' && this.canBuyProperty) {
-                    document.getElementById('buy-property-btn').classList.remove('hidden');
+                    // Don't show buy button here - the modal handles it
                     document.getElementById('end-turn-btn').classList.remove('hidden');
                 } else if (gamePhase === 'endTurn') {
                     document.getElementById('end-turn-btn').classList.remove('hidden');
@@ -3243,6 +3505,16 @@
             const modal = document.getElementById('property-modal');
             modal.classList.remove('show');
             setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function confirmPurchaseProperty() {
+            gameController.buyProperty();
+            gameController.hidePropertyPurchaseModal();
+        }
+
+        function declineProperty() {
+            gameController.hidePropertyPurchaseModal();
+            gameController.showMessage('Property purchase declined', 'info');
         }
 
         // Accessibility Functions
