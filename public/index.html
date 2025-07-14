@@ -358,7 +358,7 @@
             font-size: 12px;
             color: white;
             z-index: 100;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             cursor: pointer;
             top: 50%;
@@ -372,12 +372,14 @@
         }
 
         .player-piece.moving {
-            animation: bounce 0.8s ease-in-out;
+            animation: bounce 0.5s ease-in-out;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.3); }
+            0%, 100% { transform: translate(-50%, -50%) scale(1.2); }
+            50% { transform: translate(-50%, -50%) scale(1.4); }
         }
 
         @keyframes pulse {
@@ -534,6 +536,7 @@
             0%, 100% { box-shadow: none; }
             50% { box-shadow: 0 0 30px #ffd700; }
         }
+
         .dice {
             width: 60px;
             height: 60px;
@@ -697,6 +700,54 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Card Modal */
+        .card-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .card-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card-content.chance {
+            background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+            border: 3px solid var(--red);
+        }
+
+        .card-content.community {
+            background: linear-gradient(135deg, #f0f8ff, #e8f4fd);
+            border: 3px solid var(--light-blue);
+        }
+
+        .card-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .card-text {
+            font-size: 18px;
+            line-height: 1.6;
+            text-transform: none;
+            color: #333;
+            margin-bottom: 20px;
         }
 
         /* Room Setup */
@@ -1199,59 +1250,40 @@
     </div>
 
     <!-- Card Modal -->
-    <div id="card-modal" class="question-modal hidden">
-        <div class="question-content">
-            <h2 id="card-title" class="question-title">🃏 Card</h2>
-            <div id="card-text" class="question-text"></div>
-            <div style="margin-top: 20px; font-size: 14px; color: #666;">Card will be applied automatically...</div>
+    <div id="card-modal" class="card-modal hidden">
+        <div id="card-content" class="card-content">
+            <h2 id="card-title" class="card-title">🃏 Card Drawn</h2>
+            <div id="card-text" class="card-text"></div>
+            <div id="card-action-text" style="margin-top: 20px; font-size: 14px; color: #666;"></div>
         </div>
     </div>
 
     <script>
-        const socket = io('https://business-monopoly-server.onrender.com');
-        /*
-        ===== GAME FLOW DOCUMENTATION =====
-        
-        ORIGINAL TURN FLOW (MUST BE PRESERVED):
-        1. startTurn() → Triggers business question
-        2. questionReceived → Shows question modal
-        3. answerQuestion() → Submit answer
-        4. answerResult → If correct: gamePhase becomes 'dice', if wrong: next player's turn
-        5. rollDice() → Roll dice and animate movement
-        6. diceRolled → Show results and animate player movement
-        7. Land on space → Handle special spaces, property buying, etc.
-        8. endTurn() → Next player's turn
-        
-        NEW BONUS FLOW (ADDITIONAL):
-        - When landing on Chance/Community Chest:
-        - handleChance()/handleCommunityChest() → Request bonus question
-        - bonusQuestionReceived → Show bonus question modal
-        - answerBonusQuestion() → Submit bonus answer
-        - bonusAnswerResult → Award £200 if correct, continue turn flow
-        
-        COLLEGE HUMOR:
-        - When landing on "Go to Jail": Show humorous college message, no jail movement
-        */
-
+        // Game state variables
         let currentRoom = null;
         let currentPlayer = null;
         let gameData = null;
         let canBuyProperty = false;
         let propertyToBuy = null;
-        let isPlayerMoving = false; // Track if a player is currently moving
+        let isPlayerMoving = false;
 
-        // Chance and Community Chest Cards
+        // Enhanced Chance and Community Chest Cards
         const chanceCards = [
             { text: "Advance to GO - Collect £200", action: "moveToGo" },
             { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
-            { text: "Pay £15 speeding fine", action: "payMoney", amount: 15 },
-            { text: "Your building loan matures - Receive £150", action: "receiveMoney", amount: 150 },
+            { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
+            { text: "Advance to Mayfair", action: "moveTo", position: 39 },
+            { text: "Advance to nearest Railway Station and pay owner twice the rental", action: "moveToNearestRailway" },
+            { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
+            { text: "Pay poor tax of £15", action: "payMoney", amount: 15 },
+            { text: "Your building loan matures - Collect £150", action: "receiveMoney", amount: 150 },
             { text: "You have won a crossword competition - Collect £100", action: "receiveMoney", amount: 100 },
             { text: "Bank pays you dividend of £50", action: "receiveMoney", amount: 50 },
             { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
-            { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
-            { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
-            { text: "Make general repairs on all your property - £25 per house, £100 per hotel", action: "propertyRepairs" }
+            { text: "Advance to Pall Mall", action: "moveTo", position: 11 },
+            { text: "Take a trip to King's Cross Station", action: "moveTo", position: 5 },
+            { text: "Make general repairs on all your houses - £25 per house", action: "propertyRepairs", amount: 25 },
+            { text: "Move forward to the nearest Utility", action: "moveToNearestUtility" }
         ];
 
         const communityChestCards = [
@@ -1264,27 +1296,382 @@
             { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
             { text: "Life insurance matures - Collect £100", action: "receiveMoney", amount: 100 },
             { text: "Hospital fees - Pay £100", action: "payMoney", amount: 100 },
-            { text: "School fees - Pay £50", action: "payMoney", amount: 50 }
+            { text: "School fees - Pay £50", action: "payMoney", amount: 50 },
+            { text: "Receive £25 consultancy fee", action: "receiveMoney", amount: 25 },
+            { text: "You have won second prize in a beauty contest - Collect £10", action: "receiveMoney", amount: 10 },
+            { text: "You inherit £100", action: "receiveMoney", amount: 100 },
+            { text: "Pay hospital fees of £100", action: "payMoney", amount: 100 },
+            { text: "Pay school fees of £150", action: "payMoney", amount: 150 },
+            { text: "Receive £50 from sale of stock", action: "receiveMoney", amount: 50 }
         ];
 
-        function showCardModal(title, text, type) {
-            document.getElementById('card-modal').classList.remove('hidden');
+        function drawRandomCard(cardType) {
+            const cards = cardType === 'chance' ? chanceCards : communityChestCards;
+            return cards[Math.floor(Math.random() * cards.length)];
+        }
+
+        function showCardModal(title, text, cardType, actionText = "Card effect will be applied automatically...") {
+            const modal = document.getElementById('card-modal');
+            const content = document.getElementById('card-content');
+            
+            modal.classList.remove('hidden');
             document.getElementById('card-title').textContent = title;
             document.getElementById('card-text').textContent = text;
+            document.getElementById('card-action-text').textContent = actionText;
             
-            const modal = document.getElementById('card-modal');
-            const content = modal.querySelector('.question-content');
-            if (type === 'chance') {
-                content.style.backgroundColor = '#fff5f5';
-                content.style.borderColor = '#f50c2b';
-            } else {
-                content.style.backgroundColor = '#f0f8ff';
-                content.style.borderColor = '#d2eaf5';
-            }
+            // Style based on card type
+            content.className = `card-content ${cardType}`;
+            
+            // Auto-close after 4 seconds
+            setTimeout(() => {
+                hideCardModal();
+            }, 4000);
         }
 
         function hideCardModal() {
             document.getElementById('card-modal').classList.add('hidden');
+        }
+
+        function executeCardAction(playerIndex, card) {
+            if (!gameData || !gameData.players[playerIndex]) return;
+            
+            const player = gameData.players[playerIndex];
+            const currentPosition = player.position;
+            
+            console.log(`Executing card action: ${card.action}`, card);
+            
+            switch(card.action) {
+                case 'moveToGo':
+                    movePlayerTo(playerIndex, 0);
+                    player.money += 200;
+                    showMessage('🎯 Moved to GO! Collect £200', 'success');
+                    break;
+                    
+                case 'goToJail':
+                    handleGoToJail(playerIndex);
+                    break;
+                    
+                case 'moveTo':
+                    movePlayerTo(playerIndex, card.position);
+                    // Check if player passed GO
+                    if (card.position < currentPosition) {
+                        player.money += 200;
+                        showMessage('🎯 Passed GO! Collect £200', 'success');
+                    }
+                    break;
+                    
+                case 'moveBack':
+                    const newPos = Math.max(0, currentPosition - card.spaces);
+                    movePlayerTo(playerIndex, newPos);
+                    break;
+                    
+                case 'moveToNearestRailway':
+                    const railways = [5, 15, 25, 35]; // Railway positions
+                    let nearestRailway = railways.find(pos => pos > currentPosition);
+                    if (!nearestRailway) nearestRailway = railways[0]; // Wrap around to first railway
+                    
+                    movePlayerTo(playerIndex, nearestRailway);
+                    if (nearestRailway < currentPosition) {
+                        player.money += 200; // Passed GO
+                        showMessage('🎯 Passed GO! Collect £200', 'success');
+                    }
+                    showMessage('🚂 Moved to nearest Railway Station', 'info');
+                    break;
+                    
+                case 'moveToNearestUtility':
+                    const utilities = [12, 28]; // Electric Company and Water Works
+                    let nearestUtility = utilities.find(pos => pos > currentPosition);
+                    if (!nearestUtility) nearestUtility = utilities[0]; // Wrap around
+                    
+                    movePlayerTo(playerIndex, nearestUtility);
+                    if (nearestUtility < currentPosition) {
+                        player.money += 200; // Passed GO
+                        showMessage('🎯 Passed GO! Collect £200', 'success');
+                    }
+                    showMessage('⚡ Moved to nearest Utility', 'info');
+                    break;
+                    
+                case 'payMoney':
+                    player.money = Math.max(0, player.money - card.amount);
+                    showMessage(`💰 Pay £${card.amount}`, 'error');
+                    break;
+                    
+                case 'receiveMoney':
+                    player.money += card.amount;
+                    showMessage(`💰 Receive £${card.amount}`, 'success');
+                    break;
+                    
+                case 'getOutOfJail':
+                    if (!player.cards) player.cards = [];
+                    player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
+                    showMessage('🔓 Get Out of Jail Free card added!', 'info');
+                    updateCardsDisplay();
+                    break;
+                    
+                case 'propertyRepairs':
+                    // Simplified: just charge per property owned
+                    const repairCost = player.properties.length * card.amount;
+                    player.money = Math.max(0, player.money - repairCost);
+                    showMessage(`🔧 Property repairs: £${repairCost}`, 'error');
+                    break;
+            }
+            
+            updatePlayersDisplay(gameData.players);
+        }
+
+        function movePlayerTo(playerIndex, targetPosition) {
+            if (!gameData || !gameData.players[playerIndex]) return;
+            
+            const player = gameData.players[playerIndex];
+            const currentPosition = player.position;
+            
+            console.log(`Moving player ${playerIndex} from ${currentPosition} to ${targetPosition}`);
+            
+            // Calculate the number of steps needed
+            let steps;
+            if (targetPosition >= currentPosition) {
+                steps = targetPosition - currentPosition;
+            } else {
+                // Going around the board
+                steps = (40 - currentPosition) + targetPosition;
+            }
+            
+            // Start the animation
+            isPlayerMoving = true;
+            animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
+        }
+
+        function handleChance(playerIndex) {
+            const card = drawRandomCard('chance');
+            console.log('Chance card drawn:', card);
+            
+            showCardModal('❓ Chance Card', card.text, 'chance');
+            
+            // Execute card action after showing modal
+            setTimeout(() => {
+                executeCardAction(playerIndex, card);
+            }, 2000);
+        }
+
+        function handleCommunityChest(playerIndex) {
+            const card = drawRandomCard('community');
+            console.log('Community Chest card drawn:', card);
+            
+            showCardModal('📦 Community Chest', card.text, 'community');
+            
+            // Execute card action after showing modal
+            setTimeout(() => {
+                executeCardAction(playerIndex, card);
+            }, 2000);
+        }
+
+        // Enhanced player movement animation
+        function animatePlayerMovement(playerIndex, fromPosition, toPosition, totalSteps) {
+            const piece = document.getElementById(`player-${playerIndex}`);
+            if (!piece) {
+                console.error(`Player piece not found: player-${playerIndex}`);
+                return;
+            }
+
+            console.log(`Animating player ${playerIndex} movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
+
+            let currentPosition = fromPosition;
+            let stepsRemaining = totalSteps;
+            let passedGo = false;
+
+            // Highlight destination
+            const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
+            if (destinationSquare) {
+                destinationSquare.style.boxShadow = '0 0 25px #FFD700';
+                destinationSquare.style.border = '3px solid #FFD700';
+                destinationSquare.style.transform = 'scale(1.05)';
+                destinationSquare.style.zIndex = '50';
+            }
+
+            function moveOneStep() {
+                if (stepsRemaining <= 0) {
+                    console.log(`Movement complete. Final position: ${currentPosition}`);
+                    
+                    // Clear movement flag
+                    isPlayerMoving = false;
+                    
+                    // Update game data with final position
+                    if (gameData && gameData.players[playerIndex]) {
+                        gameData.players[playerIndex].position = toPosition;
+                    }
+                    
+                    // Clear destination highlighting
+                    if (destinationSquare) {
+                        destinationSquare.style.boxShadow = '';
+                        destinationSquare.style.border = '';
+                        destinationSquare.style.transform = '';
+                        destinationSquare.style.zIndex = '';
+                    }
+                    
+                    // Remove moving animation
+                    piece.classList.remove('moving');
+                    
+                    // Handle special spaces after movement completes
+                    setTimeout(() => {
+                        handleSpecialSpace(playerIndex, toPosition);
+                        updateGameControls();
+                        updatePlayersDisplay(gameData.players);
+                    }, 500);
+                    
+                    return;
+                }
+
+                // Calculate next position (clockwise around board)
+                currentPosition = (currentPosition + 1) % 40;
+                stepsRemaining--;
+
+                console.log(`Moving to position ${currentPosition}, ${stepsRemaining} steps remaining`);
+
+                // Check if passing GO
+                if (currentPosition === 0 && stepsRemaining > 0) {
+                    passedGo = true;
+                    console.log('Passed GO!');
+                    showMessage('🎯 Passed GO! Collect £200', 'success');
+                    if (gameData && gameData.players[playerIndex]) {
+                        gameData.players[playerIndex].money += 200;
+                    }
+                }
+
+                // Move piece to new position
+                const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
+                if (newProperty) {
+                    // Remove piece from current location
+                    piece.remove();
+                    
+                    // Add to new location
+                    newProperty.appendChild(piece);
+                    
+                    // Reset positioning
+                    piece.style.left = '50%';
+                    piece.style.top = '50%';
+                    piece.style.transform = 'translate(-50%, -50%)';
+                    
+                    // Add moving animation
+                    piece.classList.add('moving');
+                    
+                    // Continue to next step after delay
+                    setTimeout(() => {
+                        moveOneStep();
+                    }, 600); // Slightly faster movement
+                } else {
+                    console.error(`Could not find property element for position ${currentPosition}`);
+                    // Continue anyway
+                    setTimeout(moveOneStep, 600);
+                }
+            }
+
+            // Start the movement
+            moveOneStep();
+        }
+
+        function handleSpecialSpace(playerIndex, position) {
+            const space = document.querySelector(`[data-index="${position}"]`);
+            if (space) {
+                space.classList.add('special-landed');
+                setTimeout(() => space.classList.remove('special-landed'), 2000);
+            }
+
+            console.log(`Player ${playerIndex} landed on space ${position}`);
+
+            // Handle different special spaces
+            switch(position) {
+                case 2: // Community Chest
+                case 17:
+                case 33:
+                    setTimeout(() => handleCommunityChest(playerIndex), 1000);
+                    break;
+                case 7: // Chance
+                case 22:
+                case 36:
+                    setTimeout(() => handleChance(playerIndex), 1000);
+                    break;
+                case 30: // Go to Jail
+                    setTimeout(() => handleGoToJail(playerIndex), 1000);
+                    break;
+                case 4: // Income Tax
+                    handleIncomeTax(playerIndex);
+                    break;
+                case 38: // Super Tax
+                    handleSuperTax(playerIndex);
+                    break;
+                case 0: // GO
+                    showMessage('🎯 Welcome to GO! Collect £200', 'success');
+                    break;
+                case 10: // Just Visiting Jail
+                case 20: // Free Parking
+                    // No special action needed
+                    break;
+                default:
+                    // Regular property space
+                    break;
+            }
+        }
+
+        function handleGoToJail(playerIndex) {
+            // Show a humorous college-themed message
+            const collegeMessage = document.createElement('div');
+            collegeMessage.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #4CAF50, #45a049); 
+                color: white; padding: 30px; border-radius: 20px; 
+                max-width: 400px; z-index: 1002; text-align: center;
+                border: 4px solid #2e7d32; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                font-size: 18px; font-weight: bold;
+            `;
+            collegeMessage.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">🎓👮‍♂️</div>
+                <div style="font-size: 20px; margin-bottom: 10px;">Go to Jail?</div>
+                <div style="font-size: 16px; line-height: 1.5;">
+                    "I cannot send you to Jail whilst you are at college!"
+                </div>
+                <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
+                    Education protects you! Stay on this space.
+                </div>
+            `;
+            
+            document.body.appendChild(collegeMessage);
+            
+            // Add entrance animation
+            collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            collegeMessage.style.opacity = '0';
+            
+            setTimeout(() => {
+                collegeMessage.style.transition = 'all 0.5s ease';
+                collegeMessage.style.transform = 'translate(-50%, -50%) scale(1)';
+                collegeMessage.style.opacity = '1';
+            }, 100);
+            
+            // Remove message after 4 seconds
+            setTimeout(() => {
+                collegeMessage.style.transition = 'all 0.5s ease';
+                collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                collegeMessage.style.opacity = '0';
+                setTimeout(() => collegeMessage.remove(), 500);
+            }, 4000);
+            
+            // Player stays where they are - no movement to jail
+            showMessage('🎓 Education keeps you free! No jail time for students!', 'success');
+        }
+
+        function handleIncomeTax(playerIndex) {
+            showMessage('💰 Income Tax - Pay £200', 'error');
+            if (gameData && gameData.players[playerIndex]) {
+                gameData.players[playerIndex].money = Math.max(0, gameData.players[playerIndex].money - 200);
+                updatePlayersDisplay(gameData.players);
+            }
+        }
+
+        function handleSuperTax(playerIndex) {
+            showMessage('💰 Super Tax - Pay £100', 'error');
+            if (gameData && gameData.players[playerIndex]) {
+                gameData.players[playerIndex].money = Math.max(0, gameData.players[playerIndex].money - 100);
+                updatePlayersDisplay(gameData.players);
+            }
         }
 
         function updateCardsDisplay() {
@@ -1366,7 +1753,6 @@
 
         function buyProperty() {
             if (canBuyProperty && propertyToBuy !== null) {
-                // Use the player's current position as the property index
                 const currentPlayerData = gameData.players[gameData.currentPlayer];
                 const propertyIndex = currentPlayerData.position;
                 socket.emit('buyProperty', { roomCode: currentRoom, propertyIndex: propertyIndex });
@@ -1434,266 +1820,6 @@
                     }
                 }
             });
-        }
-
-        function animatePlayerMovement(playerIndex, fromPosition, toPosition, diceTotal) {
-            const piece = document.getElementById(`player-${playerIndex}`);
-            if (!piece) return;
-
-            console.log(`Player ${playerIndex} moving from ${fromPosition} to ${toPosition} (${diceTotal} spaces)`);
-
-            let currentPosition = fromPosition;
-            let stepsRemaining = diceTotal;
-            let passedGo = false;
-
-            // Function to move one step
-            function moveOneStep() {
-                if (stepsRemaining <= 0) {
-                    console.log(`Movement complete. Final position: ${currentPosition}`);
-                    
-                    // Clear movement flag
-                    isPlayerMoving = false;
-                    
-                    // Clear destination highlighting
-                    const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
-                    if (destinationSquare) {
-                        destinationSquare.style.boxShadow = '';
-                        destinationSquare.style.border = '';
-                        destinationSquare.style.transform = '';
-                        destinationSquare.style.zIndex = '';
-                    }
-                    
-                    // Now update the game data with the final position
-                    if (gameData && gameData.players[playerIndex]) {
-                        gameData.players[playerIndex].position = toPosition;
-                    }
-                    
-                    // Movement complete - check for special spaces
-                    handleSpecialSpace(playerIndex, toPosition);
-                    
-                    // Add final bounce
-                    piece.classList.add('moving');
-                    setTimeout(() => piece.classList.remove('moving'), 800);
-                    
-                    // Update displays now that movement is complete
-                    updatePlayersDisplay(gameData.players);
-                    
-                    // Update game controls after movement
-                    setTimeout(() => {
-                        updateGameControls();
-                    }, 1000);
-                    return;
-                }
-
-                // Calculate next position (clockwise around board)
-                currentPosition = (currentPosition + 1) % 40;
-                stepsRemaining--;
-
-                console.log(`Moving to position ${currentPosition}, ${stepsRemaining} steps remaining`);
-
-                // Check if passing GO
-                if (currentPosition === 0 && stepsRemaining > 0) {
-                    passedGo = true;
-                    console.log('Passed GO!');
-                }
-
-                // Move piece to new position
-                const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
-                if (newProperty) {
-                    // Remove piece from current location
-                    piece.remove();
-                    
-                    // Add to new location
-                    newProperty.appendChild(piece);
-                    
-                    // Reset positioning
-                    piece.style.left = '50%';
-                    piece.style.top = '50%';
-                    piece.style.transform = 'translate(-50%, -50%)';
-                    
-                    // Add step animation
-                    piece.style.animation = 'bounce 0.6s ease-in-out';
-                    setTimeout(() => {
-                        piece.style.animation = '';
-                    }, 600);
-
-                    // Show passing GO message
-                    if (currentPosition === 0 && passedGo) {
-                        showMessage('🎯 Passed GO! Collect £200', 'success');
-                    }
-                } else {
-                    console.error(`Could not find property element for position ${currentPosition}`);
-                }
-
-                // Continue to next step after delay
-                setTimeout(moveOneStep, 800);
-            }
-
-            // Start the movement
-            moveOneStep();
-        }
-
-        function handleSpecialSpace(playerIndex, position) {
-            const space = document.querySelector(`[data-index="${position}"]`);
-            if (space) {
-                space.classList.add('special-landed');
-                setTimeout(() => space.classList.remove('special-landed'), 2000);
-            }
-
-            // Handle different special spaces
-            switch(position) {
-                case 2: // Community Chest
-                case 17:
-                case 33:
-                    showMessage('📦 Community Chest! (Feature coming soon)', 'info');
-                    break;
-                case 7: // Chance
-                case 22:
-                case 36:
-                    showMessage('❓ Chance! (Feature coming soon)', 'info');
-                    break;
-                case 30: // Go to Jail
-                    showMessage('👮 Go to Jail! (Just kidding - you\'re at college!)', 'info');
-                    break;
-                case 4: // Income Tax
-                    handleIncomeTax(playerIndex);
-                    break;
-                case 38: // Super Tax
-                    handleSuperTax(playerIndex);
-                    break;
-                case 10: // Just Visiting Jail
-                case 20: // Free Parking
-                    // No special action needed
-                    break;
-                default:
-                    // Regular property space
-                    break;
-            }
-        }
-
-        function handleCommunityChest(playerIndex) {
-            showMessage('📦 Community Chest! Answer a bonus question to win £200!', 'info');
-            
-            // Send request for bonus question
-            setTimeout(() => {
-                socket.emit('requestBonusQuestion', { roomCode: currentRoom, playerIndex, cardType: 'community' });
-            }, 2000);
-        }
-
-        function handleChance(playerIndex) {
-            showMessage('❓ Chance! Answer a bonus question to win £200!', 'info');
-            
-            // Send request for bonus question
-            setTimeout(() => {
-                socket.emit('requestBonusQuestion', { roomCode: currentRoom, playerIndex, cardType: 'chance' });
-            }, 2000);
-        }
-
-        function handleGoToJail(playerIndex) {
-            // Show a humorous college-themed message
-            const collegeMessage = document.createElement('div');
-            collegeMessage.style.cssText = `
-                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #4CAF50, #45a049); 
-                color: white; padding: 30px; border-radius: 20px; 
-                max-width: 400px; z-index: 1002; text-align: center;
-                border: 4px solid #2e7d32; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-                font-size: 18px; font-weight: bold;
-            `;
-            collegeMessage.innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">🎓👮‍♂️</div>
-                <div style="font-size: 20px; margin-bottom: 10px;">Go to Jail?</div>
-                <div style="font-size: 16px; line-height: 1.5;">
-                    "I cannot send you to Jail whilst you are at college!"
-                </div>
-                <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
-                    Education protects you! Stay on this space.
-                </div>
-            `;
-            
-            document.body.appendChild(collegeMessage);
-            
-            // Add entrance animation
-            collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-            collegeMessage.style.opacity = '0';
-            
-            setTimeout(() => {
-                collegeMessage.style.transition = 'all 0.5s ease';
-                collegeMessage.style.transform = 'translate(-50%, -50%) scale(1)';
-                collegeMessage.style.opacity = '1';
-            }, 100);
-            
-            // Remove message after 4 seconds
-            setTimeout(() => {
-                collegeMessage.style.transition = 'all 0.5s ease';
-                collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-                collegeMessage.style.opacity = '0';
-                setTimeout(() => collegeMessage.remove(), 500);
-            }, 4000);
-            
-            // Player stays where they are - no movement to jail
-            showMessage('🎓 Education keeps you free! No jail time for students!', 'success');
-        }
-
-        function handleIncomeTax(playerIndex) {
-            showMessage('💰 Income Tax - Pay £200', 'error');
-            if (gameData && gameData.players[playerIndex]) {
-                gameData.players[playerIndex].money -= 200;
-                updatePlayersDisplay(gameData.players);
-            }
-        }
-
-        function handleSuperTax(playerIndex) {
-            showMessage('💰 Super Tax - Pay £100', 'error');
-            if (gameData && gameData.players[playerIndex]) {
-                gameData.players[playerIndex].money -= 100;
-                updatePlayersDisplay(gameData.players);
-            }
-        }
-
-        function executeCardAction(playerIndex, card) {
-            const player = gameData.players[playerIndex];
-            
-            switch(card.action) {
-                case 'moveToGo':
-                    player.position = 0;
-                    player.money += 200;
-                    showMessage('🎯 Advanced to GO! Collect £200', 'success');
-                    updatePlayerPieces();
-                    break;
-                case 'goToJail':
-                    handleGoToJail(playerIndex);
-                    break;
-                case 'payMoney':
-                    player.money -= card.amount;
-                    showMessage(`💰 Pay £${card.amount}`, 'error');
-                    break;
-                case 'receiveMoney':
-                    player.money += card.amount;
-                    showMessage(`💰 Receive £${card.amount}`, 'success');
-                    break;
-                case 'getOutOfJail':
-                    if (!player.cards) player.cards = [];
-                    player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
-                    showMessage('🔓 Get Out of Jail Free card added!', 'info');
-                    updateCardsDisplay();
-                    break;
-                case 'moveTo':
-                    const oldPos = player.position;
-                    player.position = card.position;
-                    if (card.position < oldPos) {
-                        player.money += 200; // Passed GO
-                        showMessage('🎯 Passed GO! Collect £200', 'success');
-                    }
-                    updatePlayerPieces();
-                    break;
-                case 'moveBack':
-                    player.position = Math.max(0, player.position - card.spaces);
-                    updatePlayerPieces();
-                    break;
-            }
-            
-            updatePlayersDisplay(gameData.players);
         }
 
         function updateTurnIndicator() {
@@ -1869,7 +1995,7 @@
                 
                 questionText.parentNode.insertBefore(rewardDiv, questionText);
             } else {
-                // Regular business question - RESTORE ORIGINAL FUNCTIONALITY
+                // Regular business question
                 console.log('Setting up regular business question');
                 questionTitle.textContent = '📚 Business Question';
                 
@@ -1892,7 +2018,6 @@
                     if (isBonus) {
                         answerBonusQuestion(index, question.cardType);
                     } else {
-                        // RESTORE: Original question answering for turn progression
                         answerQuestion(index);
                     }
                 };
@@ -1919,7 +2044,6 @@
             }
         }
 
-        // SEPARATE function for bonus questions to avoid conflicts
         function showBonusQuestion(question) {
             showQuestion(question, true);
         }
@@ -1956,6 +2080,9 @@
             
             setTimeout(() => messageDiv.remove(), 5000);
         }
+
+        // Initialize Socket.IO connection
+        const socket = io('https://business-monopoly-server.onrender.com');
 
         // Socket connection debugging
         socket.on('connect', () => {
@@ -2073,24 +2200,13 @@
             // Get current player data before movement
             const currentPlayerData = gameData.players[gameData.currentPlayer];
             const oldPosition = currentPlayerData.position;
-
-            // Store the NEW position from server but don't update visually yet
             const newPosition = result.newPosition;
-
-            // Highlight the destination square
-            const destinationSquare = document.querySelector(`[data-index="${newPosition}"]`);
-            if (destinationSquare) {
-                destinationSquare.style.boxShadow = '0 0 25px #FFD700';
-                destinationSquare.style.border = '3px solid #FFD700';
-                destinationSquare.style.transform = 'scale(1.05)';
-                destinationSquare.style.zIndex = '50';
-            }
 
             // Show rent payment message if applicable (after movement completes)
             if (result.rentOwed > 0) {
                 setTimeout(() => {
                     showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
-                }, total * 800 + 1000);
+                }, total * 600 + 1000);
             }
 
             // Show property purchase option if applicable (after movement completes)
@@ -2109,16 +2225,15 @@
                 
                 setTimeout(() => {
                     showMessage(`🏠 You can buy ${propertyName}!`, 'info');
-                }, total * 800 + 1500);
+                }, total * 600 + 1500);
             }
 
-            // DON'T update player displays yet - this would move the piece visually
-            // Just update the turn indicator
+            // Update the turn indicator
             updateTurnIndicator();
 
             // Start animated movement after short delay
             setTimeout(() => {
-                isPlayerMoving = true; // Mark that movement is starting
+                isPlayerMoving = true;
                 animatePlayerMovement(gameData.currentPlayer, oldPosition, newPosition, total);
             }, 1000);
         });
