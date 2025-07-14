@@ -1162,6 +1162,9 @@
                     <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="rollDice()">Roll Dice</button>
                     <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="buyProperty()">Buy Property</button>
                     <button id="end-turn-btn" class="btn btn-danger hidden" onclick="endTurn()">End Turn</button>
+                    
+                    <!-- DEBUG: Test question button -->
+                    <button id="test-question-btn" class="btn btn-secondary" onclick="testQuestion()" style="margin-top: 10px; font-size: 10px;">🐛 Test Question</button>
                 </div>
                 <div id="dice-result" class="dice-result hidden"></div>
             </div>
@@ -1723,17 +1726,35 @@
             const gamePhase = gameData?.gamePhase || 'question';
             const waitingForAnswer = gameData?.waitingForAnswer || false;
             
-            // Hide all buttons first
-            document.querySelectorAll('#game-controls .btn').forEach(btn => btn.classList.add('hidden'));
+            console.log('Updating game controls:', {
+                isMyTurn,
+                gamePhase,
+                waitingForAnswer,
+                currentPlayer,
+                gameCurrentPlayer: gameData?.players[gameData?.currentPlayer]?.name
+            });
             
-            if (!isMyTurn || !gameData?.gameStarted) return;
+            // Hide all buttons first
+            document.querySelectorAll('#game-controls .btn').forEach(btn => {
+                if (!btn.id.includes('test')) { // Don't hide debug button
+                    btn.classList.add('hidden');
+                }
+            });
+            
+            if (!isMyTurn || !gameData?.gameStarted) {
+                console.log('Not my turn or game not started');
+                return;
+            }
             
             if (gamePhase === 'question' && !waitingForAnswer) {
+                console.log('Showing start turn button');
                 document.getElementById('start-turn-btn').classList.remove('hidden');
             } else if (gamePhase === 'dice') {
+                console.log('Showing roll dice button');
                 document.getElementById('roll-dice-btn').classList.remove('hidden');
                 document.getElementById('dice-result').classList.add('hidden');
             } else if (gamePhase === 'property' && canBuyProperty) {
+                console.log('Showing property buttons');
                 document.getElementById('buy-property-btn').classList.remove('hidden');
                 document.getElementById('end-turn-btn').classList.remove('hidden');
                 
@@ -1755,6 +1776,7 @@
                     }, 5000);
                 }
             } else if (gamePhase === 'endTurn') {
+                console.log('Showing end turn button');
                 document.getElementById('end-turn-btn').classList.remove('hidden');
             }
         }
@@ -1807,7 +1829,17 @@
         }
 
         function showQuestion(question, isBonus = false) {
-            document.getElementById('question-modal').classList.remove('hidden');
+            console.log('showQuestion called with:', { question, isBonus });
+            
+            const modal = document.getElementById('question-modal');
+            if (!modal) {
+                console.error('Question modal element not found!');
+                return;
+            }
+            
+            modal.classList.remove('hidden');
+            console.log('Question modal should now be visible');
+            
             const questionContent = document.querySelector('.question-content');
             
             // Reset classes
@@ -1838,6 +1870,7 @@
                 questionText.parentNode.insertBefore(rewardDiv, questionText);
             } else {
                 // Regular business question - RESTORE ORIGINAL FUNCTIONALITY
+                console.log('Setting up regular business question');
                 document.getElementById('question-title').textContent = '📚 Business Question';
                 
                 // Remove any existing bonus reward notice
@@ -1846,6 +1879,7 @@
             }
             
             document.getElementById('question-text').textContent = question.question;
+            console.log('Question text set to:', question.question);
             
             const optionsContainer = document.getElementById('question-options');
             optionsContainer.innerHTML = '';
@@ -1855,6 +1889,7 @@
                 optionDiv.className = 'question-option';
                 optionDiv.textContent = option;
                 optionDiv.onclick = () => {
+                    console.log('Option clicked:', index);
                     if (isBonus) {
                         answerBonusQuestion(index, question.cardType);
                     } else {
@@ -1865,18 +1900,23 @@
                 optionsContainer.appendChild(optionDiv);
             });
             
+            console.log('Question options created:', question.options.length);
+            
             // Start timer
             let timeLeft = question.timeLimit || 30;
             const timerValue = document.getElementById('timer-value');
-            timerValue.textContent = timeLeft;
-            
-            const timerInterval = setInterval(() => {
-                timeLeft--;
+            if (timerValue) {
                 timerValue.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                }
-            }, 1000);
+                
+                const timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerValue.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        console.log('Question timer expired');
+                    }
+                }, 1000);
+            }
         }
 
         // SEPARATE function for bonus questions to avoid conflicts
@@ -1916,6 +1956,22 @@
             
             setTimeout(() => messageDiv.remove(), 5000);
         }
+
+        // Socket connection debugging
+        socket.on('connect', () => {
+            console.log('✅ Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('❌ Disconnected from server');
+        });
+
+        // Debug all socket events
+        const originalEmit = socket.emit;
+        socket.emit = function(...args) {
+            console.log('📤 Emitting:', args[0], args.slice(1));
+            return originalEmit.apply(this, args);
+        };
 
         // Socket Event Listeners
         socket.on('roomCreated', (roomCode) => {
@@ -1980,28 +2036,59 @@
 
         // RESTORE: Original question flow for turn progression
         socket.on('questionReceived', (question) => {
-            // This is the ORIGINAL business question that must be answered to progress turn
-            showQuestion(question, false); // false = not a bonus question
+            console.log('Question received:', question);
+            console.log('Current player:', currentPlayer);
+            console.log('Game data current player:', gameData?.players[gameData?.currentPlayer]?.name);
+            
+            // Check if this question is for the current player
+            const currentPlayerData = gameData?.players[gameData?.currentPlayer];
+            const isMyTurn = currentPlayerData && currentPlayerData.name === currentPlayer;
+            
+            if (isMyTurn) {
+                console.log('Showing question for my turn');
+                // This is the ORIGINAL business question that must be answered to progress turn
+                showQuestion(question, false); // false = not a bonus question
+            } else {
+                console.log('Question received but not my turn, ignoring');
+            }
         });
 
         // NEW: Separate handler for bonus questions (doesn't interfere with turn progression)
         socket.on('bonusQuestionReceived', (question) => {
-            // This is a BONUS question from Chance/Community Chest
-            showBonusQuestion(question);
+            console.log('Bonus question received:', question);
+            
+            // Check if this is for the player who landed on the space
+            if (question.playerName === currentPlayer) {
+                console.log('Showing bonus question for me');
+                // This is a BONUS question from Chance/Community Chest
+                showBonusQuestion(question);
+            } else {
+                console.log('Bonus question for another player, ignoring');
+            }
         });
 
         // RESTORE: Original answer handling for turn progression
         socket.on('answerResult', (result) => {
-            hideQuestion();
+            console.log('Answer result received:', result);
+            console.log('Result player name:', result.playerName);
+            console.log('Current player:', currentPlayer);
             
-            const resultText = result.correct ? 
-                `✅ Correct! ${result.explanation}` : 
-                `❌ Wrong! ${result.explanation}`;
-            
-            showMessage(resultText, result.correct ? 'success' : 'error');
-            
-            // IMPORTANT: This should trigger dice rolling phase if correct
-            // The backend should handle updating gamePhase to 'dice' if answer is correct
+            // Only process if this result is for the current player
+            if (result.playerName === currentPlayer) {
+                console.log('Processing answer result for my turn');
+                hideQuestion();
+                
+                const resultText = result.correct ? 
+                    `✅ Correct! ${result.explanation}` : 
+                    `❌ Wrong! ${result.explanation}`;
+                
+                showMessage(resultText, result.correct ? 'success' : 'error');
+                
+                // IMPORTANT: This should trigger dice rolling phase if correct
+                // The backend should handle updating gamePhase to 'dice' if answer is correct
+            } else {
+                console.log('Answer result for another player, ignoring');
+            }
         });
 
         // NEW: Separate handler for bonus question results
