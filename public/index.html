@@ -1162,9 +1162,6 @@
                     <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="rollDice()">Roll Dice</button>
                     <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="buyProperty()">Buy Property</button>
                     <button id="end-turn-btn" class="btn btn-danger hidden" onclick="endTurn()">End Turn</button>
-                    
-                    <!-- DEBUG: Test question button -->
-                    <button id="test-question-btn" class="btn btn-secondary" onclick="testQuestion()" style="margin-top: 10px; font-size: 10px;">🐛 Test Question</button>
                 </div>
                 <div id="dice-result" class="dice-result hidden"></div>
             </div>
@@ -1189,7 +1186,7 @@
     <!-- Question Modal -->
     <div id="question-modal" class="question-modal hidden">
         <div class="question-content">
-            <h2 class="question-title">📚 Business Question</h2>
+            <h2 id="question-title" class="question-title">📚 Business Question</h2>
             <div id="timer" class="timer">
                 <div class="timer-circle">
                     <span id="timer-value">30</span>
@@ -1548,15 +1545,15 @@
                 case 2: // Community Chest
                 case 17:
                 case 33:
-                    handleCommunityChest(playerIndex);
+                    showMessage('📦 Community Chest! (Feature coming soon)', 'info');
                     break;
                 case 7: // Chance
                 case 22:
                 case 36:
-                    handleChance(playerIndex);
+                    showMessage('❓ Chance! (Feature coming soon)', 'info');
                     break;
                 case 30: // Go to Jail
-                    handleGoToJail(playerIndex);
+                    showMessage('👮 Go to Jail! (Just kidding - you\'re at college!)', 'info');
                     break;
                 case 4: // Income Tax
                     handleIncomeTax(playerIndex);
@@ -1726,35 +1723,17 @@
             const gamePhase = gameData?.gamePhase || 'question';
             const waitingForAnswer = gameData?.waitingForAnswer || false;
             
-            console.log('Updating game controls:', {
-                isMyTurn,
-                gamePhase,
-                waitingForAnswer,
-                currentPlayer,
-                gameCurrentPlayer: gameData?.players[gameData?.currentPlayer]?.name
-            });
-            
             // Hide all buttons first
-            document.querySelectorAll('#game-controls .btn').forEach(btn => {
-                if (!btn.id.includes('test')) { // Don't hide debug button
-                    btn.classList.add('hidden');
-                }
-            });
+            document.querySelectorAll('#game-controls .btn').forEach(btn => btn.classList.add('hidden'));
             
-            if (!isMyTurn || !gameData?.gameStarted) {
-                console.log('Not my turn or game not started');
-                return;
-            }
+            if (!isMyTurn || !gameData?.gameStarted) return;
             
             if (gamePhase === 'question' && !waitingForAnswer) {
-                console.log('Showing start turn button');
                 document.getElementById('start-turn-btn').classList.remove('hidden');
             } else if (gamePhase === 'dice') {
-                console.log('Showing roll dice button');
                 document.getElementById('roll-dice-btn').classList.remove('hidden');
                 document.getElementById('dice-result').classList.add('hidden');
             } else if (gamePhase === 'property' && canBuyProperty) {
-                console.log('Showing property buttons');
                 document.getElementById('buy-property-btn').classList.remove('hidden');
                 document.getElementById('end-turn-btn').classList.remove('hidden');
                 
@@ -1776,7 +1755,6 @@
                     }, 5000);
                 }
             } else if (gamePhase === 'endTurn') {
-                console.log('Showing end turn button');
                 document.getElementById('end-turn-btn').classList.remove('hidden');
             }
         }
@@ -1831,9 +1809,30 @@
         function showQuestion(question, isBonus = false) {
             console.log('showQuestion called with:', { question, isBonus });
             
+            // Validate question object
+            if (!question || !question.question || !question.options) {
+                console.error('Invalid question object:', question);
+                return;
+            }
+            
             const modal = document.getElementById('question-modal');
             if (!modal) {
                 console.error('Question modal element not found!');
+                return;
+            }
+            
+            const questionTitle = document.getElementById('question-title');
+            const questionText = document.getElementById('question-text');
+            const questionOptions = document.getElementById('question-options');
+            const timerValue = document.getElementById('timer-value');
+            
+            // Check all required elements exist
+            if (!questionTitle || !questionText || !questionOptions) {
+                console.error('Missing question modal elements:', {
+                    questionTitle: !!questionTitle,
+                    questionText: !!questionText,
+                    questionOptions: !!questionOptions
+                });
                 return;
             }
             
@@ -1843,7 +1842,9 @@
             const questionContent = document.querySelector('.question-content');
             
             // Reset classes
-            questionContent.className = 'question-content';
+            if (questionContent) {
+                questionContent.className = 'question-content';
+            }
             
             if (isBonus) {
                 // Add bonus styling
@@ -1855,7 +1856,7 @@
                 
                 // Update title for bonus questions
                 const title = question.cardType === 'chance' ? '❓ Chance Bonus Question' : '📦 Community Chest Bonus Question';
-                document.getElementById('question-title').textContent = title;
+                questionTitle.textContent = title;
                 
                 // Add bonus reward notice
                 const existingReward = document.getElementById('bonus-reward');
@@ -1866,23 +1867,21 @@
                 rewardDiv.className = 'bonus-reward';
                 rewardDiv.textContent = '💰 Answer correctly to win £200!';
                 
-                const questionText = document.getElementById('question-text');
                 questionText.parentNode.insertBefore(rewardDiv, questionText);
             } else {
                 // Regular business question - RESTORE ORIGINAL FUNCTIONALITY
                 console.log('Setting up regular business question');
-                document.getElementById('question-title').textContent = '📚 Business Question';
+                questionTitle.textContent = '📚 Business Question';
                 
                 // Remove any existing bonus reward notice
                 const existingReward = document.getElementById('bonus-reward');
                 if (existingReward) existingReward.remove();
             }
             
-            document.getElementById('question-text').textContent = question.question;
+            questionText.textContent = question.question;
             console.log('Question text set to:', question.question);
             
-            const optionsContainer = document.getElementById('question-options');
-            optionsContainer.innerHTML = '';
+            questionOptions.innerHTML = '';
             
             question.options.forEach((option, index) => {
                 const optionDiv = document.createElement('div');
@@ -1897,20 +1896,21 @@
                         answerQuestion(index);
                     }
                 };
-                optionsContainer.appendChild(optionDiv);
+                questionOptions.appendChild(optionDiv);
             });
             
             console.log('Question options created:', question.options.length);
             
             // Start timer
             let timeLeft = question.timeLimit || 30;
-            const timerValue = document.getElementById('timer-value');
             if (timerValue) {
                 timerValue.textContent = timeLeft;
                 
                 const timerInterval = setInterval(() => {
                     timeLeft--;
-                    timerValue.textContent = timeLeft;
+                    if (timerValue) {
+                        timerValue.textContent = timeLeft;
+                    }
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
                         console.log('Question timer expired');
@@ -2034,84 +2034,18 @@
             updateCardsDisplay();
         });
 
-        // RESTORE: Original question flow for turn progression
         socket.on('questionReceived', (question) => {
-            console.log('Question received:', question);
-            console.log('Current player:', currentPlayer);
-            console.log('Game data current player:', gameData?.players[gameData?.currentPlayer]?.name);
-            
-            // Check if this question is for the current player
-            const currentPlayerData = gameData?.players[gameData?.currentPlayer];
-            const isMyTurn = currentPlayerData && currentPlayerData.name === currentPlayer;
-            
-            if (isMyTurn) {
-                console.log('Showing question for my turn');
-                // This is the ORIGINAL business question that must be answered to progress turn
-                showQuestion(question, false); // false = not a bonus question
-            } else {
-                console.log('Question received but not my turn, ignoring');
-            }
+            showQuestion(question);
         });
 
-        // NEW: Separate handler for bonus questions (doesn't interfere with turn progression)
-        socket.on('bonusQuestionReceived', (question) => {
-            console.log('Bonus question received:', question);
-            
-            // Check if this is for the player who landed on the space
-            if (question.playerName === currentPlayer) {
-                console.log('Showing bonus question for me');
-                // This is a BONUS question from Chance/Community Chest
-                showBonusQuestion(question);
-            } else {
-                console.log('Bonus question for another player, ignoring');
-            }
-        });
-
-        // RESTORE: Original answer handling for turn progression
         socket.on('answerResult', (result) => {
-            console.log('Answer result received:', result);
-            console.log('Result player name:', result.playerName);
-            console.log('Current player:', currentPlayer);
-            
-            // Only process if this result is for the current player
-            if (result.playerName === currentPlayer) {
-                console.log('Processing answer result for my turn');
-                hideQuestion();
-                
-                const resultText = result.correct ? 
-                    `✅ Correct! ${result.explanation}` : 
-                    `❌ Wrong! ${result.explanation}`;
-                
-                showMessage(resultText, result.correct ? 'success' : 'error');
-                
-                // IMPORTANT: This should trigger dice rolling phase if correct
-                // The backend should handle updating gamePhase to 'dice' if answer is correct
-            } else {
-                console.log('Answer result for another player, ignoring');
-            }
-        });
-
-        // NEW: Separate handler for bonus question results
-        socket.on('bonusAnswerResult', (result) => {
             hideQuestion();
             
-            const cardTypeName = result.cardType === 'chance' ? 'Chance' : 'Community Chest';
+            const resultText = result.correct ? 
+                `✅ Correct! ${result.explanation}` : 
+                `❌ Wrong! ${result.explanation}`;
             
-            if (result.correct) {
-                const resultText = `✅ ${cardTypeName} Success! Correct answer - you win £200! ${result.explanation}`;
-                showMessage(resultText, 'success');
-                
-                // Update player money locally
-                if (gameData && gameData.players[result.playerIndex]) {
-                    gameData.players[result.playerIndex].money += 200;
-                    updatePlayersDisplay(gameData.players);
-                }
-            } else {
-                const resultText = `❌ ${cardTypeName} - Wrong answer! No money awarded. ${result.explanation}`;
-                showMessage(resultText, 'error');
-            }
-            
-            // After bonus question, continue with normal turn flow (end turn)
+            showMessage(resultText, result.correct ? 'success' : 'error');
         });
 
         socket.on('diceRolled', (result) => {
