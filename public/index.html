@@ -1445,6 +1445,10 @@
             const card = drawRandomCard('chance');
             console.log('Chance card drawn:', card);
             
+            // Show message to all players about the card being drawn
+            const playerName = gameData.players[playerIndex]?.name || 'Player';
+            showMessage(`${playerName} drew a Chance card!`, 'info');
+            
             showCardModal('❓ Chance Card', card.text, 'chance');
             
             // Execute card action after showing modal
@@ -1456,6 +1460,10 @@
         function handleCommunityChest(playerIndex) {
             const card = drawRandomCard('community');
             console.log('Community Chest card drawn:', card);
+            
+            // Show message to all players about the card being drawn
+            const playerName = gameData.players[playerIndex]?.name || 'Player';
+            showMessage(`${playerName} drew a Community Chest card!`, 'info');
             
             showCardModal('📦 Community Chest', card.text, 'community');
             
@@ -1577,6 +1585,16 @@
             }
 
             console.log(`Player ${playerIndex} landed on space ${position}`);
+            
+            // Only handle card effects if this is the current player's turn
+            // This prevents all clients from executing card effects simultaneously
+            const isCurrentPlayer = gameData && gameData.currentPlayer === playerIndex;
+            const isMyTurn = gameData && gameData.players[gameData.currentPlayer]?.name === currentPlayer;
+            
+            // Only the player whose turn it is should see and execute card effects
+            if (!isCurrentPlayer || !isMyTurn) {
+                return;
+            }
 
             // Handle different special spaces
             switch(position) {
