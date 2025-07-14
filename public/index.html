@@ -71,13 +71,13 @@
         }
 
         .accessibility-btn {
-            padding: 8px 12px;
+            padding: 6px 9px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 9px;
             transition: all 0.3s ease;
         }
 
@@ -101,9 +101,9 @@
         .green { background: var(--green); }
         .dark-blue { background: var(--dark-blue); }
 
-        /* Game Container - Optimized for standard monitors */
+        /* Game Container - Optimized for standard monitors with proportional scaling */
         .game-container {
-            max-width: 1200px;
+            max-width: 1100px;
             width: 100%;
             display: flex;
             gap: 15px;
@@ -117,25 +117,25 @@
             align-items: center;
         }
 
-        /* Board Layout - Reduced size for better fit */
+        /* Board Layout - Proportionally scaled down from 994px to 780px (78.5% scale) */
         .table {
-            padding: 15px;
+            padding: 12px;
         }
 
         .board {
             display: grid;
-            grid-template-columns: 100px repeat(9, 65px) 100px;
-            grid-template-rows: 100px repeat(9, 65px) 100px;
+            grid-template-columns: 98px repeat(9, 63px) 98px;
+            grid-template-rows: 98px repeat(9, 63px) 98px;
             grid-gap: 2px;
             width: 780px;
             height: 780px;
             background: var(--black);
             border: 2px solid var(--black);
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 16px 47px rgba(0,0,0,0.3);
         }
 
-        /* Center Area - Adjusted for smaller board */
+        /* Center Area - Proportionally scaled */
         .center {
             grid-column: 2 / 11;
             grid-row: 2 / 11;
@@ -145,14 +145,14 @@
             grid-template-rows: repeat(9, 1fr);
             justify-items: center;
             align-items: center;
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 6px;
+            padding: 16px;
         }
 
         .title {
             grid-column: 1 / 8;
             grid-row: 2 / 3;
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 600;
             letter-spacing: 6px;
             color: var(--red);
@@ -162,7 +162,7 @@
         .business-subtitle {
             grid-column: 1 / 8;
             grid-row: 3 / 4;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
             letter-spacing: 2px;
             color: var(--black);
@@ -174,11 +174,11 @@
             grid-row: 4 / 5;
             background: #4CAF50;
             color: white;
-            padding: 12px 25px;
+            padding: 12px 24px;
             border-radius: 20px;
             font-weight: bold;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 1px;
         }
 
@@ -189,20 +189,20 @@
             flex-direction: column;
             gap: 8px;
             width: 100%;
-            max-width: 250px;
+            max-width: 235px;
         }
 
         .center-controls .btn {
             padding: 12px 20px;
-            font-size: 12px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            font-size: 11px;
+            border-radius: 9px;
+            box-shadow: 0 3px 9px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
 
         .center-controls .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 16px rgba(0,0,0,0.3);
         }
 
         .center-dice-result {
@@ -215,9 +215,9 @@
             margin: 8px 0;
             padding: 12px;
             background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
+            border-radius: 9px;
             border: 2px solid #ddd;
-            min-height: 60px;
+            min-height: 63px;
         }
 
         /* Rows of spaces */
@@ -302,8 +302,8 @@
             justify-content: space-between;
             position: relative;
             transform-origin: center;
-            height: 100px;
-            width: 65px;
+            height: 98px;
+            width: 63px;
             padding: 4px;
         }
 
@@ -311,14 +311,137 @@
         .instructions {
             padding-left: 6px;
             padding-right: 6px;
-            font-size: 8px;
-            line-height: 1.1;
+            font-size: 7px;
+            line-height: 1.0;
         }
 
         .price {
-            font-size: 6px;
+            font-size: 5px;
             font-weight: 400;
             padding-bottom: 4px;
+        }
+
+        /* Property Development Indicators - Scaled */
+        .development-indicator {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1px;
+        }
+
+        .development-house {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 1px;
+        }
+
+        .development-hotel {
+            width: 9px;
+            height: 6px;
+            background: var(--red);
+            border-radius: 1px;
+        }
+
+        /* Corner Spaces - Proportionally scaled */
+        .corner .container {
+            justify-content: space-around;
+            height: 100%;
+            width: 100%;
+        }
+
+        .corner .name {
+            padding: 0;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* Property Spaces - Scaled */
+        .property .color-bar {
+            height: 20px;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .property .name {
+            padding-bottom: 31px;
+            font-weight: 500;
+        }
+
+        /* Specific Corners - Scaled */
+        .go .go-word {
+            font-size: 28px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .jail .name {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .free-parking .name {
+            font-size: 11px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .go-to-jail .name {
+            font-size: 9px;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Special Spaces - Scaled */
+        .chance .drawing {
+            font-size: 31px;
+            color: var(--red);
+        }
+
+        .community-chest .drawing {
+            font-size: 24px;
+            color: var(--light-blue);
+        }
+
+        .railroad .drawing,
+        .utility .drawing {
+            font-size: 24px;
+            color: var(--black);
+        }
+
+        /* Player Pieces - Scaled */
+        .player-piece {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 9px;
+            color: white;
+            z-index: 100;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 9px rgba(0,0,0,0.4);
+            cursor: pointer;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .player-piece:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 5px 16px rgba(0,0,0,0.5);
+        }
+
+        .player-piece.moving {
+            animation: bounce 0.5s ease-in-out;
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
         }
 
         /* Property Development Indicators */
@@ -512,15 +635,53 @@
         .player-piece-4 { background: #9b59b6; }
         .player-piece-5 { background: #e74c3c; }
 
-        /* Game Panel - Reduced size */
+        /* Game Panel - Proportionally scaled */
         .game-panel {
-            width: 300px;
+            width: 275px;
             background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
             max-height: 780px;
             overflow-y: auto;
+        }
+
+        /* Dice - Scaled */
+        .dice {
+            width: 47px;
+            height: 47px;
+            background: white;
+            border: 2px solid var(--black);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: 0 3px 9px rgba(0,0,0,0.3);
+            position: relative;
+            margin: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .dice-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .dice-total {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--red);
+            margin: 8px 0;
+            padding: 6px 13px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            border: 2px solid var(--red);
         }
 
         .panel-section {
@@ -572,14 +733,14 @@
         }
 
         .achievement-badge {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: #ffd700;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 8px;
             color: #333;
         }
 
@@ -832,7 +993,7 @@
 
         .property-rent-title {
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
             color: #333;
         }
@@ -984,18 +1145,18 @@
             background: #e8f5e8;
         }
 
-        /* Property Cards */
+        /* Property Cards - Scaled */
         .property-card {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 16px 47px rgba(0,0,0,0.3);
             z-index: 1000;
-            max-width: 400px;
+            max-width: 315px;
             width: 90%;
             opacity: 0;
             transition: all 0.3s ease;
@@ -1010,11 +1171,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .property-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
         }
@@ -1022,30 +1183,30 @@
         .property-close {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 19px;
             cursor: pointer;
             color: #999;
         }
 
         .rent-structure {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
         }
 
         .rent-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 12px;
+            margin-bottom: 6px;
+            font-size: 9px;
             text-transform: none;
         }
 
         .property-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 16px;
         }
         .property-group {
             margin-bottom: 15px;
@@ -1227,10 +1388,10 @@
 
         .difficulty-indicator {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-bottom: 15px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            margin-bottom: 12px;
         }
 
         .difficulty-easy {
@@ -1251,9 +1412,9 @@
         .bonus-reward {
             background: #d4edda;
             color: #155724;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 16px;
             font-weight: bold;
             border: 2px solid #c3e6cb;
         }
@@ -1294,20 +1455,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .timer-circle {
-            width: 60px;
-            height: 60px;
+            width: 47px;
+            height: 47px;
             border-radius: 50%;
-            border: 4px solid #ddd;
-            border-top: 4px solid #4CAF50;
+            border: 3px solid #ddd;
+            border-top: 3px solid #4CAF50;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 14px;
             animation: spin 1s linear infinite;
         }
 
@@ -1426,6 +1587,83 @@
             letter-spacing: 2px;
         }
 
+        /* Piece Selection */
+        .piece-selection {
+            margin: 20px 0;
+        }
+
+        .piece-selection h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+            text-transform: none;
+        }
+
+        .pieces-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .piece-option {
+            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+            font-size: 24px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .piece-option:hover {
+            border-color: #4CAF50;
+            background: #f0f8f0;
+            transform: translateY(-2px);
+        }
+
+        .piece-option.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .piece-option.taken {
+            border-color: #dc3545;
+            background: #f8f8f8;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .piece-option.taken:hover {
+            transform: none;
+            border-color: #dc3545;
+            background: #f8f8f8;
+        }
+
+        .piece-name {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .selected-piece-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+            font-size: 14px;
+            text-transform: none;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -1439,16 +1677,16 @@
         }
 
         .sound-btn {
-            width: 50px;
-            height: 50px;
+            width: 39px;
+            height: 39px;
             border-radius: 50%;
             border: none;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
-            font-size: 20px;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 9px rgba(0,0,0,0.2);
         }
 
         .sound-btn:hover {
@@ -1461,7 +1699,7 @@
             color: white;
         }
 
-        /* Responsive Design - Updated for smaller board */
+        /* Responsive Design - Updated for proportionally scaled board */
         @media (max-width: 1200px) {
             .game-container {
                 flex-direction: column;
@@ -1469,50 +1707,64 @@
             }
             
             .board {
-                width: 650px;
-                height: 650px;
-                grid-template-columns: 85px repeat(9, 50px) 85px;
-                grid-template-rows: 85px repeat(9, 50px) 85px;
+                width: 624px;
+                height: 624px;
+                grid-template-columns: 78px repeat(9, 50px) 78px;
+                grid-template-rows: 78px repeat(9, 50px) 78px;
             }
 
             .container {
-                height: 85px;
+                height: 78px;
                 width: 50px;
+            }
+
+            .title {
+                font-size: 30px !important;
+            }
+
+            .business-subtitle {
+                font-size: 10px !important;
             }
             
             .game-panel {
                 width: 100%;
-                max-width: 650px;
+                max-width: 624px;
             }
         }
 
         @media (max-width: 768px) {
             .board {
-                width: 500px;
-                height: 500px;
-                grid-template-columns: 65px repeat(9, 40px) 65px;
-                grid-template-rows: 65px repeat(9, 40px) 65px;
+                width: 468px;
+                height: 468px;
+                grid-template-columns: 59px repeat(9, 37px) 59px;
+                grid-template-rows: 59px repeat(9, 37px) 59px;
             }
 
             .container {
-                height: 65px;
-                width: 40px;
+                height: 59px;
+                width: 37px;
             }
             
             .name {
-                font-size: 6px !important;
-            }
-
-            .price {
                 font-size: 5px !important;
             }
 
+            .price {
+                font-size: 4px !important;
+            }
+
             .title {
-                font-size: 24px !important;
+                font-size: 23px !important;
             }
 
             .business-subtitle {
-                font-size: 12px !important;
+                font-size: 8px !important;
+            }
+
+            .player-piece {
+                width: 18px;
+                height: 18px;
+                font-size: 7px;
             }
         }
     </style>
@@ -1538,9 +1790,66 @@
             <label for="playerName">Your Name:</label>
             <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
         </div>
+
+        <div class="piece-selection">
+            <h3>Choose Your Game Piece:</h3>
+            <div class="pieces-grid">
+                <div class="piece-option" data-piece="car" onclick="selectPiece('car')">
+                    <div>
+                        <div>🚗</div>
+                        <div class="piece-name">Car</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="dog" onclick="selectPiece('dog')">
+                    <div>
+                        <div>🐕</div>
+                        <div class="piece-name">Dog</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="hat" onclick="selectPiece('hat')">
+                    <div>
+                        <div>🎩</div>
+                        <div class="piece-name">Top Hat</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="boot" onclick="selectPiece('boot')">
+                    <div>
+                        <div>👠</div>
+                        <div class="piece-name">Boot</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="ship" onclick="selectPiece('ship')">
+                    <div>
+                        <div>⛵</div>
+                        <div class="piece-name">Ship</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="plane" onclick="selectPiece('plane')">
+                    <div>
+                        <div>✈️</div>
+                        <div class="piece-name">Plane</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="cat" onclick="selectPiece('cat')">
+                    <div>
+                        <div>🐱</div>
+                        <div class="piece-name">Cat</div>
+                    </div>
+                </div>
+                <div class="piece-option" data-piece="rocket" onclick="selectPiece('rocket')">
+                    <div>
+                        <div>🚀</div>
+                        <div class="piece-name">Rocket</div>
+                    </div>
+                </div>
+            </div>
+            <div id="selected-piece-info" class="selected-piece-display hidden">
+                <span id="selected-piece-text">You have selected: </span><span id="selected-piece-name"></span>
+            </div>
+        </div>
         
         <div class="room-actions">
-            <button class="btn btn-primary" onclick="gameController.createRoom()">Create Room</button>
+            <button class="btn btn-primary" id="create-room-btn" onclick="gameController.createRoom()" disabled>Create Room</button>
             <button class="btn btn-secondary" onclick="gameController.showJoinForm()">Join Room</button>
         </div>
         
@@ -1549,7 +1858,7 @@
                 <label for="roomCode">Room Code:</label>
                 <input type="text" id="roomCode" placeholder="Enter room code" maxlength="6">
             </div>
-            <button class="btn btn-primary" onclick="gameController.joinRoom()">Join Game</button>
+            <button class="btn btn-primary" id="join-room-btn" onclick="gameController.joinRoom()" disabled>Join Game</button>
         </div>
         
         <div id="room-created" class="hidden">
@@ -1742,7 +2051,7 @@
                 <div class="space corner free-parking" data-index="20">
                     <div class="container">
                         <div class="name">Free</div>
-                        <i class="fa fa-car" style="font-size: 30px; color: white;"></i>
+                        <i class="fa fa-car" style="font-size: 24px; color: white;"></i>
                         <div class="name">Parking</div>
                     </div>
                 </div>
@@ -1823,7 +2132,7 @@
                 <div class="space corner go-to-jail" data-index="30">
                     <div class="container">
                         <div class="name">Go To</div>
-                        <i class="fa fa-gavel" style="font-size: 30px; color: white;"></i>
+                        <i class="fa fa-gavel" style="font-size: 24px; color: white;"></i>
                         <div class="name">Jail</div>
                     </div>
                 </div>
@@ -2331,12 +2640,59 @@
                 this.socket = io('https://business-monopoly-server.onrender.com');
                 this.currentRoom = null;
                 this.currentPlayer = null;
+                this.selectedPiece = null;
+                this.takenPieces = [];
                 this.gameData = null;
                 this.canBuyProperty = false;
                 this.propertyToBuy = null;
                 this.isPlayerMoving = false;
                 this.initializeSocketEvents();
                 this.initializeKeyboardNavigation();
+            }
+
+            getPieceIcon(piece) {
+                const pieces = {
+                    'car': '🚗',
+                    'dog': '🐕',
+                    'hat': '🎩',
+                    'boot': '👠',
+                    'ship': '⛵',
+                    'plane': '✈️',
+                    'cat': '🐱',
+                    'rocket': '🚀'
+                };
+                return pieces[piece] || '🎯';
+            }
+
+            updatePieceAvailability(takenPieces) {
+                this.takenPieces = takenPieces || [];
+                
+                document.querySelectorAll('.piece-option').forEach(option => {
+                    const piece = option.dataset.piece;
+                    
+                    if (this.takenPieces.includes(piece)) {
+                        option.classList.add('taken');
+                        option.classList.remove('selected');
+                        option.onclick = null;
+                    } else {
+                        option.classList.remove('taken');
+                        option.onclick = () => selectPiece(piece);
+                    }
+                });
+
+                this.validateRoomActions();
+            }
+
+            validateRoomActions() {
+                const playerName = document.getElementById('playerName').value.trim();
+                const createBtn = document.getElementById('create-room-btn');
+                const joinBtn = document.getElementById('join-room-btn');
+                const roomCode = document.getElementById('roomCode').value.trim();
+
+                const isValid = playerName && this.selectedPiece;
+                
+                createBtn.disabled = !isValid;
+                joinBtn.disabled = !(isValid && roomCode);
             }
 
             initializeSocketEvents() {
@@ -2349,11 +2705,16 @@
                     this.showReconnectMessage();
                 });
 
-                this.socket.on('roomCreated', (roomCode) => {
-                    this.currentRoom = roomCode;
+                this.socket.on('roomCreated', (data) => {
+                    this.currentRoom = data.roomCode;
                     this.currentPlayer = document.getElementById('playerName').value.trim();
-                    document.getElementById('room-code').textContent = roomCode;
+                    document.getElementById('room-code').textContent = data.roomCode;
                     document.getElementById('room-created').classList.remove('hidden');
+                    
+                    // Update piece availability
+                    if (data.takenPieces) {
+                        this.updatePieceAvailability(data.takenPieces);
+                    }
                 });
 
                 this.socket.on('roomJoined', (data) => {
@@ -2362,13 +2723,21 @@
                     document.getElementById('room-setup').classList.add('hidden');
                     document.getElementById('game-container').classList.remove('hidden');
                     this.updatePlayersDisplay(data.players);
+                    
+                    // Update piece availability for new room
+                    const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
+                    this.updatePieceAvailability(takenPieces);
                 });
 
-                this.socket.on('playersUpdated', (players) => {
-                    this.updatePlayersDisplay(players);
+                this.socket.on('playersUpdated', (data) => {
+                    this.updatePlayersDisplay(data.players);
                     
-                    if (this.currentRoom && players.length >= 2) {
-                        const hostPlayer = players.find(p => p.isHost);
+                    // Update piece availability
+                    const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
+                    this.updatePieceAvailability(takenPieces);
+                    
+                    if (this.currentRoom && data.players.length >= 2) {
+                        const hostPlayer = data.players.find(p => p.isHost);
                         if (hostPlayer && hostPlayer.name === this.currentPlayer) {
                             document.getElementById('start-game-btn').classList.remove('hidden');
                         }
@@ -2450,8 +2819,21 @@
                     this.updateCardsDisplay();
                 });
 
-                this.socket.on('error', (message) => {
+                this.socket.on('pieceAvailabilityUpdate', (takenPieces) => {
+                    this.updatePieceAvailability(takenPieces);
+                });
                     this.showMessage('Error: ' + message, 'error');
+                    
+                    // If piece was taken, refresh piece availability
+                    if (message.includes('piece') || message.includes('taken')) {
+                        // Reset piece selection
+                        this.selectedPiece = null;
+                        document.querySelectorAll('.piece-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        document.getElementById('selected-piece-info').classList.add('hidden');
+                        this.validateRoomActions();
+                    }
                 });
             }
 
@@ -2519,11 +2901,20 @@
                     return;
                 }
                 
-                this.socket.emit('createRoom', { playerName });
+                if (!this.selectedPiece) {
+                    this.showMessage('Please select a game piece', 'error');
+                    return;
+                }
+                
+                this.socket.emit('createRoom', { 
+                    playerName: playerName,
+                    selectedPiece: this.selectedPiece
+                });
             }
 
             showJoinForm() {
                 document.getElementById('join-form').classList.remove('hidden');
+                this.validateRoomActions();
             }
 
             joinRoom() {
@@ -2535,7 +2926,16 @@
                     return;
                 }
                 
-                this.socket.emit('joinRoom', { roomCode, playerName });
+                if (!this.selectedPiece) {
+                    this.showMessage('Please select a game piece', 'error');
+                    return;
+                }
+                
+                this.socket.emit('joinRoom', { 
+                    roomCode: roomCode, 
+                    playerName: playerName,
+                    selectedPiece: this.selectedPiece
+                });
             }
 
             startGame() {
@@ -2900,18 +3300,18 @@
                 collegeMessage.style.cssText = `
                     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
                     background: linear-gradient(135deg, #4CAF50, #45a049); 
-                    color: white; padding: 30px; border-radius: 20px; 
-                    max-width: 400px; z-index: 1002; text-align: center;
-                    border: 4px solid #2e7d32; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-                    font-size: 18px; font-weight: bold;
+                    color: white; padding: 24px; border-radius: 16px; 
+                    max-width: 315px; z-index: 1002; text-align: center;
+                    border: 3px solid #2e7d32; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                    font-size: 14px; font-weight: bold;
                 `;
                 collegeMessage.innerHTML = `
-                    <div style="font-size: 48px; margin-bottom: 15px;">🎓👮‍♂️</div>
-                    <div style="font-size: 20px; margin-bottom: 10px;">Go to Jail?</div>
-                    <div style="font-size: 16px; line-height: 1.5;">
+                    <div style="font-size: 38px; margin-bottom: 12px;">🎓👮‍♂️</div>
+                    <div style="font-size: 16px; margin-bottom: 8px;">Go to Jail?</div>
+                    <div style="font-size: 13px; line-height: 1.5;">
                         "I cannot send you to Jail whilst you are at college!"
                     </div>
-                    <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
+                    <div style="font-size: 11px; margin-top: 12px; opacity: 0.9;">
                         Education protects you! Stay on this space.
                     </div>
                 `;
@@ -3020,8 +3420,7 @@
                         break;
                         
                     case 'moveBack':
-                        const newPos = Math.max(0, currentPosition - card.spaces);
-                        this.movePlayerTo(playerIndex, newPos);
+                        this.movePlayerBack(playerIndex, card.spaces);
                         break;
                         
                     case 'moveToNearestRailway':
@@ -3096,6 +3495,111 @@
                 this.animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
             }
 
+            movePlayerBack(playerIndex, spacesToMoveBack) {
+                if (!this.gameData || !this.gameData.players[playerIndex]) return;
+                
+                const player = this.gameData.players[playerIndex];
+                const currentPosition = player.position;
+                const targetPosition = (currentPosition - spacesToMoveBack + 40) % 40;
+                
+                console.log(`Moving player ${playerIndex} BACKWARD from ${currentPosition} to ${targetPosition} (${spacesToMoveBack} spaces back)`);
+                
+                this.isPlayerMoving = true;
+                this.animatePlayerMovementBackward(playerIndex, currentPosition, targetPosition, spacesToMoveBack);
+            }
+
+            animatePlayerMovementBackward(playerIndex, fromPosition, toPosition, totalSteps) {
+                const piece = document.getElementById(`player-${playerIndex}`);
+                if (!piece) {
+                    console.error(`Player piece not found: player-${playerIndex}`);
+                    return;
+                }
+
+                console.log(`Animating player ${playerIndex} BACKWARD movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
+
+                let currentPosition = fromPosition;
+                let stepsRemaining = totalSteps;
+
+                // Highlight destination
+                const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
+                if (destinationSquare) {
+                    destinationSquare.style.boxShadow = '0 0 25px #FFD700';
+                    destinationSquare.style.border = '3px solid #FFD700';
+                    destinationSquare.style.transform = 'scale(1.05)';
+                    destinationSquare.style.zIndex = '50';
+                }
+
+                const moveOneStepBackward = () => {
+                    if (stepsRemaining <= 0) {
+                        console.log(`Backward movement complete. Final position: ${currentPosition}`);
+                        
+                        // Clear movement flag
+                        this.isPlayerMoving = false;
+                        
+                        // Update game data with final position
+                        if (this.gameData && this.gameData.players[playerIndex]) {
+                            this.gameData.players[playerIndex].position = toPosition;
+                        }
+                        
+                        // Clear destination highlighting
+                        if (destinationSquare) {
+                            destinationSquare.style.boxShadow = '';
+                            destinationSquare.style.border = '';
+                            destinationSquare.style.transform = '';
+                            destinationSquare.style.zIndex = '';
+                        }
+                        
+                        // Remove moving animation
+                        piece.classList.remove('moving');
+                        
+                        // Handle special spaces after movement completes
+                        setTimeout(() => {
+                            this.handleSpecialSpace(playerIndex, toPosition);
+                            this.updateGameControls();
+                            this.updatePlayersDisplay(this.gameData.players);
+                        }, 500);
+                        
+                        return;
+                    }
+
+                    // Calculate next position (anticlockwise around board)
+                    currentPosition = (currentPosition - 1 + 40) % 40;
+                    stepsRemaining--;
+
+                    console.log(`Moving backward to position ${currentPosition}, ${stepsRemaining} steps remaining`);
+
+                    // Move piece to new position
+                    const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
+                    if (newProperty) {
+                        // Remove piece from current location
+                        piece.remove();
+                        
+                        // Add to new location
+                        newProperty.appendChild(piece);
+                        
+                        // Reset positioning
+                        piece.style.left = '50%';
+                        piece.style.top = '50%';
+                        piece.style.transform = 'translate(-50%, -50%)';
+                        
+                        // Add moving animation
+                        piece.classList.add('moving');
+                        soundManager.play('playerMove');
+                        
+                        // Continue to next step after delay
+                        setTimeout(() => {
+                            moveOneStepBackward();
+                        }, 600);
+                    } else {
+                        console.error(`Could not find property element for position ${currentPosition}`);
+                        setTimeout(moveOneStepBackward, 600);
+                    }
+                };
+
+                // Start the backward movement
+                moveOneStepBackward();
+            }
+
             // UI Update Methods
             updatePlayersDisplay(players) {
                 const playersList = document.getElementById('players-list');
@@ -3108,10 +3612,15 @@
                     const achievements = learningAnalytics.data.achievements.slice(0, 3).map(id => 
                         `<div class="achievement-badge" title="${id}">🏆</div>`
                     ).join('');
+
+                    const pieceIcon = player.selectedPiece ? gameController.getPieceIcon(player.selectedPiece) : player.name.charAt(0).toUpperCase();
                     
                     playerItem.innerHTML = `
                         <div>
-                            <div style="font-weight: bold;">${player.name} ${player.isHost ? '👑' : ''}</div>
+                            <div style="font-weight: bold;">
+                                <span style="font-size: 16px; margin-right: 8px;">${pieceIcon}</span>
+                                ${player.name} ${player.isHost ? '👑' : ''}
+                            </div>
                             <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
                             <div class="player-achievements">${achievements}</div>
                         </div>
@@ -3129,7 +3638,16 @@
                 this.gameData.players.forEach((player, index) => {
                     const piece = document.createElement('div');
                     piece.className = `player-piece player-piece-${index}`;
-                    piece.textContent = player.name.charAt(0).toUpperCase();
+                    
+                    // Use selected piece icon or fallback to name initial
+                    if (player.selectedPiece) {
+                        piece.textContent = this.getPieceIcon(player.selectedPiece);
+                        piece.style.fontSize = '16px'; // Slightly larger for emojis
+                    } else {
+                        piece.textContent = player.name.charAt(0).toUpperCase();
+                        piece.style.fontSize = '9px'; // Original size for letters
+                    }
+                    
                     piece.title = `${player.name} - £${player.money}`;
                     piece.id = `player-${index}`;
                     
@@ -3142,7 +3660,7 @@
                         const existingPieces = property.querySelectorAll('.player-piece').length;
                         if (existingPieces > 1) {
                             const angle = (existingPieces - 1) * (360 / this.gameData.players.length);
-                            const radius = 15;
+                            const radius = 12;
                             const x = Math.cos(angle * Math.PI / 180) * radius;
                             const y = Math.sin(angle * Math.PI / 180) * radius;
                             piece.style.left = `calc(50% + ${x}px)`;
@@ -3426,13 +3944,13 @@
                 const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
                 
                 messageDiv.style.cssText = `
-                    position: fixed; top: 20px; right: 20px; 
+                    position: fixed; top: 16px; right: 16px; 
                     background: ${bgColor}; color: ${textColor};
-                    padding: 15px; border-radius: 10px; 
-                    max-width: 300px; z-index: 1001;
+                    padding: 12px; border-radius: 8px; 
+                    max-width: 235px; z-index: 1001;
                     border: 2px solid ${borderColor};
-                    font-size: 14px; text-transform: none;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    font-size: 11px; text-transform: none;
+                    box-shadow: 0 3px 9px rgba(0,0,0,0.2);
                 `;
                 messageDiv.textContent = text;
                 document.body.appendChild(messageDiv);
@@ -3442,6 +3960,46 @@
         }
 
         // ====== GLOBAL FUNCTIONS ======
+
+        function selectPiece(piece) {
+            // Don't allow selection of taken pieces
+            if (gameController.takenPieces.includes(piece)) {
+                return;
+            }
+
+            // Remove previous selection
+            document.querySelectorAll('.piece-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Select new piece
+            const selectedOption = document.querySelector(`[data-piece="${piece}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                gameController.selectedPiece = piece;
+
+                // Show selection info
+                const selectedInfo = document.getElementById('selected-piece-info');
+                const selectedName = document.getElementById('selected-piece-name');
+                
+                const pieceNames = {
+                    'car': '🚗 Car',
+                    'dog': '🐕 Dog',
+                    'hat': '🎩 Top Hat',
+                    'boot': '👠 Boot',
+                    'ship': '⛵ Ship',
+                    'plane': '✈️ Plane',
+                    'cat': '🐱 Cat',
+                    'rocket': '🚀 Rocket'
+                };
+
+                selectedName.textContent = pieceNames[piece];
+                selectedInfo.classList.remove('hidden');
+
+                // Update button states
+                gameController.validateRoomActions();
+            }
+        }
 
         function showPropertyInfo(propertyIndex) {
             const property = propertyManager.getProperty(propertyIndex);
@@ -3559,10 +4117,19 @@
                 }
             });
 
+            // Setup form validation
+            document.getElementById('playerName').addEventListener('input', () => {
+                gameController.validateRoomActions();
+            });
+
             document.getElementById('roomCode').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     gameController.joinRoom();
                 }
+            });
+
+            document.getElementById('roomCode').addEventListener('input', () => {
+                gameController.validateRoomActions();
             });
 
             // Initialize learning analytics display
