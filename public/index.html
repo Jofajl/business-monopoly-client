@@ -501,7 +501,39 @@
             border: 2px solid #ddd;
         }
 
-        /* Dice Animation - Two D6 dice (1-6 each, total 2-12) */
+        /* Card Display */
+        .card-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            font-size: 11px;
+            text-transform: none;
+            border-left: 4px solid #f39c12;
+        }
+
+        .card-item.chance {
+            background: #ffeef0;
+            border-color: #ffccd5;
+            border-left-color: var(--red);
+        }
+
+        .card-item.community {
+            background: #e8f4fd;
+            border-color: #b3d9ff;
+            border-left-color: var(--light-blue);
+        }
+
+        /* Special Space Animation */
+        .space.special-landed {
+            animation: specialGlow 2s ease-in-out;
+        }
+
+        @keyframes specialGlow {
+            0%, 100% { box-shadow: none; }
+            50% { box-shadow: 0 0 30px #ffd700; }
+        }
         .dice {
             width: 60px;
             height: 60px;
@@ -812,66 +844,137 @@
                     </div>
                 </div>
 
-                <!-- Bottom Row -->
+                <!-- Bottom Row (Moving LEFT from GO) -->
                 <div class="row horizontal-row bottom-row">
-                    <div class="space property" data-index="39">
+                    <div class="space property" data-index="1">
                         <div class="container">
-                            <div class="color-bar dark-blue"></div>
-                            <div class="name">Mayfair</div>
-                            <div class="price">£400</div>
+                            <div class="color-bar dark-purple"></div>
+                            <div class="name">Old Kent Rd</div>
+                            <div class="price">£60</div>
                         </div>
                     </div>
-                    <div class="space fee" data-index="38">
-                        <div class="container">
-                            <div class="name">Super Tax</div>
-                            <div class="instructions">Pay £100</div>
-                        </div>
-                    </div>
-                    <div class="space property" data-index="37">
-                        <div class="container">
-                            <div class="color-bar dark-blue"></div>
-                            <div class="name">Park Lane</div>
-                            <div class="price">£350</div>
-                        </div>
-                    </div>
-                    <div class="space chance" data-index="36">
-                        <div class="container">
-                            <div class="name">Chance</div>
-                            <i class="drawing fa fa-question"></i>
-                        </div>
-                    </div>
-                    <div class="space railroad" data-index="35">
-                        <div class="container">
-                            <div class="name">Liverpool St</div>
-                            <i class="drawing fa fa-subway"></i>
-                            <div class="price">£200</div>
-                        </div>
-                    </div>
-                    <div class="space property" data-index="34">
-                        <div class="container">
-                            <div class="color-bar green"></div>
-                            <div class="name">Bond Street</div>
-                            <div class="price">£320</div>
-                        </div>
-                    </div>
-                    <div class="space community-chest" data-index="33">
+                    <div class="space community-chest" data-index="2">
                         <div class="container">
                             <div class="name">Community</div>
                             <i class="drawing fa fa-cube"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="32">
+                    <div class="space property" data-index="3">
                         <div class="container">
-                            <div class="color-bar green"></div>
-                            <div class="name">Oxford St</div>
-                            <div class="price">£300</div>
+                            <div class="color-bar dark-purple"></div>
+                            <div class="name">Whitechapel</div>
+                            <div class="price">£60</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="31">
+                    <div class="space fee" data-index="4">
                         <div class="container">
-                            <div class="color-bar green"></div>
-                            <div class="name">Regent St</div>
-                            <div class="price">£300</div>
+                            <div class="name">Income Tax</div>
+                            <div class="instructions">Pay £200</div>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="5">
+                        <div class="container">
+                            <div class="name">King's Cross</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="6">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Angel</div>
+                            <div class="price">£100</div>
+                        </div>
+                    </div>
+                    <div class="space chance" data-index="7">
+                        <div class="container">
+                            <div class="name">Chance</div>
+                            <i class="drawing fa fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="8">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Euston Road</div>
+                            <div class="price">£100</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="9">
+                        <div class="container">
+                            <div class="color-bar light-blue"></div>
+                            <div class="name">Pentonville</div>
+                            <div class="price">£120</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corner: Jail -->
+                <div class="space corner jail" data-index="10">
+                    <div class="name">Jail</div>
+                </div>
+
+                <!-- Left Row (Moving UP from Jail) -->
+                <div class="row vertical-row left-row">
+                    <div class="space property" data-index="11">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Pall Mall</div>
+                            <div class="price">£140</div>
+                        </div>
+                    </div>
+                    <div class="space utility" data-index="12">
+                        <div class="container">
+                            <div class="name">Electric Co</div>
+                            <i class="drawing fa fa-lightbulb-o"></i>
+                            <div class="price">£150</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="13">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Whitehall</div>
+                            <div class="price">£140</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="14">
+                        <div class="container">
+                            <div class="color-bar purple"></div>
+                            <div class="name">Northumberland</div>
+                            <div class="price">£160</div>
+                        </div>
+                    </div>
+                    <div class="space railroad" data-index="15">
+                        <div class="container">
+                            <div class="name">Marylebone</div>
+                            <i class="drawing fa fa-subway"></i>
+                            <div class="price">£200</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="16">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Bow Street</div>
+                            <div class="price">£180</div>
+                        </div>
+                    </div>
+                    <div class="space community-chest" data-index="17">
+                        <div class="container">
+                            <div class="name">Community</div>
+                            <i class="drawing fa fa-cube"></i>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="18">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Marlborough</div>
+                            <div class="price">£180</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="19">
+                        <div class="container">
+                            <div class="color-bar orange"></div>
+                            <div class="name">Vine Street</div>
+                            <div class="price">£200</div>
                         </div>
                     </div>
                 </div>
@@ -885,8 +988,8 @@
                     </div>
                 </div>
 
-                <!-- Right Row -->
-                <div class="row vertical-row right-row">
+                <!-- Top Row (Moving RIGHT from Free Parking) -->
+                <div class="row horizontal-row top-row">
                     <div class="space property" data-index="21">
                         <div class="container">
                             <div class="color-bar red"></div>
@@ -960,137 +1063,66 @@
                     </div>
                 </div>
 
-                <!-- Top Row -->
-                <div class="row horizontal-row top-row">
-                    <div class="space property" data-index="11">
+                <!-- Right Row (Moving DOWN from Go to Jail) -->
+                <div class="row vertical-row right-row">
+                    <div class="space property" data-index="31">
                         <div class="container">
-                            <div class="color-bar purple"></div>
-                            <div class="name">Pall Mall</div>
-                            <div class="price">£140</div>
+                            <div class="color-bar green"></div>
+                            <div class="name">Regent St</div>
+                            <div class="price">£300</div>
                         </div>
                     </div>
-                    <div class="space utility" data-index="12">
+                    <div class="space property" data-index="32">
                         <div class="container">
-                            <div class="name">Electric Co</div>
-                            <i class="drawing fa fa-lightbulb-o"></i>
-                            <div class="price">£150</div>
+                            <div class="color-bar green"></div>
+                            <div class="name">Oxford St</div>
+                            <div class="price">£300</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="13">
-                        <div class="container">
-                            <div class="color-bar purple"></div>
-                            <div class="name">Whitehall</div>
-                            <div class="price">£140</div>
-                        </div>
-                    </div>
-                    <div class="space property" data-index="14">
-                        <div class="container">
-                            <div class="color-bar purple"></div>
-                            <div class="name">Northumberland</div>
-                            <div class="price">£160</div>
-                        </div>
-                    </div>
-                    <div class="space railroad" data-index="15">
-                        <div class="container">
-                            <div class="name">Marylebone</div>
-                            <i class="drawing fa fa-subway"></i>
-                            <div class="price">£200</div>
-                        </div>
-                    </div>
-                    <div class="space property" data-index="16">
-                        <div class="container">
-                            <div class="color-bar orange"></div>
-                            <div class="name">Bow Street</div>
-                            <div class="price">£180</div>
-                        </div>
-                    </div>
-                    <div class="space community-chest" data-index="17">
+                    <div class="space community-chest" data-index="33">
                         <div class="container">
                             <div class="name">Community</div>
                             <i class="drawing fa fa-cube"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="18">
+                    <div class="space property" data-index="34">
                         <div class="container">
-                            <div class="color-bar orange"></div>
-                            <div class="name">Marlborough</div>
-                            <div class="price">£180</div>
+                            <div class="color-bar green"></div>
+                            <div class="name">Bond Street</div>
+                            <div class="price">£320</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="19">
+                    <div class="space railroad" data-index="35">
                         <div class="container">
-                            <div class="color-bar orange"></div>
-                            <div class="name">Vine Street</div>
-                            <div class="price">£200</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Corner: Jail -->
-                <div class="space corner jail" data-index="10">
-                    <div class="name">Jail</div>
-                </div>
-
-                <!-- Left Row -->
-                <div class="row vertical-row left-row">
-                    <div class="space property" data-index="1">
-                        <div class="container">
-                            <div class="color-bar dark-purple"></div>
-                            <div class="name">Old Kent Rd</div>
-                            <div class="price">£60</div>
-                        </div>
-                    </div>
-                    <div class="space community-chest" data-index="2">
-                        <div class="container">
-                            <div class="name">Community</div>
-                            <i class="drawing fa fa-cube"></i>
-                        </div>
-                    </div>
-                    <div class="space property" data-index="3">
-                        <div class="container">
-                            <div class="color-bar dark-purple"></div>
-                            <div class="name">Whitechapel</div>
-                            <div class="price">£60</div>
-                        </div>
-                    </div>
-                    <div class="space fee" data-index="4">
-                        <div class="container">
-                            <div class="name">Income Tax</div>
-                            <div class="instructions">Pay £200</div>
-                        </div>
-                    </div>
-                    <div class="space railroad" data-index="5">
-                        <div class="container">
-                            <div class="name">King's Cross</div>
+                            <div class="name">Liverpool St</div>
                             <i class="drawing fa fa-subway"></i>
                             <div class="price">£200</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="6">
-                        <div class="container">
-                            <div class="color-bar light-blue"></div>
-                            <div class="name">Angel</div>
-                            <div class="price">£100</div>
-                        </div>
-                    </div>
-                    <div class="space chance" data-index="7">
+                    <div class="space chance" data-index="36">
                         <div class="container">
                             <div class="name">Chance</div>
                             <i class="drawing fa fa-question"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="8">
+                    <div class="space property" data-index="37">
                         <div class="container">
-                            <div class="color-bar light-blue"></div>
-                            <div class="name">Euston Road</div>
-                            <div class="price">£100</div>
+                            <div class="color-bar dark-blue"></div>
+                            <div class="name">Park Lane</div>
+                            <div class="price">£350</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="9">
+                    <div class="space fee" data-index="38">
                         <div class="container">
-                            <div class="color-bar light-blue"></div>
-                            <div class="name">Pentonville</div>
-                            <div class="price">£120</div>
+                            <div class="name">Super Tax</div>
+                            <div class="instructions">Pay £100</div>
+                        </div>
+                    </div>
+                    <div class="space property" data-index="39">
+                        <div class="container">
+                            <div class="color-bar dark-blue"></div>
+                            <div class="name">Mayfair</div>
+                            <div class="price">£400</div>
                         </div>
                     </div>
                 </div>
@@ -1123,6 +1155,11 @@
                 <h3>🏠 Properties</h3>
                 <div id="properties-list">No properties owned</div>
             </div>
+
+            <div class="panel-section">
+                <h3>🃏 Cards</h3>
+                <div id="cards-list">No cards held</div>
+            </div>
         </div>
     </div>
 
@@ -1141,6 +1178,15 @@
         </div>
     </div>
 
+    <!-- Card Modal -->
+    <div id="card-modal" class="question-modal hidden">
+        <div class="question-content">
+            <h2 id="card-title" class="question-title">🃏 Card</h2>
+            <div id="card-text" class="question-text"></div>
+            <div style="margin-top: 20px; font-size: 14px; color: #666;">Card will be applied automatically...</div>
+        </div>
+    </div>
+
     <script>
         const socket = io('https://business-monopoly-server.onrender.com');
         let currentRoom = null;
@@ -1148,6 +1194,71 @@
         let gameData = null;
         let canBuyProperty = false;
         let propertyToBuy = null;
+
+        // Chance and Community Chest Cards
+        const chanceCards = [
+            { text: "Advance to GO - Collect £200", action: "moveToGo" },
+            { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
+            { text: "Pay £15 speeding fine", action: "payMoney", amount: 15 },
+            { text: "Your building loan matures - Receive £150", action: "receiveMoney", amount: 150 },
+            { text: "You have won a crossword competition - Collect £100", action: "receiveMoney", amount: 100 },
+            { text: "Bank pays you dividend of £50", action: "receiveMoney", amount: 50 },
+            { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
+            { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
+            { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
+            { text: "Make general repairs on all your property - £25 per house, £100 per hotel", action: "propertyRepairs" }
+        ];
+
+        const communityChestCards = [
+            { text: "Advance to GO - Collect £200", action: "moveToGo" },
+            { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
+            { text: "Doctor's fee - Pay £50", action: "payMoney", amount: 50 },
+            { text: "From sale of stock you get £50", action: "receiveMoney", amount: 50 },
+            { text: "Holiday fund matures - Receive £100", action: "receiveMoney", amount: 100 },
+            { text: "Income tax refund - Collect £20", action: "receiveMoney", amount: 20 },
+            { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
+            { text: "Life insurance matures - Collect £100", action: "receiveMoney", amount: 100 },
+            { text: "Hospital fees - Pay £100", action: "payMoney", amount: 100 },
+            { text: "School fees - Pay £50", action: "payMoney", amount: 50 }
+        ];
+
+        function showCardModal(title, text, type) {
+            document.getElementById('card-modal').classList.remove('hidden');
+            document.getElementById('card-title').textContent = title;
+            document.getElementById('card-text').textContent = text;
+            
+            const modal = document.getElementById('card-modal');
+            const content = modal.querySelector('.question-content');
+            if (type === 'chance') {
+                content.style.backgroundColor = '#fff5f5';
+                content.style.borderColor = '#f50c2b';
+            } else {
+                content.style.backgroundColor = '#f0f8ff';
+                content.style.borderColor = '#d2eaf5';
+            }
+        }
+
+        function hideCardModal() {
+            document.getElementById('card-modal').classList.add('hidden');
+        }
+
+        function updateCardsDisplay() {
+            if (!gameData || !currentPlayer) return;
+            
+            const player = gameData.players.find(p => p.name === currentPlayer);
+            if (!player) return;
+            
+            const cardsList = document.getElementById('cards-list');
+            if (!player.cards || player.cards.length === 0) {
+                cardsList.innerHTML = 'No cards held';
+                return;
+            }
+            
+            cardsList.innerHTML = player.cards.map(card => {
+                const cardType = card.type.includes('Jail') ? 'chance' : 'community';
+                return `<div class="card-item ${cardType}">${card.text}</div>`;
+            }).join('');
+        }
 
         // Room Management
         function createRoom() {
@@ -1298,14 +1409,17 @@
             // Function to move one step
             function moveOneStep() {
                 if (stepsRemaining <= 0) {
-                    // Movement complete - add final bounce
+                    // Movement complete - check for special spaces
+                    handleSpecialSpace(playerIndex, toPosition);
+                    
+                    // Add final bounce
                     piece.classList.add('moving');
                     setTimeout(() => piece.classList.remove('moving'), 800);
                     
                     // Update game controls after movement
                     setTimeout(() => {
                         updateGameControls();
-                    }, 500);
+                    }, 1000);
                     return;
                 }
 
@@ -1350,6 +1464,148 @@
 
             // Start the movement
             moveOneStep();
+        }
+
+        function handleSpecialSpace(playerIndex, position) {
+            const space = document.querySelector(`[data-index="${position}"]`);
+            if (space) {
+                space.classList.add('special-landed');
+                setTimeout(() => space.classList.remove('special-landed'), 2000);
+            }
+
+            // Handle different special spaces
+            switch(position) {
+                case 2: // Community Chest
+                case 17:
+                case 33:
+                    handleCommunityChest(playerIndex);
+                    break;
+                case 7: // Chance
+                case 22:
+                case 36:
+                    handleChance(playerIndex);
+                    break;
+                case 30: // Go to Jail
+                    handleGoToJail(playerIndex);
+                    break;
+                case 4: // Income Tax
+                    handleIncomeTax(playerIndex);
+                    break;
+                case 38: // Super Tax
+                    handleSuperTax(playerIndex);
+                    break;
+                case 10: // Just Visiting Jail
+                case 20: // Free Parking
+                    // No special action needed
+                    break;
+                default:
+                    // Regular property space
+                    break;
+            }
+        }
+
+        function handleCommunityChest(playerIndex) {
+            const card = getRandomCard(communityChestCards);
+            showCardModal('Community Chest', card.text, 'community');
+            
+            setTimeout(() => {
+                executeCardAction(playerIndex, card);
+                hideCardModal();
+            }, 3000);
+        }
+
+        function handleChance(playerIndex) {
+            const card = getRandomCard(chanceCards);
+            showCardModal('Chance', card.text, 'chance');
+            
+            setTimeout(() => {
+                executeCardAction(playerIndex, card);
+                hideCardModal();
+            }, 3000);
+        }
+
+        function handleGoToJail(playerIndex) {
+            showMessage('👮 Go directly to Jail! Do not pass GO!', 'error');
+            
+            // Move player to jail (position 10) immediately
+            setTimeout(() => {
+                const piece = document.getElementById(`player-${playerIndex}`);
+                const jailSpace = document.querySelector(`[data-index="10"]`);
+                if (piece && jailSpace) {
+                    piece.remove();
+                    jailSpace.appendChild(piece);
+                    piece.style.left = '50%';
+                    piece.style.top = '50%';
+                    piece.style.transform = 'translate(-50%, -50%)';
+                }
+                
+                // Update game data
+                if (gameData && gameData.players[playerIndex]) {
+                    gameData.players[playerIndex].position = 10;
+                    gameData.players[playerIndex].inJail = true;
+                }
+            }, 1000);
+        }
+
+        function handleIncomeTax(playerIndex) {
+            showMessage('💰 Income Tax - Pay £200', 'error');
+            if (gameData && gameData.players[playerIndex]) {
+                gameData.players[playerIndex].money -= 200;
+                updatePlayersDisplay(gameData.players);
+            }
+        }
+
+        function handleSuperTax(playerIndex) {
+            showMessage('💰 Super Tax - Pay £100', 'error');
+            if (gameData && gameData.players[playerIndex]) {
+                gameData.players[playerIndex].money -= 100;
+                updatePlayersDisplay(gameData.players);
+            }
+        }
+
+        function executeCardAction(playerIndex, card) {
+            const player = gameData.players[playerIndex];
+            
+            switch(card.action) {
+                case 'moveToGo':
+                    player.position = 0;
+                    player.money += 200;
+                    showMessage('🎯 Advanced to GO! Collect £200', 'success');
+                    updatePlayerPieces();
+                    break;
+                case 'goToJail':
+                    handleGoToJail(playerIndex);
+                    break;
+                case 'payMoney':
+                    player.money -= card.amount;
+                    showMessage(`💰 Pay £${card.amount}`, 'error');
+                    break;
+                case 'receiveMoney':
+                    player.money += card.amount;
+                    showMessage(`💰 Receive £${card.amount}`, 'success');
+                    break;
+                case 'getOutOfJail':
+                    if (!player.cards) player.cards = [];
+                    player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
+                    showMessage('🔓 Get Out of Jail Free card added!', 'info');
+                    updateCardsDisplay();
+                    break;
+                case 'moveTo':
+                    const oldPos = player.position;
+                    player.position = card.position;
+                    if (card.position < oldPos) {
+                        player.money += 200; // Passed GO
+                        showMessage('🎯 Passed GO! Collect £200', 'success');
+                    }
+                    updatePlayerPieces();
+                    break;
+                case 'moveBack':
+                    player.position = Math.max(0, player.position - card.spaces);
+                    updatePlayerPieces();
+                    break;
+            }
+            
+            updatePlayersDisplay(gameData.players);
         }
 
         function updateTurnIndicator() {
@@ -1551,6 +1807,7 @@
             updateTurnIndicator();
             updateGameControls();
             updatePlayerPieces();
+            updateCardsDisplay();
         });
 
         socket.on('gameUpdated', (room) => {
@@ -1560,6 +1817,7 @@
             updateGameControls();
             updatePlayerPieces();
             updatePropertiesDisplay();
+            updateCardsDisplay();
         });
 
         socket.on('questionReceived', (question) => {
@@ -1647,6 +1905,8 @@
             gameData = data.gameData;
             canBuyProperty = false;
             propertyToBuy = null;
+            updatePropertiesDisplay();
+            updateCardsDisplay();
         });
 
         socket.on('statsUpdated', (stats) => {
