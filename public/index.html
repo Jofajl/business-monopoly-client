@@ -140,15 +140,16 @@
             background: var(--board);
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            grid-template-rows: repeat(7, 1fr);
+            grid-template-rows: repeat(9, 1fr);
             justify-items: center;
             align-items: center;
             border-radius: 8px;
+            padding: 20px;
         }
 
         .title {
             grid-column: 1 / 8;
-            grid-row: 3 / 4;
+            grid-row: 2 / 3;
             font-size: 48px;
             font-weight: 600;
             letter-spacing: 8px;
@@ -158,7 +159,7 @@
 
         .business-subtitle {
             grid-column: 1 / 8;
-            grid-row: 4 / 5;
+            grid-row: 3 / 4;
             font-size: 16px;
             font-weight: 400;
             letter-spacing: 2px;
@@ -168,7 +169,7 @@
 
         .turn-indicator {
             grid-column: 1 / 8;
-            grid-row: 5 / 6;
+            grid-row: 4 / 5;
             background: #4CAF50;
             color: white;
             padding: 15px 30px;
@@ -177,6 +178,44 @@
             text-align: center;
             font-size: 14px;
             letter-spacing: 1px;
+        }
+
+        .center-controls {
+            grid-column: 1 / 8;
+            grid-row: 5 / 8;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .center-controls .btn {
+            padding: 15px 25px;
+            font-size: 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .center-controls .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .center-dice-result {
+            grid-column: 1 / 8;
+            grid-row: 8 / 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            min-height: 80px;
         }
 
         /* Rows of spaces */
@@ -835,8 +874,56 @@
             background: #e8f5e8;
         }
 
-        /* Card Display */
-        .card-item {
+        /* Property Display with Color Bands */
+        .property-group {
+            margin-bottom: 15px;
+        }
+
+        .property-group-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 3px;
+        }
+
+        .property-list-item {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-size: 11px;
+            text-transform: none;
+            border-left: 6px solid;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .property-list-item.dark-purple { border-left-color: var(--dark-purple); }
+        .property-list-item.light-blue { border-left-color: var(--light-blue); }
+        .property-list-item.purple { border-left-color: var(--purple); }
+        .property-list-item.orange { border-left-color: var(--orange); }
+        .property-list-item.red { border-left-color: var(--red); }
+        .property-list-item.yellow { border-left-color: var(--yellow); }
+        .property-list-item.green { border-left-color: var(--green); }
+        .property-list-item.dark-blue { border-left-color: var(--dark-blue); }
+        .property-list-item.railroad { border-left-color: var(--black); }
+        .property-list-item.utility { border-left-color: #666; }
+
+        .property-list-item.developable {
+            background: #e8f5e8;
+        }
+
+        .property-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .property-details {
+            font-size: 9px;
+            color: #666;
+        }
             padding: 8px;
             margin: 5px 0;
             background: #fff3cd;
@@ -1303,6 +1390,18 @@
                     <div class="title">BUSINESS</div>
                     <div class="business-subtitle">MONOPOLY</div>
                     <div id="turn-indicator" class="turn-indicator">Waiting to start...</div>
+                    
+                    <!-- Game Controls in Center -->
+                    <div id="center-game-controls" class="center-controls">
+                        <button id="start-turn-btn" class="btn btn-primary" onclick="gameController.startTurn()">Start Turn</button>
+                        <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="gameController.rollDice()">Roll Dice</button>
+                        <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="gameController.buyProperty()">Buy Property</button>
+                        <button id="develop-property-btn" class="btn btn-warning hidden" onclick="gameController.showDevelopmentOptions()">Develop Properties</button>
+                        <button id="end-turn-btn" class="btn btn-danger hidden" onclick="gameController.endTurn()">End Turn</button>
+                    </div>
+                    
+                    <!-- Dice Result in Center -->
+                    <div id="center-dice-result" class="center-dice-result hidden"></div>
                 </div>
 
                 <!-- Corner: GO -->
@@ -1655,19 +1754,6 @@
             </div>
             
             <div class="panel-section">
-                <h3>🎮 Game Controls</h3>
-                <div id="game-controls" class="game-controls">
-                    <button id="start-turn-btn" class="btn btn-primary" onclick="gameController.startTurn()">Start Turn</button>
-                    <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="gameController.rollDice()">Roll Dice</button>
-                    <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="gameController.buyProperty()">Buy Property</button>
-                    <button id="develop-property-btn" class="btn btn-warning hidden" onclick="gameController.showDevelopmentOptions()">Develop Properties</button>
-                    <button id="trade-btn" class="btn btn-secondary hidden" onclick="gameController.showTradeModal()">Trade</button>
-                    <button id="end-turn-btn" class="btn btn-danger hidden" onclick="gameController.endTurn()">End Turn</button>
-                </div>
-                <div id="dice-result" class="dice-result hidden"></div>
-            </div>
-            
-            <div class="panel-section">
                 <h3>🏠 Properties</h3>
                 <div id="properties-list">No properties owned</div>
             </div>
@@ -1711,21 +1797,6 @@
             <button class="property-close" onclick="hidePropertyModal()">&times;</button>
         </div>
         <div id="property-details"></div>
-    </div>
-
-    <!-- Trade Modal -->
-    <div id="trade-modal" class="trade-modal hidden">
-        <div class="trade-content">
-            <div class="property-header">
-                <h3>💼 Trade Properties</h3>
-                <button class="property-close" onclick="hideTradeModal()">&times;</button>
-            </div>
-            <div id="trade-sections"></div>
-            <div class="property-actions">
-                <button class="btn btn-primary" onclick="executeTrade()">Propose Trade</button>
-                <button class="btn btn-secondary" onclick="hideTradeModal()">Cancel</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -2281,8 +2352,8 @@
                 rollBtn.disabled = true;
                 rollBtn.textContent = 'Rolling...';
 
-                // Show dice rolling animation with "?" symbols
-                const diceResult = document.getElementById('dice-result');
+                // Show dice rolling animation with "?" symbols in center
+                const diceResult = document.getElementById('center-dice-result');
                 diceResult.innerHTML = `
                     <div class="dice-container">
                         <div class="dice rolling" id="dice1">?</div>
@@ -2321,33 +2392,6 @@
                 // Implementation for development UI would go here
             }
 
-            showTradeModal() {
-                document.getElementById('trade-modal').classList.remove('hidden');
-                this.populateTradeModal();
-            }
-
-            populateTradeModal() {
-                const sections = document.getElementById('trade-sections');
-                sections.innerHTML = '';
-
-                this.gameData.players.forEach((player, index) => {
-                    if (index === this.gameData.currentPlayer) return;
-
-                    const section = document.createElement('div');
-                    section.className = 'trade-section';
-                    section.innerHTML = `
-                        <h4>Trade with ${player.name}</h4>
-                        <div class="trade-items">
-                            ${player.properties.map(propIndex => {
-                                const prop = propertyManager.getProperty(propIndex);
-                                return `<div class="trade-item" data-property="${propIndex}">${prop?.name || `Property ${propIndex}`}</div>`;
-                            }).join('')}
-                        </div>
-                    `;
-                    sections.appendChild(section);
-                });
-            }
-
             endTurn() {
                 this.socket.emit('endTurn', this.currentRoom);
             }
@@ -2358,8 +2402,8 @@
                 rollBtn.disabled = false;
                 rollBtn.textContent = 'Roll Dice';
 
-                // Show final dice results
-                const diceResult = document.getElementById('dice-result');
+                // Show final dice results in center
+                const diceResult = document.getElementById('center-dice-result');
                 const total = result.dice[0] + result.dice[1];
                 
                 diceResult.innerHTML = `
@@ -2872,7 +2916,7 @@
                 const gamePhase = this.gameData?.gamePhase || 'question';
                 const waitingForAnswer = this.gameData?.waitingForAnswer || false;
                 
-                document.querySelectorAll('#game-controls .btn').forEach(btn => btn.classList.add('hidden'));
+                document.querySelectorAll('#center-game-controls .btn').forEach(btn => btn.classList.add('hidden'));
                 
                 if (!isMyTurn || !this.gameData?.gameStarted) return;
                 
@@ -2880,7 +2924,7 @@
                     document.getElementById('start-turn-btn').classList.remove('hidden');
                 } else if (gamePhase === 'dice') {
                     document.getElementById('roll-dice-btn').classList.remove('hidden');
-                    document.getElementById('dice-result').classList.add('hidden');
+                    document.getElementById('center-dice-result').classList.add('hidden');
                 } else if (gamePhase === 'property' && this.canBuyProperty) {
                     document.getElementById('buy-property-btn').classList.remove('hidden');
                     document.getElementById('end-turn-btn').classList.remove('hidden');
@@ -2888,10 +2932,9 @@
                     document.getElementById('end-turn-btn').classList.remove('hidden');
                 }
 
-                // Always show additional controls when it's the player's turn
+                // Always show development button when it's the player's turn (except during questions)
                 if (isMyTurn && gamePhase !== 'question') {
                     document.getElementById('develop-property-btn').classList.remove('hidden');
-                    document.getElementById('trade-btn').classList.remove('hidden');
                 }
             }
 
@@ -2907,30 +2950,69 @@
                     return;
                 }
                 
-                const propertyNames = [
-                    'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
-                    "King's Cross Station", 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
-                    'Jail', 'Pall Mall', 'Electric Company', 'Whitehall', 'Northumberland Avenue',
-                    'Marylebone Station', 'Bow Street', 'Community Chest', 'Marlborough Street', 'Vine Street',
-                    'Free Parking', 'The Strand', 'Chance', 'Fleet Street', 'Trafalgar Square',
-                    'Fenchurch St Station', 'Leicester Square', 'Coventry Street', 'Water Works', 'Piccadilly',
-                    'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
-                    'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
-                ];
+                // Group properties by color/type
+                const propertyGroups = {
+                    'dark-purple': [],
+                    'light-blue': [],
+                    'purple': [],
+                    'orange': [],
+                    'red': [],
+                    'yellow': [],
+                    'green': [],
+                    'dark-blue': [],
+                    'railroad': [],
+                    'utility': []
+                };
+
+                const colorNames = {
+                    'dark-purple': 'Brown Properties',
+                    'light-blue': 'Light Blue Properties',
+                    'purple': 'Pink Properties',
+                    'orange': 'Orange Properties',
+                    'red': 'Red Properties',
+                    'yellow': 'Yellow Properties',
+                    'green': 'Green Properties',
+                    'dark-blue': 'Dark Blue Properties',
+                    'railroad': 'Railroads',
+                    'utility': 'Utilities'
+                };
                 
-                propertiesList.innerHTML = player.properties.map(propIndex => {
-                    const name = propertyNames[propIndex] || `Property ${propIndex}`;
+                player.properties.forEach(propIndex => {
                     const property = propertyManager.getProperty(propIndex);
-                    const developable = propertyManager.canDevelop(this.gameData.currentPlayer, propIndex);
-                    
-                    return `
-                        <div style="padding: 8px; border-left: 3px solid #4CAF50; margin: 5px 0; font-size: 11px; text-transform: none; background: ${developable ? '#e8f5e8' : 'white'};">
-                            <div style="font-weight: bold;">${name}</div>
-                            ${property?.houses > 0 ? `<div style="font-size: 9px; color: #666;">Development: ${property.houses === 5 ? 'Hotel' : property.houses + ' Houses'}</div>` : ''}
-                            ${developable ? '<div style="font-size: 9px; color: #28a745;">Can develop!</div>' : ''}
-                        </div>
-                    `;
-                }).join('');
+                    if (property) {
+                        const group = property.color || property.type || 'other';
+                        if (propertyGroups[group]) {
+                            propertyGroups[group].push({ index: propIndex, ...property });
+                        }
+                    }
+                });
+                
+                let html = '';
+                Object.entries(propertyGroups).forEach(([colorGroup, properties]) => {
+                    if (properties.length > 0) {
+                        html += `<div class="property-group">`;
+                        html += `<div class="property-group-title">${colorNames[colorGroup]} (${properties.length})</div>`;
+                        
+                        properties.forEach(property => {
+                            const developable = propertyManager.canDevelop(this.gameData.currentPlayer, property.index);
+                            const developmentInfo = property.houses > 0 ? 
+                                `<div class="property-details">Development: ${property.houses === 5 ? 'Hotel' : property.houses + ' Houses'}</div>` : '';
+                            const canDevelopInfo = developable ? 
+                                '<div class="property-details" style="color: #28a745;">Can develop!</div>' : '';
+                            
+                            html += `
+                                <div class="property-list-item ${colorGroup} ${developable ? 'developable' : ''}">
+                                    <div class="property-name">${property.name}</div>
+                                    ${developmentInfo}
+                                    ${canDevelopInfo}
+                                </div>
+                            `;
+                        });
+                        html += `</div>`;
+                    }
+                });
+                
+                propertiesList.innerHTML = html;
             }
 
             updateCardsDisplay() {
@@ -3161,15 +3243,6 @@
             const modal = document.getElementById('property-modal');
             modal.classList.remove('show');
             setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function hideTradeModal() {
-            document.getElementById('trade-modal').classList.add('hidden');
-        }
-
-        function executeTrade() {
-            gameController.showMessage('Trading system coming soon!', 'info');
-            hideTradeModal();
         }
 
         // Accessibility Functions
