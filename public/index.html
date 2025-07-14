@@ -21,6 +21,10 @@
             --yellow: #ffed20;
             --green: #41994e;
             --dark-blue: #5a6dba;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
         }
 
         /* Global Styles */
@@ -42,8 +46,49 @@
             justify-content: center;
         }
 
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+
+        body.high-contrast {
+            background: #000000;
+            color: #ffffff;
+        }
+
         h1, h2, h3, h4, h5, h6 {
             margin: 0;
+        }
+
+        /* Accessibility Controls */
+        .accessibility-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .accessibility-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .accessibility-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+        }
+
+        .accessibility-btn.active {
+            background: var(--success);
+            color: white;
         }
 
         /* Property Colors */
@@ -202,6 +247,14 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
+        .space.owned {
+            border: 3px solid var(--success);
+        }
+
+        .space.developed {
+            background: linear-gradient(45deg, var(--board) 70%, var(--success) 30%);
+        }
+
         .container {
             display: flex;
             flex-direction: column;
@@ -225,6 +278,30 @@
             font-size: 7px;
             font-weight: 400;
             padding-bottom: 5px;
+        }
+
+        /* Property Development Indicators */
+        .development-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2px;
+        }
+
+        .development-house {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 2px;
+        }
+
+        .development-hotel {
+            width: 12px;
+            height: 8px;
+            background: var(--red);
+            border-radius: 2px;
         }
 
         /* Corner Spaces */
@@ -447,6 +524,24 @@
             color: #27ae60;
         }
 
+        .player-achievements {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .achievement-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #333;
+        }
+
         .game-controls {
             display: flex;
             flex-direction: column;
@@ -463,6 +558,26 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
@@ -478,6 +593,11 @@
         .btn-secondary {
             background: #6c757d;
             color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
         }
 
         .btn-danger {
@@ -501,6 +621,218 @@
             background: #f8f9fa;
             border-radius: 12px;
             border: 2px solid #ddd;
+        }
+
+        /* Achievement System */
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            z-index: 1500;
+            max-width: 300px;
+            animation: achievementSlide 0.5s ease-out;
+        }
+
+        @keyframes achievementSlide {
+            from {
+                right: -320px;
+                opacity: 0;
+            }
+            to {
+                right: 20px;
+                opacity: 1;
+            }
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .achievement-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .achievement-description {
+            font-size: 14px;
+            text-align: center;
+            text-transform: none;
+        }
+
+        /* Learning Analytics */
+        .learning-analytics {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 11px;
+        }
+
+        .analytics-item {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .analytics-value {
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+        }
+
+        /* Property Cards */
+        .property-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .property-card.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .property-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .property-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .rent-structure {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .rent-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: none;
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Trading System */
+        .trade-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+        }
+
+        .trade-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .trade-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .trade-section h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .trade-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .trade-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: none;
+            transition: all 0.3s ease;
+        }
+
+        .trade-item.selected {
+            border-color: var(--success);
+            background: #e8f5e8;
         }
 
         /* Card Display */
@@ -632,6 +964,29 @@
             margin-bottom: 20px;
             font-size: 24px;
             font-weight: 600;
+        }
+
+        .difficulty-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .difficulty-easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-hard {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .bonus-reward {
@@ -813,7 +1168,38 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
+        }
+
+        /* Sound Controls */
+        .sound-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1500;
+        }
+
+        .sound-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .sound-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .sound-btn.muted {
+            background: #dc3545;
+            color: white;
         }
 
         /* Responsive Design */
@@ -865,6 +1251,18 @@
     </style>
 </head>
 <body>
+    <!-- Accessibility Controls -->
+    <div class="accessibility-controls">
+        <button class="accessibility-btn" onclick="toggleTheme()" title="Toggle Dark Theme">🌙</button>
+        <button class="accessibility-btn" onclick="toggleHighContrast()" title="High Contrast">🔆</button>
+        <button class="accessibility-btn" onclick="adjustFontSize()" title="Increase Font Size">🔍</button>
+    </div>
+
+    <!-- Sound Controls -->
+    <div class="sound-controls">
+        <button class="sound-btn" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+    </div>
+
     <div id="room-setup" class="room-setup">
         <h1>🎓 Business Monopoly</h1>
         <p style="margin-bottom: 30px; color: #666; text-transform: none;">T-Level Business Education Game</p>
@@ -875,8 +1273,8 @@
         </div>
         
         <div class="room-actions">
-            <button class="btn btn-primary" onclick="createRoom()">Create Room</button>
-            <button class="btn btn-secondary" onclick="showJoinForm()">Join Room</button>
+            <button class="btn btn-primary" onclick="gameController.createRoom()">Create Room</button>
+            <button class="btn btn-secondary" onclick="gameController.showJoinForm()">Join Room</button>
         </div>
         
         <div id="join-form" class="hidden" style="margin-top: 20px;">
@@ -884,7 +1282,7 @@
                 <label for="roomCode">Room Code:</label>
                 <input type="text" id="roomCode" placeholder="Enter room code" maxlength="6">
             </div>
-            <button class="btn btn-primary" onclick="joinRoom()">Join Game</button>
+            <button class="btn btn-primary" onclick="gameController.joinRoom()">Join Game</button>
         </div>
         
         <div id="room-created" class="hidden">
@@ -893,7 +1291,7 @@
                 <div id="room-code" class="room-code"></div>
             </div>
             <div id="waiting-players"></div>
-            <button id="start-game-btn" class="btn btn-primary hidden" onclick="startGame()">Start Game</button>
+            <button id="start-game-btn" class="btn btn-primary hidden" onclick="gameController.startGame()">Start Game</button>
         </div>
     </div>
 
@@ -908,7 +1306,7 @@
                 </div>
 
                 <!-- Corner: GO -->
-                <div class="space corner go" data-index="0">
+                <div class="space corner go" data-index="0" onclick="showPropertyInfo(0)">
                     <div class="container">
                         <div class="name">Collect £200</div>
                         <div class="go-word">GO</div>
@@ -917,18 +1315,20 @@
 
                 <!-- Bottom Row (Moving LEFT from GO) -->
                 <div class="row horizontal-row bottom-row">
-                    <div class="space property" data-index="9">
+                    <div class="space property" data-index="9" onclick="showPropertyInfo(9)">
                         <div class="container">
                             <div class="color-bar light-blue"></div>
                             <div class="name">Pentonville</div>
                             <div class="price">£120</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="8">
+                    <div class="space property" data-index="8" onclick="showPropertyInfo(8)">
                         <div class="container">
                             <div class="color-bar light-blue"></div>
                             <div class="name">Euston Road</div>
                             <div class="price">£100</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space chance" data-index="7">
@@ -937,14 +1337,15 @@
                             <i class="drawing fa fa-question"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="6">
+                    <div class="space property" data-index="6" onclick="showPropertyInfo(6)">
                         <div class="container">
                             <div class="color-bar light-blue"></div>
                             <div class="name">Angel</div>
                             <div class="price">£100</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space railroad" data-index="5">
+                    <div class="space railroad" data-index="5" onclick="showPropertyInfo(5)">
                         <div class="container">
                             <div class="name">King's Cross</div>
                             <i class="drawing fa fa-subway"></i>
@@ -957,11 +1358,12 @@
                             <div class="instructions">Pay £200</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="3">
+                    <div class="space property" data-index="3" onclick="showPropertyInfo(3)">
                         <div class="container">
                             <div class="color-bar dark-purple"></div>
                             <div class="name">Whitechapel</div>
                             <div class="price">£60</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space community-chest" data-index="2">
@@ -970,11 +1372,12 @@
                             <i class="drawing fa fa-cube"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="1">
+                    <div class="space property" data-index="1" onclick="showPropertyInfo(1)">
                         <div class="container">
                             <div class="color-bar dark-purple"></div>
                             <div class="name">Old Kent Rd</div>
                             <div class="price">£60</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                 </div>
@@ -986,18 +1389,20 @@
 
                 <!-- Left Row (Moving UP from Jail to Free Parking) -->
                 <div class="row vertical-row left-row">
-                    <div class="space property" data-index="19">
+                    <div class="space property" data-index="19" onclick="showPropertyInfo(19)">
                         <div class="container">
                             <div class="color-bar orange"></div>
                             <div class="name">Vine Street</div>
                             <div class="price">£200</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="18">
+                    <div class="space property" data-index="18" onclick="showPropertyInfo(18)">
                         <div class="container">
                             <div class="color-bar orange"></div>
                             <div class="name">Marlborough</div>
                             <div class="price">£180</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space community-chest" data-index="17">
@@ -1006,46 +1411,50 @@
                             <i class="drawing fa fa-cube"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="16">
+                    <div class="space property" data-index="16" onclick="showPropertyInfo(16)">
                         <div class="container">
                             <div class="color-bar orange"></div>
                             <div class="name">Bow Street</div>
                             <div class="price">£180</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space railroad" data-index="15">
+                    <div class="space railroad" data-index="15" onclick="showPropertyInfo(15)">
                         <div class="container">
                             <div class="name">Marylebone</div>
                             <i class="drawing fa fa-subway"></i>
                             <div class="price">£200</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="14">
+                    <div class="space property" data-index="14" onclick="showPropertyInfo(14)">
                         <div class="container">
                             <div class="color-bar purple"></div>
                             <div class="name">Northumberland</div>
                             <div class="price">£160</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="13">
+                    <div class="space property" data-index="13" onclick="showPropertyInfo(13)">
                         <div class="container">
                             <div class="color-bar purple"></div>
                             <div class="name">Whitehall</div>
                             <div class="price">£140</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space utility" data-index="12">
+                    <div class="space utility" data-index="12" onclick="showPropertyInfo(12)">
                         <div class="container">
                             <div class="name">Electric Co</div>
                             <i class="drawing fa fa-lightbulb-o"></i>
                             <div class="price">£150</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="11">
+                    <div class="space property" data-index="11" onclick="showPropertyInfo(11)">
                         <div class="container">
                             <div class="color-bar purple"></div>
                             <div class="name">Pall Mall</div>
                             <div class="price">£140</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                 </div>
@@ -1061,11 +1470,12 @@
 
                 <!-- Top Row (Moving RIGHT from Free Parking to Go to Jail) -->
                 <div class="row horizontal-row top-row">
-                    <div class="space property" data-index="21">
+                    <div class="space property" data-index="21" onclick="showPropertyInfo(21)">
                         <div class="container">
                             <div class="color-bar red"></div>
                             <div class="name">The Strand</div>
                             <div class="price">£220</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space chance" data-index="22">
@@ -1074,53 +1484,58 @@
                             <i class="drawing fa fa-question"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="23">
+                    <div class="space property" data-index="23" onclick="showPropertyInfo(23)">
                         <div class="container">
                             <div class="color-bar red"></div>
                             <div class="name">Fleet Street</div>
                             <div class="price">£220</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="24">
+                    <div class="space property" data-index="24" onclick="showPropertyInfo(24)">
                         <div class="container">
                             <div class="color-bar red"></div>
                             <div class="name">Trafalgar</div>
                             <div class="price">£240</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space railroad" data-index="25">
+                    <div class="space railroad" data-index="25" onclick="showPropertyInfo(25)">
                         <div class="container">
                             <div class="name">Fenchurch St</div>
                             <i class="drawing fa fa-subway"></i>
                             <div class="price">£200</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="26">
+                    <div class="space property" data-index="26" onclick="showPropertyInfo(26)">
                         <div class="container">
                             <div class="color-bar yellow"></div>
                             <div class="name">Leicester Sq</div>
                             <div class="price">£260</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="27">
+                    <div class="space property" data-index="27" onclick="showPropertyInfo(27)">
                         <div class="container">
                             <div class="color-bar yellow"></div>
                             <div class="name">Coventry St</div>
                             <div class="price">£260</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space utility" data-index="28">
+                    <div class="space utility" data-index="28" onclick="showPropertyInfo(28)">
                         <div class="container">
                             <div class="name">Water Works</div>
                             <i class="drawing fa fa-tint"></i>
                             <div class="price">£150</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="29">
+                    <div class="space property" data-index="29" onclick="showPropertyInfo(29)">
                         <div class="container">
                             <div class="color-bar yellow"></div>
                             <div class="name">Piccadilly</div>
                             <div class="price">£280</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                 </div>
@@ -1136,18 +1551,20 @@
 
                 <!-- Right Row (Moving DOWN from Go to Jail to GO) -->
                 <div class="row vertical-row right-row">
-                    <div class="space property" data-index="31">
+                    <div class="space property" data-index="31" onclick="showPropertyInfo(31)">
                         <div class="container">
                             <div class="color-bar green"></div>
                             <div class="name">Regent St</div>
                             <div class="price">£300</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space property" data-index="32">
+                    <div class="space property" data-index="32" onclick="showPropertyInfo(32)">
                         <div class="container">
                             <div class="color-bar green"></div>
                             <div class="name">Oxford St</div>
                             <div class="price">£300</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space community-chest" data-index="33">
@@ -1156,14 +1573,15 @@
                             <i class="drawing fa fa-cube"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="34">
+                    <div class="space property" data-index="34" onclick="showPropertyInfo(34)">
                         <div class="container">
                             <div class="color-bar green"></div>
                             <div class="name">Bond Street</div>
                             <div class="price">£320</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
-                    <div class="space railroad" data-index="35">
+                    <div class="space railroad" data-index="35" onclick="showPropertyInfo(35)">
                         <div class="container">
                             <div class="name">Liverpool St</div>
                             <i class="drawing fa fa-subway"></i>
@@ -1176,11 +1594,12 @@
                             <i class="drawing fa fa-question"></i>
                         </div>
                     </div>
-                    <div class="space property" data-index="37">
+                    <div class="space property" data-index="37" onclick="showPropertyInfo(37)">
                         <div class="container">
                             <div class="color-bar dark-blue"></div>
                             <div class="name">Park Lane</div>
                             <div class="price">£350</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                     <div class="space fee" data-index="38">
@@ -1189,11 +1608,12 @@
                             <div class="instructions">Pay £100</div>
                         </div>
                     </div>
-                    <div class="space property" data-index="39">
+                    <div class="space property" data-index="39" onclick="showPropertyInfo(39)">
                         <div class="container">
                             <div class="color-bar dark-blue"></div>
                             <div class="name">Mayfair</div>
                             <div class="price">£400</div>
+                            <div class="development-indicator"></div>
                         </div>
                     </div>
                 </div>
@@ -1201,6 +1621,34 @@
         </div>
         
         <div class="game-panel">
+            <!-- Learning Analytics Section -->
+            <div class="panel-section">
+                <h3>📈 Learning Progress</h3>
+                <div class="learning-analytics">
+                    <div class="analytics-grid">
+                        <div class="analytics-item">
+                            <span class="analytics-value" id="questions-answered">0</span>
+                            <div>Questions</div>
+                        </div>
+                        <div class="analytics-item">
+                            <span class="analytics-value" id="accuracy-rate">0%</span>
+                            <div>Accuracy</div>
+                        </div>
+                        <div class="analytics-item">
+                            <span class="analytics-value" id="learning-streak">0</span>
+                            <div>Streak</div>
+                        </div>
+                        <div class="analytics-item">
+                            <span class="analytics-value" id="achievements-count">0</span>
+                            <div>Achievements</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="learning-progress"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="panel-section">
                 <h3>👥 Players</h3>
                 <div id="players-list" class="players-list"></div>
@@ -1209,17 +1657,14 @@
             <div class="panel-section">
                 <h3>🎮 Game Controls</h3>
                 <div id="game-controls" class="game-controls">
-                    <button id="start-turn-btn" class="btn btn-primary" onclick="startTurn()">Start Turn</button>
-                    <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="rollDice()">Roll Dice</button>
-                    <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="buyProperty()">Buy Property</button>
-                    <button id="end-turn-btn" class="btn btn-danger hidden" onclick="endTurn()">End Turn</button>
+                    <button id="start-turn-btn" class="btn btn-primary" onclick="gameController.startTurn()">Start Turn</button>
+                    <button id="roll-dice-btn" class="btn btn-primary hidden" onclick="gameController.rollDice()">Roll Dice</button>
+                    <button id="buy-property-btn" class="btn btn-secondary hidden" onclick="gameController.buyProperty()">Buy Property</button>
+                    <button id="develop-property-btn" class="btn btn-warning hidden" onclick="gameController.showDevelopmentOptions()">Develop Properties</button>
+                    <button id="trade-btn" class="btn btn-secondary hidden" onclick="gameController.showTradeModal()">Trade</button>
+                    <button id="end-turn-btn" class="btn btn-danger hidden" onclick="gameController.endTurn()">End Turn</button>
                 </div>
                 <div id="dice-result" class="dice-result hidden"></div>
-            </div>
-            
-            <div class="panel-section">
-                <h3>📊 Statistics</h3>
-                <div id="stats-display"></div>
             </div>
             
             <div class="panel-section">
@@ -1238,6 +1683,7 @@
     <div id="question-modal" class="question-modal hidden">
         <div class="question-content">
             <h2 id="question-title" class="question-title">📚 Business Question</h2>
+            <div id="difficulty-indicator" class="difficulty-indicator hidden"></div>
             <div id="timer" class="timer">
                 <div class="timer-circle">
                     <span id="timer-value">30</span>
@@ -1258,977 +1704,1209 @@
         </div>
     </div>
 
+    <!-- Property Info Modal -->
+    <div id="property-modal" class="property-card hidden">
+        <div class="property-header">
+            <h3 id="property-title" class="property-title"></h3>
+            <button class="property-close" onclick="hidePropertyModal()">&times;</button>
+        </div>
+        <div id="property-details"></div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div id="trade-modal" class="trade-modal hidden">
+        <div class="trade-content">
+            <div class="property-header">
+                <h3>💼 Trade Properties</h3>
+                <button class="property-close" onclick="hideTradeModal()">&times;</button>
+            </div>
+            <div id="trade-sections"></div>
+            <div class="property-actions">
+                <button class="btn btn-primary" onclick="executeTrade()">Propose Trade</button>
+                <button class="btn btn-secondary" onclick="hideTradeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Game state variables
-        let currentRoom = null;
-        let currentPlayer = null;
-        let gameData = null;
-        let canBuyProperty = false;
-        let propertyToBuy = null;
-        let isPlayerMoving = false;
+        // ====== GAME CLASSES AND MODULES ======
 
-        // Enhanced Chance and Community Chest Cards
-        const chanceCards = [
-            { text: "Advance to GO - Collect £200", action: "moveToGo" },
-            { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
-            { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
-            { text: "Advance to Mayfair", action: "moveTo", position: 39 },
-            { text: "Advance to nearest Railway Station and pay owner twice the rental", action: "moveToNearestRailway" },
-            { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
-            { text: "Pay poor tax of £15", action: "payMoney", amount: 15 },
-            { text: "Your building loan matures - Collect £150", action: "receiveMoney", amount: 150 },
-            { text: "You have won a crossword competition - Collect £100", action: "receiveMoney", amount: 100 },
-            { text: "Bank pays you dividend of £50", action: "receiveMoney", amount: 50 },
-            { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
-            { text: "Advance to Pall Mall", action: "moveTo", position: 11 },
-            { text: "Take a trip to King's Cross Station", action: "moveTo", position: 5 },
-            { text: "Make general repairs on all your houses - £25 per house", action: "propertyRepairs", amount: 25 },
-            { text: "Move forward to the nearest Utility", action: "moveToNearestUtility" }
-        ];
-
-        const communityChestCards = [
-            { text: "Advance to GO - Collect £200", action: "moveToGo" },
-            { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
-            { text: "Doctor's fee - Pay £50", action: "payMoney", amount: 50 },
-            { text: "From sale of stock you get £50", action: "receiveMoney", amount: 50 },
-            { text: "Holiday fund matures - Receive £100", action: "receiveMoney", amount: 100 },
-            { text: "Income tax refund - Collect £20", action: "receiveMoney", amount: 20 },
-            { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
-            { text: "Life insurance matures - Collect £100", action: "receiveMoney", amount: 100 },
-            { text: "Hospital fees - Pay £100", action: "payMoney", amount: 100 },
-            { text: "School fees - Pay £50", action: "payMoney", amount: 50 },
-            { text: "Receive £25 consultancy fee", action: "receiveMoney", amount: 25 },
-            { text: "You have won second prize in a beauty contest - Collect £10", action: "receiveMoney", amount: 10 },
-            { text: "You inherit £100", action: "receiveMoney", amount: 100 },
-            { text: "Pay hospital fees of £100", action: "payMoney", amount: 100 },
-            { text: "Pay school fees of £150", action: "payMoney", amount: 150 },
-            { text: "Receive £50 from sale of stock", action: "receiveMoney", amount: 50 }
-        ];
-
-        function drawRandomCard(cardType) {
-            const cards = cardType === 'chance' ? chanceCards : communityChestCards;
-            return cards[Math.floor(Math.random() * cards.length)];
-        }
-
-        function showCardModal(title, text, cardType, actionText = "Card effect will be applied automatically...") {
-            const modal = document.getElementById('card-modal');
-            const content = document.getElementById('card-content');
-            
-            modal.classList.remove('hidden');
-            document.getElementById('card-title').textContent = title;
-            document.getElementById('card-text').textContent = text;
-            document.getElementById('card-action-text').textContent = actionText;
-            
-            // Style based on card type
-            content.className = `card-content ${cardType}`;
-            
-            // Auto-close after 4 seconds
-            setTimeout(() => {
-                hideCardModal();
-            }, 4000);
-        }
-
-        function hideCardModal() {
-            document.getElementById('card-modal').classList.add('hidden');
-        }
-
-        function executeCardAction(playerIndex, card) {
-            if (!gameData || !gameData.players[playerIndex]) return;
-            
-            const player = gameData.players[playerIndex];
-            const currentPosition = player.position;
-            
-            console.log(`Executing card action: ${card.action}`, card);
-            
-            switch(card.action) {
-                case 'moveToGo':
-                    movePlayerTo(playerIndex, 0);
-                    player.money += 200;
-                    showMessage('🎯 Moved to GO! Collect £200', 'success');
-                    break;
-                    
-                case 'goToJail':
-                    handleGoToJail(playerIndex);
-                    break;
-                    
-                case 'moveTo':
-                    movePlayerTo(playerIndex, card.position);
-                    // Check if player passed GO
-                    if (card.position < currentPosition) {
-                        player.money += 200;
-                        showMessage('🎯 Passed GO! Collect £200', 'success');
-                    }
-                    break;
-                    
-                case 'moveBack':
-                    const newPos = Math.max(0, currentPosition - card.spaces);
-                    movePlayerTo(playerIndex, newPos);
-                    break;
-                    
-                case 'moveToNearestRailway':
-                    const railways = [5, 15, 25, 35]; // Railway positions
-                    let nearestRailway = railways.find(pos => pos > currentPosition);
-                    if (!nearestRailway) nearestRailway = railways[0]; // Wrap around to first railway
-                    
-                    movePlayerTo(playerIndex, nearestRailway);
-                    if (nearestRailway < currentPosition) {
-                        player.money += 200; // Passed GO
-                        showMessage('🎯 Passed GO! Collect £200', 'success');
-                    }
-                    showMessage('🚂 Moved to nearest Railway Station', 'info');
-                    break;
-                    
-                case 'moveToNearestUtility':
-                    const utilities = [12, 28]; // Electric Company and Water Works
-                    let nearestUtility = utilities.find(pos => pos > currentPosition);
-                    if (!nearestUtility) nearestUtility = utilities[0]; // Wrap around
-                    
-                    movePlayerTo(playerIndex, nearestUtility);
-                    if (nearestUtility < currentPosition) {
-                        player.money += 200; // Passed GO
-                        showMessage('🎯 Passed GO! Collect £200', 'success');
-                    }
-                    showMessage('⚡ Moved to nearest Utility', 'info');
-                    break;
-                    
-                case 'payMoney':
-                    player.money = Math.max(0, player.money - card.amount);
-                    showMessage(`💰 Pay £${card.amount}`, 'error');
-                    break;
-                    
-                case 'receiveMoney':
-                    player.money += card.amount;
-                    showMessage(`💰 Receive £${card.amount}`, 'success');
-                    break;
-                    
-                case 'getOutOfJail':
-                    if (!player.cards) player.cards = [];
-                    player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
-                    showMessage('🔓 Get Out of Jail Free card added!', 'info');
-                    updateCardsDisplay();
-                    break;
-                    
-                case 'propertyRepairs':
-                    // Simplified: just charge per property owned
-                    const repairCost = player.properties.length * card.amount;
-                    player.money = Math.max(0, player.money - repairCost);
-                    showMessage(`🔧 Property repairs: £${repairCost}`, 'error');
-                    break;
-            }
-            
-            updatePlayersDisplay(gameData.players);
-        }
-
-        function movePlayerTo(playerIndex, targetPosition) {
-            if (!gameData || !gameData.players[playerIndex]) return;
-            
-            const player = gameData.players[playerIndex];
-            const currentPosition = player.position;
-            
-            console.log(`Moving player ${playerIndex} from ${currentPosition} to ${targetPosition}`);
-            
-            // Calculate the number of steps needed
-            let steps;
-            if (targetPosition >= currentPosition) {
-                steps = targetPosition - currentPosition;
-            } else {
-                // Going around the board
-                steps = (40 - currentPosition) + targetPosition;
-            }
-            
-            // Start the animation
-            isPlayerMoving = true;
-            animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
-        }
-
-        function handleChance(playerIndex) {
-            const card = drawRandomCard('chance');
-            console.log('Chance card drawn:', card);
-            
-            // Show message to all players about the card being drawn
-            const playerName = gameData.players[playerIndex]?.name || 'Player';
-            showMessage(`${playerName} drew a Chance card!`, 'info');
-            
-            showCardModal('❓ Chance Card', card.text, 'chance');
-            
-            // Execute card action after showing modal
-            setTimeout(() => {
-                executeCardAction(playerIndex, card);
-            }, 2000);
-        }
-
-        function handleCommunityChest(playerIndex) {
-            const card = drawRandomCard('community');
-            console.log('Community Chest card drawn:', card);
-            
-            // Show message to all players about the card being drawn
-            const playerName = gameData.players[playerIndex]?.name || 'Player';
-            showMessage(`${playerName} drew a Community Chest card!`, 'info');
-            
-            showCardModal('📦 Community Chest', card.text, 'community');
-            
-            // Execute card action after showing modal
-            setTimeout(() => {
-                executeCardAction(playerIndex, card);
-            }, 2000);
-        }
-
-        // Enhanced player movement animation
-        function animatePlayerMovement(playerIndex, fromPosition, toPosition, totalSteps) {
-            const piece = document.getElementById(`player-${playerIndex}`);
-            if (!piece) {
-                console.error(`Player piece not found: player-${playerIndex}`);
-                return;
+        class SoundManager {
+            constructor() {
+                this.sounds = {};
+                this.muted = false;
+                this.initializeSounds();
             }
 
-            console.log(`Animating player ${playerIndex} movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
-
-            let currentPosition = fromPosition;
-            let stepsRemaining = totalSteps;
-            let passedGo = false;
-
-            // Highlight destination
-            const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
-            if (destinationSquare) {
-                destinationSquare.style.boxShadow = '0 0 25px #FFD700';
-                destinationSquare.style.border = '3px solid #FFD700';
-                destinationSquare.style.transform = 'scale(1.05)';
-                destinationSquare.style.zIndex = '50';
+            initializeSounds() {
+                // Create audio context for sound effects
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Simple sound effect generation
+                this.sounds = {
+                    diceRoll: () => this.playTone(440, 0.1),
+                    propertyPurchase: () => this.playTone(523, 0.2),
+                    correctAnswer: () => this.playMelody([523, 659, 784], 0.15),
+                    wrongAnswer: () => this.playTone(196, 0.3),
+                    cardDraw: () => this.playTone(349, 0.1),
+                    achievement: () => this.playMelody([523, 659, 784, 1047], 0.2),
+                    playerMove: () => this.playTone(294, 0.05)
+                };
             }
 
-            function moveOneStep() {
-                if (stepsRemaining <= 0) {
-                    console.log(`Movement complete. Final position: ${currentPosition}`);
-                    
-                    // Clear movement flag
-                    isPlayerMoving = false;
-                    
-                    // Update game data with final position
-                    if (gameData && gameData.players[playerIndex]) {
-                        gameData.players[playerIndex].position = toPosition;
-                    }
-                    
-                    // Clear destination highlighting
-                    if (destinationSquare) {
-                        destinationSquare.style.boxShadow = '';
-                        destinationSquare.style.border = '';
-                        destinationSquare.style.transform = '';
-                        destinationSquare.style.zIndex = '';
-                    }
-                    
-                    // Remove moving animation
-                    piece.classList.remove('moving');
-                    
-                    // Handle special spaces after movement completes
+            playTone(frequency, duration) {
+                if (this.muted) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+
+            playMelody(frequencies, noteDuration) {
+                if (this.muted) return;
+                
+                frequencies.forEach((freq, index) => {
                     setTimeout(() => {
-                        handleSpecialSpace(playerIndex, toPosition);
-                        updateGameControls();
-                        updatePlayersDisplay(gameData.players);
-                    }, 500);
+                        this.playTone(freq, noteDuration);
+                    }, index * noteDuration * 1000);
+                });
+            }
+
+            play(soundName) {
+                if (this.sounds[soundName]) {
+                    this.sounds[soundName]();
+                }
+            }
+
+            toggleMute() {
+                this.muted = !this.muted;
+                return this.muted;
+            }
+        }
+
+        class LearningAnalytics {
+            constructor() {
+                this.data = {
+                    questionsAnswered: 0,
+                    correctAnswers: 0,
+                    currentStreak: 0,
+                    maxStreak: 0,
+                    totalTime: 0,
+                    topicScores: {},
+                    achievements: [],
+                    difficultyProgression: 'easy'
+                };
+                this.loadData();
+            }
+
+            saveData() {
+                try {
+                    // Use temporary storage during session
+                    window.tempLearningData = this.data;
+                } catch (e) {
+                    console.warn('Could not save learning data');
+                }
+            }
+
+            loadData() {
+                try {
+                    if (window.tempLearningData) {
+                        this.data = { ...this.data, ...window.tempLearningData };
+                    }
+                } catch (e) {
+                    console.warn('Could not load learning data');
+                }
+            }
+
+            recordAnswer(correct, topic = 'general', timeTaken = 0) {
+                this.data.questionsAnswered++;
+                this.data.totalTime += timeTaken;
+                
+                if (correct) {
+                    this.data.correctAnswers++;
+                    this.data.currentStreak++;
+                    this.data.maxStreak = Math.max(this.data.maxStreak, this.data.currentStreak);
+                } else {
+                    this.data.currentStreak = 0;
+                }
+
+                // Track topic performance
+                if (!this.data.topicScores[topic]) {
+                    this.data.topicScores[topic] = { correct: 0, total: 0 };
+                }
+                this.data.topicScores[topic].total++;
+                if (correct) {
+                    this.data.topicScores[topic].correct++;
+                }
+
+                this.saveData();
+                this.updateDifficulty();
+                this.checkAchievements();
+            }
+
+            updateDifficulty() {
+                const accuracy = this.getAccuracy();
+                if (accuracy >= 80 && this.data.questionsAnswered >= 5) {
+                    this.data.difficultyProgression = 'hard';
+                } else if (accuracy >= 60 && this.data.questionsAnswered >= 3) {
+                    this.data.difficultyProgression = 'medium';
+                } else {
+                    this.data.difficultyProgression = 'easy';
+                }
+            }
+
+            checkAchievements() {
+                const achievements = [
+                    { id: 'first_correct', name: 'First Success', icon: '🎯', condition: () => this.data.correctAnswers >= 1 },
+                    { id: 'streak_5', name: 'Learning Streak', icon: '🔥', condition: () => this.data.currentStreak >= 5 },
+                    { id: 'accuracy_master', name: 'Accuracy Master', icon: '🎖️', condition: () => this.getAccuracy() >= 90 && this.data.questionsAnswered >= 10 },
+                    { id: 'question_veteran', name: 'Question Veteran', icon: '📚', condition: () => this.data.questionsAnswered >= 25 },
+                    { id: 'streak_master', name: 'Streak Master', icon: '⚡', condition: () => this.data.maxStreak >= 10 }
+                ];
+
+                achievements.forEach(achievement => {
+                    if (!this.data.achievements.includes(achievement.id) && achievement.condition()) {
+                        this.data.achievements.push(achievement.id);
+                        this.showAchievement(achievement);
+                    }
+                });
+            }
+
+            showAchievement(achievement) {
+                soundManager.play('achievement');
+                
+                const popup = document.createElement('div');
+                popup.className = 'achievement-popup';
+                popup.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-title">Achievement Unlocked!</div>
+                    <div class="achievement-description">${achievement.name}</div>
+                `;
+                
+                document.body.appendChild(popup);
+                
+                setTimeout(() => {
+                    popup.style.animation = 'achievementSlide 0.5s ease-out reverse';
+                    setTimeout(() => popup.remove(), 500);
+                }, 3000);
+            }
+
+            getAccuracy() {
+                return this.data.questionsAnswered > 0 ? 
+                    Math.round((this.data.correctAnswers / this.data.questionsAnswered) * 100) : 0;
+            }
+
+            getAverageTime() {
+                return this.data.questionsAnswered > 0 ? 
+                    Math.round(this.data.totalTime / this.data.questionsAnswered) : 0;
+            }
+
+            getDifficulty() {
+                return this.data.difficultyProgression;
+            }
+
+            updateDisplay() {
+                document.getElementById('questions-answered').textContent = this.data.questionsAnswered;
+                document.getElementById('accuracy-rate').textContent = `${this.getAccuracy()}%`;
+                document.getElementById('learning-streak').textContent = this.data.currentStreak;
+                document.getElementById('achievements-count').textContent = this.data.achievements.length;
+                
+                const progress = Math.min(100, (this.data.questionsAnswered / 50) * 100);
+                document.getElementById('learning-progress').style.width = `${progress}%`;
+            }
+        }
+
+        class PropertyManager {
+            constructor() {
+                this.properties = this.initializeProperties();
+            }
+
+            initializeProperties() {
+                return {
+                    1: { name: 'Old Kent Road', price: 60, rent: [2, 10, 30, 90, 160, 250], color: 'dark-purple', houses: 0, owner: null },
+                    3: { name: 'Whitechapel Road', price: 60, rent: [4, 20, 60, 180, 320, 450], color: 'dark-purple', houses: 0, owner: null },
+                    6: { name: 'The Angel Islington', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
+                    8: { name: 'Euston Road', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
+                    9: { name: 'Pentonville Road', price: 120, rent: [8, 40, 100, 300, 450, 600], color: 'light-blue', houses: 0, owner: null },
+                    11: { name: 'Pall Mall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
+                    13: { name: 'Whitehall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
+                    14: { name: 'Northumberland Avenue', price: 160, rent: [12, 60, 180, 500, 700, 900], color: 'purple', houses: 0, owner: null },
+                    16: { name: 'Bow Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
+                    18: { name: 'Marlborough Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
+                    19: { name: 'Vine Street', price: 200, rent: [16, 80, 220, 600, 800, 1000], color: 'orange', houses: 0, owner: null },
+                    21: { name: 'The Strand', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
+                    23: { name: 'Fleet Street', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
+                    24: { name: 'Trafalgar Square', price: 240, rent: [20, 100, 300, 750, 925, 1100], color: 'red', houses: 0, owner: null },
+                    26: { name: 'Leicester Square', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
+                    27: { name: 'Coventry Street', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
+                    29: { name: 'Piccadilly', price: 280, rent: [24, 120, 360, 850, 1025, 1200], color: 'yellow', houses: 0, owner: null },
+                    31: { name: 'Regent Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
+                    32: { name: 'Oxford Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
+                    34: { name: 'Bond Street', price: 320, rent: [28, 150, 450, 1000, 1200, 1400], color: 'green', houses: 0, owner: null },
+                    37: { name: 'Park Lane', price: 350, rent: [35, 175, 500, 1100, 1300, 1500], color: 'dark-blue', houses: 0, owner: null },
+                    39: { name: 'Mayfair', price: 400, rent: [50, 200, 600, 1400, 1700, 2000], color: 'dark-blue', houses: 0, owner: null },
+                    // Railroads and Utilities
+                    5: { name: "King's Cross Station", price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+                    15: { name: 'Marylebone Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+                    25: { name: 'Fenchurch Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+                    35: { name: 'Liverpool Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+                    12: { name: 'Electric Company', price: 150, rent: [4, 10], type: 'utility', owner: null },
+                    28: { name: 'Water Works', price: 150, rent: [4, 10], type: 'utility', owner: null }
+                };
+            }
+
+            getProperty(index) {
+                return this.properties[index] || null;
+            }
+
+            buyProperty(index, playerId) {
+                if (this.properties[index] && !this.properties[index].owner) {
+                    this.properties[index].owner = playerId;
+                    return true;
+                }
+                return false;
+            }
+
+            developProperty(index) {
+                const property = this.properties[index];
+                if (property && property.houses < 5 && property.type !== 'railroad' && property.type !== 'utility') {
+                    property.houses++;
+                    return true;
+                }
+                return false;
+            }
+
+            calculateRent(index, diceRoll = 0) {
+                const property = this.properties[index];
+                if (!property || !property.owner) return 0;
+
+                if (property.type === 'railroad') {
+                    const ownedRailroads = Object.values(this.properties)
+                        .filter(p => p.type === 'railroad' && p.owner === property.owner).length;
+                    return property.rent[ownedRailroads - 1] || 0;
+                }
+
+                if (property.type === 'utility') {
+                    const ownedUtilities = Object.values(this.properties)
+                        .filter(p => p.type === 'utility' && p.owner === property.owner).length;
+                    const multiplier = ownedUtilities === 1 ? 4 : 10;
+                    return diceRoll * multiplier;
+                }
+
+                return property.rent[property.houses] || property.rent[0];
+            }
+
+            updatePropertyDisplay(index) {
+                const property = this.properties[index];
+                const element = document.querySelector(`[data-index="${index}"]`);
+                if (!element || !property) return;
+
+                // Add ownership styling
+                if (property.owner !== null) {
+                    element.classList.add('owned');
+                }
+
+                // Add development indicator
+                const indicator = element.querySelector('.development-indicator');
+                if (indicator && property.houses > 0) {
+                    indicator.innerHTML = '';
+                    for (let i = 0; i < Math.min(property.houses, 4); i++) {
+                        const house = document.createElement('div');
+                        house.className = 'development-house';
+                        indicator.appendChild(house);
+                    }
+                    if (property.houses === 5) {
+                        indicator.innerHTML = '<div class="development-hotel"></div>';
+                    }
+                    element.classList.add('developed');
+                }
+            }
+
+            getPlayerProperties(playerId) {
+                return Object.entries(this.properties)
+                    .filter(([index, property]) => property.owner === playerId)
+                    .map(([index, property]) => ({ index: parseInt(index), ...property }));
+            }
+
+            canDevelop(playerId, propertyIndex) {
+                const property = this.properties[propertyIndex];
+                if (!property || property.owner !== playerId || property.houses >= 5) return false;
+                if (property.type === 'railroad' || property.type === 'utility') return false;
+
+                // Check if player owns all properties in the color group
+                const colorGroup = Object.entries(this.properties)
+                    .filter(([index, prop]) => prop.color === property.color && prop.color);
+                
+                const allOwned = colorGroup.every(([index, prop]) => prop.owner === playerId);
+                return allOwned;
+            }
+        }
+
+        class GameController {
+            constructor() {
+                this.socket = io('https://business-monopoly-server.onrender.com');
+                this.currentRoom = null;
+                this.currentPlayer = null;
+                this.gameData = null;
+                this.canBuyProperty = false;
+                this.propertyToBuy = null;
+                this.isPlayerMoving = false;
+                this.initializeSocketEvents();
+                this.initializeKeyboardNavigation();
+            }
+
+            initializeSocketEvents() {
+                this.socket.on('connect', () => {
+                    console.log('✅ Connected to server');
+                });
+
+                this.socket.on('disconnect', () => {
+                    console.log('❌ Disconnected from server');
+                    this.showReconnectMessage();
+                });
+
+                this.socket.on('roomCreated', (roomCode) => {
+                    this.currentRoom = roomCode;
+                    this.currentPlayer = document.getElementById('playerName').value.trim();
+                    document.getElementById('room-code').textContent = roomCode;
+                    document.getElementById('room-created').classList.remove('hidden');
+                });
+
+                this.socket.on('roomJoined', (data) => {
+                    this.currentRoom = data.roomCode;
+                    this.currentPlayer = document.getElementById('playerName').value.trim();
+                    document.getElementById('room-setup').classList.add('hidden');
+                    document.getElementById('game-container').classList.remove('hidden');
+                    this.updatePlayersDisplay(data.players);
+                });
+
+                this.socket.on('playersUpdated', (players) => {
+                    this.updatePlayersDisplay(players);
                     
+                    if (this.currentRoom && players.length >= 2) {
+                        const hostPlayer = players.find(p => p.isHost);
+                        if (hostPlayer && hostPlayer.name === this.currentPlayer) {
+                            document.getElementById('start-game-btn').classList.remove('hidden');
+                        }
+                    }
+                });
+
+                this.socket.on('gameStarted', (room) => {
+                    document.getElementById('room-setup').classList.add('hidden');
+                    document.getElementById('game-container').classList.remove('hidden');
+                    this.gameData = room;
+                    
+                    // Ensure all players start at GO (position 0)
+                    this.gameData.players.forEach(player => {
+                        if (player.position === undefined) {
+                            player.position = 0;
+                        }
+                    });
+                    
+                    this.updatePlayersDisplay(room.players);
+                    this.updateTurnIndicator();
+                    this.updateGameControls();
+                    this.updatePlayerPieces();
+                    this.updateCardsDisplay();
+                    learningAnalytics.updateDisplay();
+                });
+
+                this.socket.on('gameUpdated', (room) => {
+                    this.gameData = room;
+                    this.updatePlayersDisplay(room.players);
+                    this.updateTurnIndicator();
+                    this.updateGameControls();
+                    
+                    // Only update player pieces if not currently animating movement
+                    if (!this.isPlayerMoving) {
+                        this.updatePlayerPieces();
+                    }
+                    
+                    this.updatePropertiesDisplay();
+                    this.updateCardsDisplay();
+                });
+
+                this.socket.on('questionReceived', (question) => {
+                    this.showQuestion(question);
+                });
+
+                this.socket.on('answerResult', (result) => {
+                    this.hideQuestion();
+                    
+                    const correct = result.correct;
+                    learningAnalytics.recordAnswer(correct, 'business', result.timeTaken || 0);
+                    learningAnalytics.updateDisplay();
+                    
+                    soundManager.play(correct ? 'correctAnswer' : 'wrongAnswer');
+                    
+                    const resultText = correct ? 
+                        `✅ Correct! ${result.explanation}` : 
+                        `❌ Wrong! ${result.explanation}`;
+                    
+                    this.showMessage(resultText, correct ? 'success' : 'error');
+                });
+
+                this.socket.on('diceRolled', (result) => {
+                    this.handleDiceResult(result);
+                });
+
+                this.socket.on('propertyPurchased', (data) => {
+                    soundManager.play('propertyPurchase');
+                    this.showMessage(`🏠 ${data.playerName} bought ${data.propertyName} for £${data.price}`, 'info');
+                    
+                    this.gameData = data.gameData;
+                    this.canBuyProperty = false;
+                    this.propertyToBuy = null;
+                    
+                    // Update property display
+                    propertyManager.buyProperty(data.propertyIndex, data.playerId);
+                    propertyManager.updatePropertyDisplay(data.propertyIndex);
+                    
+                    this.updatePropertiesDisplay();
+                    this.updateCardsDisplay();
+                });
+
+                this.socket.on('error', (message) => {
+                    this.showMessage('Error: ' + message, 'error');
+                });
+            }
+
+            initializeKeyboardNavigation() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT') return;
+
+                    switch(e.key) {
+                        case ' ': // Spacebar
+                            e.preventDefault();
+                            const rollBtn = document.getElementById('roll-dice-btn');
+                            if (!rollBtn.classList.contains('hidden')) {
+                                this.rollDice();
+                            }
+                            break;
+                        case 'Enter':
+                            e.preventDefault();
+                            const startBtn = document.getElementById('start-turn-btn');
+                            if (!startBtn.classList.contains('hidden')) {
+                                this.startTurn();
+                            }
+                            break;
+                        case 'b':
+                            const buyBtn = document.getElementById('buy-property-btn');
+                            if (!buyBtn.classList.contains('hidden')) {
+                                this.buyProperty();
+                            }
+                            break;
+                        case 'e':
+                            const endBtn = document.getElementById('end-turn-btn');
+                            if (!endBtn.classList.contains('hidden')) {
+                                this.endTurn();
+                            }
+                            break;
+                    }
+                });
+            }
+
+            showReconnectMessage() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                    justify-content: center; z-index: 2000;
+                `;
+                overlay.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                        <h3>Connection Lost</h3>
+                        <p>Attempting to reconnect...</p>
+                        <div style="animation: spin 1s linear infinite;">🔄</div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                // Remove overlay when reconnected
+                this.socket.on('connect', () => {
+                    overlay.remove();
+                });
+            }
+
+            createRoom() {
+                const playerName = document.getElementById('playerName').value.trim();
+                if (!playerName) {
+                    this.showMessage('Please enter your name', 'error');
+                    return;
+                }
+                
+                this.socket.emit('createRoom', { playerName });
+            }
+
+            showJoinForm() {
+                document.getElementById('join-form').classList.remove('hidden');
+            }
+
+            joinRoom() {
+                const playerName = document.getElementById('playerName').value.trim();
+                const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+                
+                if (!playerName || !roomCode) {
+                    this.showMessage('Please enter your name and room code', 'error');
+                    return;
+                }
+                
+                this.socket.emit('joinRoom', { roomCode, playerName });
+            }
+
+            startGame() {
+                this.socket.emit('startGame', this.currentRoom);
+            }
+
+            startTurn() {
+                this.socket.emit('startTurn', this.currentRoom);
+            }
+
+            rollDice() {
+                soundManager.play('diceRoll');
+                
+                // Disable roll button during animation
+                const rollBtn = document.getElementById('roll-dice-btn');
+                rollBtn.disabled = true;
+                rollBtn.textContent = 'Rolling...';
+
+                // Show dice rolling animation with "?" symbols
+                const diceResult = document.getElementById('dice-result');
+                diceResult.innerHTML = `
+                    <div class="dice-container">
+                        <div class="dice rolling" id="dice1">?</div>
+                        <div class="dice rolling" id="dice2">?</div>
+                    </div>
+                    <div class="dice-total">Rolling dice...</div>
+                `;
+                diceResult.classList.remove('hidden');
+
+                // Send actual roll request after 2 seconds of animation
+                setTimeout(() => {
+                    this.socket.emit('rollDice', this.currentRoom);
+                }, 2000);
+            }
+
+            buyProperty() {
+                if (this.canBuyProperty && this.propertyToBuy !== null) {
+                    const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
+                    const propertyIndex = currentPlayerData.position;
+                    this.socket.emit('buyProperty', { roomCode: this.currentRoom, propertyIndex: propertyIndex });
+                }
+            }
+
+            showDevelopmentOptions() {
+                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
+                const playerId = this.gameData.currentPlayer;
+                const properties = propertyManager.getPlayerProperties(playerId);
+                const developable = properties.filter(prop => propertyManager.canDevelop(playerId, prop.index));
+
+                if (developable.length === 0) {
+                    this.showMessage('No properties can be developed', 'info');
                     return;
                 }
 
-                // Calculate next position (clockwise around board)
-                currentPosition = (currentPosition + 1) % 40;
-                stepsRemaining--;
-
-                console.log(`Moving to position ${currentPosition}, ${stepsRemaining} steps remaining`);
-
-                // Check if passing GO
-                if (currentPosition === 0 && stepsRemaining > 0) {
-                    passedGo = true;
-                    console.log('Passed GO!');
-                    showMessage('🎯 Passed GO! Collect £200', 'success');
-                    if (gameData && gameData.players[playerIndex]) {
-                        gameData.players[playerIndex].money += 200;
-                    }
-                }
-
-                // Move piece to new position
-                const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
-                if (newProperty) {
-                    // Remove piece from current location
-                    piece.remove();
-                    
-                    // Add to new location
-                    newProperty.appendChild(piece);
-                    
-                    // Reset positioning
-                    piece.style.left = '50%';
-                    piece.style.top = '50%';
-                    piece.style.transform = 'translate(-50%, -50%)';
-                    
-                    // Add moving animation
-                    piece.classList.add('moving');
-                    
-                    // Continue to next step after delay
-                    setTimeout(() => {
-                        moveOneStep();
-                    }, 600); // Slightly faster movement
-                } else {
-                    console.error(`Could not find property element for position ${currentPosition}`);
-                    // Continue anyway
-                    setTimeout(moveOneStep, 600);
-                }
+                this.showMessage(`You can develop ${developable.length} properties`, 'info');
+                // Implementation for development UI would go here
             }
 
-            // Start the movement
-            moveOneStep();
-        }
-
-        function handleSpecialSpace(playerIndex, position) {
-            const space = document.querySelector(`[data-index="${position}"]`);
-            if (space) {
-                space.classList.add('special-landed');
-                setTimeout(() => space.classList.remove('special-landed'), 2000);
+            showTradeModal() {
+                document.getElementById('trade-modal').classList.remove('hidden');
+                this.populateTradeModal();
             }
 
-            console.log(`Player ${playerIndex} landed on space ${position}`);
-            
-            // Only handle card effects if this is the current player's turn
-            // This prevents all clients from executing card effects simultaneously
-            const isCurrentPlayer = gameData && gameData.currentPlayer === playerIndex;
-            const isMyTurn = gameData && gameData.players[gameData.currentPlayer]?.name === currentPlayer;
-            
-            // Only the player whose turn it is should see and execute card effects
-            if (!isCurrentPlayer || !isMyTurn) {
-                return;
-            }
+            populateTradeModal() {
+                const sections = document.getElementById('trade-sections');
+                sections.innerHTML = '';
 
-            // Handle different special spaces
-            switch(position) {
-                case 2: // Community Chest
-                case 17:
-                case 33:
-                    setTimeout(() => handleCommunityChest(playerIndex), 1000);
-                    break;
-                case 7: // Chance
-                case 22:
-                case 36:
-                    setTimeout(() => handleChance(playerIndex), 1000);
-                    break;
-                case 30: // Go to Jail
-                    setTimeout(() => handleGoToJail(playerIndex), 1000);
-                    break;
-                case 4: // Income Tax
-                    handleIncomeTax(playerIndex);
-                    break;
-                case 38: // Super Tax
-                    handleSuperTax(playerIndex);
-                    break;
-                case 0: // GO
-                    showMessage('🎯 Welcome to GO! Collect £200', 'success');
-                    break;
-                case 10: // Just Visiting Jail
-                case 20: // Free Parking
-                    // No special action needed
-                    break;
-                default:
-                    // Regular property space
-                    break;
-            }
-        }
+                this.gameData.players.forEach((player, index) => {
+                    if (index === this.gameData.currentPlayer) return;
 
-        function handleGoToJail(playerIndex) {
-            // Show a humorous college-themed message
-            const collegeMessage = document.createElement('div');
-            collegeMessage.style.cssText = `
-                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #4CAF50, #45a049); 
-                color: white; padding: 30px; border-radius: 20px; 
-                max-width: 400px; z-index: 1002; text-align: center;
-                border: 4px solid #2e7d32; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-                font-size: 18px; font-weight: bold;
-            `;
-            collegeMessage.innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">🎓👮‍♂️</div>
-                <div style="font-size: 20px; margin-bottom: 10px;">Go to Jail?</div>
-                <div style="font-size: 16px; line-height: 1.5;">
-                    "I cannot send you to Jail whilst you are at college!"
-                </div>
-                <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
-                    Education protects you! Stay on this space.
-                </div>
-            `;
-            
-            document.body.appendChild(collegeMessage);
-            
-            // Add entrance animation
-            collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-            collegeMessage.style.opacity = '0';
-            
-            setTimeout(() => {
-                collegeMessage.style.transition = 'all 0.5s ease';
-                collegeMessage.style.transform = 'translate(-50%, -50%) scale(1)';
-                collegeMessage.style.opacity = '1';
-            }, 100);
-            
-            // Remove message after 4 seconds
-            setTimeout(() => {
-                collegeMessage.style.transition = 'all 0.5s ease';
-                collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-                collegeMessage.style.opacity = '0';
-                setTimeout(() => collegeMessage.remove(), 500);
-            }, 4000);
-            
-            // Player stays where they are - no movement to jail
-            showMessage('🎓 Education keeps you free! No jail time for students!', 'success');
-        }
-
-        function handleIncomeTax(playerIndex) {
-            showMessage('💰 Income Tax - Pay £200', 'error');
-            if (gameData && gameData.players[playerIndex]) {
-                gameData.players[playerIndex].money = Math.max(0, gameData.players[playerIndex].money - 200);
-                updatePlayersDisplay(gameData.players);
-            }
-        }
-
-        function handleSuperTax(playerIndex) {
-            showMessage('💰 Super Tax - Pay £100', 'error');
-            if (gameData && gameData.players[playerIndex]) {
-                gameData.players[playerIndex].money = Math.max(0, gameData.players[playerIndex].money - 100);
-                updatePlayersDisplay(gameData.players);
-            }
-        }
-
-        function updateCardsDisplay() {
-            if (!gameData || !currentPlayer) return;
-            
-            const player = gameData.players.find(p => p.name === currentPlayer);
-            if (!player) return;
-            
-            const cardsList = document.getElementById('cards-list');
-            if (!player.cards || player.cards.length === 0) {
-                cardsList.innerHTML = 'No cards held';
-                return;
-            }
-            
-            cardsList.innerHTML = player.cards.map(card => {
-                const cardType = card.type.includes('Jail') ? 'chance' : 'community';
-                return `<div class="card-item ${cardType}">${card.text}</div>`;
-            }).join('');
-        }
-
-        // Room Management
-        function createRoom() {
-            const playerName = document.getElementById('playerName').value.trim();
-            if (!playerName) {
-                alert('Please enter your name');
-                return;
-            }
-            
-            socket.emit('createRoom', { playerName });
-        }
-
-        function showJoinForm() {
-            document.getElementById('join-form').classList.remove('hidden');
-        }
-
-        function joinRoom() {
-            const playerName = document.getElementById('playerName').value.trim();
-            const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
-            
-            if (!playerName || !roomCode) {
-                alert('Please enter your name and room code');
-                return;
-            }
-            
-            socket.emit('joinRoom', { roomCode, playerName });
-        }
-
-        function startGame() {
-            socket.emit('startGame', currentRoom);
-        }
-
-        // Game Actions
-        function startTurn() {
-            socket.emit('startTurn', currentRoom);
-        }
-
-        function rollDice() {
-            // Disable roll button during animation
-            const rollBtn = document.getElementById('roll-dice-btn');
-            rollBtn.disabled = true;
-            rollBtn.textContent = 'Rolling...';
-
-            // Show dice rolling animation with "?" symbols
-            const diceResult = document.getElementById('dice-result');
-            diceResult.innerHTML = `
-                <div class="dice-container">
-                    <div class="dice rolling" id="dice1">?</div>
-                    <div class="dice rolling" id="dice2">?</div>
-                </div>
-                <div class="dice-total">Rolling dice...</div>
-            `;
-            diceResult.classList.remove('hidden');
-
-            // Send actual roll request after 2 seconds of animation
-            setTimeout(() => {
-                socket.emit('rollDice', currentRoom);
-            }, 2000);
-        }
-
-        function buyProperty() {
-            if (canBuyProperty && propertyToBuy !== null) {
-                const currentPlayerData = gameData.players[gameData.currentPlayer];
-                const propertyIndex = currentPlayerData.position;
-                socket.emit('buyProperty', { roomCode: currentRoom, propertyIndex: propertyIndex });
-            }
-        }
-
-        function endTurn() {
-            socket.emit('endTurn', currentRoom);
-        }
-
-        function answerQuestion(answerIndex) {
-            socket.emit('answerQuestion', { roomCode: currentRoom, answerIndex });
-        }
-
-        // UI Updates
-        function updatePlayersDisplay(players) {
-            const playersList = document.getElementById('players-list');
-            playersList.innerHTML = '';
-            
-            players.forEach((player, index) => {
-                const playerItem = document.createElement('div');
-                playerItem.className = `player-item ${gameData && gameData.currentPlayer === index ? 'current' : ''}`;
-                playerItem.innerHTML = `
-                    <div>
-                        <div style="font-weight: bold;">${player.name} ${player.isHost ? '👑' : ''}</div>
-                        <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
-                    </div>
-                    <div class="player-money">£${player.money}</div>
-                `;
-                playersList.appendChild(playerItem);
-            });
-        }
-
-        function updatePlayerPieces() {
-            // Remove existing pieces
-            document.querySelectorAll('.player-piece').forEach(piece => piece.remove());
-            
-            if (!gameData || !gameData.players) return;
-            
-            gameData.players.forEach((player, index) => {
-                const piece = document.createElement('div');
-                piece.className = `player-piece player-piece-${index}`;
-                piece.textContent = player.name.charAt(0).toUpperCase();
-                piece.title = `${player.name} - £${player.money}`;
-                piece.id = `player-${index}`;
-                
-                // Ensure player starts at GO (position 0) if not set
-                const position = player.position || 0;
-                
-                // Position the piece on the board
-                const property = document.querySelector(`[data-index="${position}"]`);
-                
-                if (property) {
-                    property.appendChild(piece);
-                    
-                    // Position multiple pieces in a circle around the center
-                    const existingPieces = property.querySelectorAll('.player-piece').length;
-                    if (existingPieces > 1) {
-                        const angle = (existingPieces - 1) * (360 / gameData.players.length);
-                        const radius = 15;
-                        const x = Math.cos(angle * Math.PI / 180) * radius;
-                        const y = Math.sin(angle * Math.PI / 180) * radius;
-                        piece.style.left = `calc(50% + ${x}px)`;
-                        piece.style.top = `calc(50% + ${y}px)`;
-                    }
-                }
-            });
-        }
-
-        function updateTurnIndicator() {
-            const indicator = document.getElementById('turn-indicator');
-            if (!gameData || !gameData.gameStarted) {
-                indicator.textContent = 'Waiting to start...';
-                indicator.style.background = '#6c757d';
-                return;
-            }
-            
-            const currentPlayerData = gameData.players[gameData.currentPlayer];
-            const isMyTurn = currentPlayerData && currentPlayerData.name === currentPlayer;
-            
-            indicator.textContent = isMyTurn ? 'Your Turn' : `${currentPlayerData.name}'s Turn`;
-            indicator.style.background = isMyTurn ? '#ff6b6b' : '#4CAF50';
-            
-            // Pulse animation for current player
-            if (isMyTurn) {
-                indicator.style.animation = 'pulse 2s infinite';
-            } else {
-                indicator.style.animation = 'none';
-            }
-        }
-
-        function updateGameControls() {
-            const isMyTurn = gameData && gameData.players[gameData.currentPlayer]?.name === currentPlayer;
-            const gamePhase = gameData?.gamePhase || 'question';
-            const waitingForAnswer = gameData?.waitingForAnswer || false;
-            
-            // Hide all buttons first
-            document.querySelectorAll('#game-controls .btn').forEach(btn => btn.classList.add('hidden'));
-            
-            if (!isMyTurn || !gameData?.gameStarted) return;
-            
-            if (gamePhase === 'question' && !waitingForAnswer) {
-                document.getElementById('start-turn-btn').classList.remove('hidden');
-            } else if (gamePhase === 'dice') {
-                document.getElementById('roll-dice-btn').classList.remove('hidden');
-                document.getElementById('dice-result').classList.add('hidden');
-            } else if (gamePhase === 'property' && canBuyProperty) {
-                document.getElementById('buy-property-btn').classList.remove('hidden');
-                document.getElementById('end-turn-btn').classList.remove('hidden');
-                
-                // Highlight the property they can buy
-                const currentPlayerData = gameData.players[gameData.currentPlayer];
-                const propertyElement = document.querySelector(`[data-index="${currentPlayerData.position}"]`);
-                if (propertyElement) {
-                    propertyElement.style.boxShadow = '0 0 25px #4CAF50';
-                    propertyElement.style.border = '3px solid #4CAF50';
-                    propertyElement.style.transform = 'scale(1.05)';
-                    propertyElement.style.zIndex = '50';
-                    
-                    // Remove highlight after 5 seconds or when turn ends
-                    setTimeout(() => {
-                        propertyElement.style.boxShadow = '';
-                        propertyElement.style.border = '';
-                        propertyElement.style.transform = '';
-                        propertyElement.style.zIndex = '';
-                    }, 5000);
-                }
-            } else if (gamePhase === 'endTurn') {
-                document.getElementById('end-turn-btn').classList.remove('hidden');
-            }
-        }
-
-        function updatePropertiesDisplay() {
-            if (!gameData || !currentPlayer) return;
-            
-            const player = gameData.players.find(p => p.name === currentPlayer);
-            if (!player) return;
-            
-            const propertiesList = document.getElementById('properties-list');
-            if (player.properties.length === 0) {
-                propertiesList.innerHTML = 'No properties owned';
-                return;
-            }
-            
-            const propertyNames = [
-                'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
-                "King's Cross Station", 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
-                'Jail', 'Pall Mall', 'Electric Company', 'Whitehall', 'Northumberland Avenue',
-                'Marylebone Station', 'Bow Street', 'Community Chest', 'Marlborough Street', 'Vine Street',
-                'Free Parking', 'The Strand', 'Chance', 'Fleet Street', 'Trafalgar Square',
-                'Fenchurch St Station', 'Leicester Square', 'Coventry Street', 'Water Works', 'Piccadilly',
-                'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
-                'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
-            ];
-            
-            propertiesList.innerHTML = player.properties.map(propIndex => {
-                const name = propertyNames[propIndex] || `Property ${propIndex}`;
-                return `<div style="padding: 5px; border-left: 3px solid #4CAF50; margin: 5px 0; font-size: 11px; text-transform: none;">${name}</div>`;
-            }).join('');
-        }
-
-        function updateStatsDisplay(stats) {
-            const statsDisplay = document.getElementById('stats-display');
-            if (!stats || !currentPlayer || !stats[currentPlayer]) {
-                statsDisplay.innerHTML = '<p style="text-transform: none;">No statistics available</p>';
-                return;
-            }
-            
-            const playerStats = stats[currentPlayer];
-            statsDisplay.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px;">
-                    <div>Questions: ${playerStats.questionsAnswered}</div>
-                    <div>Correct: ${playerStats.correctAnswers}</div>
-                    <div>Accuracy: ${playerStats.accuracy}%</div>
-                    <div>Avg Time: ${playerStats.averageTime}s</div>
-                </div>
-            `;
-        }
-
-        function showQuestion(question, isBonus = false) {
-            console.log('showQuestion called with:', { question, isBonus });
-            
-            // Validate question object
-            if (!question || !question.question || !question.options) {
-                console.error('Invalid question object:', question);
-                return;
-            }
-            
-            const modal = document.getElementById('question-modal');
-            if (!modal) {
-                console.error('Question modal element not found!');
-                return;
-            }
-            
-            const questionTitle = document.getElementById('question-title');
-            const questionText = document.getElementById('question-text');
-            const questionOptions = document.getElementById('question-options');
-            const timerValue = document.getElementById('timer-value');
-            
-            // Check all required elements exist
-            if (!questionTitle || !questionText || !questionOptions) {
-                console.error('Missing question modal elements:', {
-                    questionTitle: !!questionTitle,
-                    questionText: !!questionText,
-                    questionOptions: !!questionOptions
+                    const section = document.createElement('div');
+                    section.className = 'trade-section';
+                    section.innerHTML = `
+                        <h4>Trade with ${player.name}</h4>
+                        <div class="trade-items">
+                            ${player.properties.map(propIndex => {
+                                const prop = propertyManager.getProperty(propIndex);
+                                return `<div class="trade-item" data-property="${propIndex}">${prop?.name || `Property ${propIndex}`}</div>`;
+                            }).join('')}
+                        </div>
+                    `;
+                    sections.appendChild(section);
                 });
-                return;
             }
-            
-            modal.classList.remove('hidden');
-            console.log('Question modal should now be visible');
-            
-            const questionContent = document.querySelector('.question-content');
-            
-            // Reset classes
-            if (questionContent) {
-                questionContent.className = 'question-content';
+
+            endTurn() {
+                this.socket.emit('endTurn', this.currentRoom);
             }
-            
-            if (isBonus) {
-                // Add bonus styling
-                if (question.cardType === 'chance') {
-                    questionContent.classList.add('bonus-chance');
-                } else {
-                    questionContent.classList.add('bonus-community');
+
+            handleDiceResult(result) {
+                // Re-enable roll button
+                const rollBtn = document.getElementById('roll-dice-btn');
+                rollBtn.disabled = false;
+                rollBtn.textContent = 'Roll Dice';
+
+                // Show final dice results
+                const diceResult = document.getElementById('dice-result');
+                const total = result.dice[0] + result.dice[1];
+                
+                diceResult.innerHTML = `
+                    <div class="dice-container">
+                        <div class="dice" id="dice1">${result.dice[0]}</div>
+                        <div class="dice" id="dice2">${result.dice[1]}</div>
+                    </div>
+                    <div class="dice-total">Total: ${total} spaces</div>
+                `;
+
+                // Store movement data
+                this.canBuyProperty = result.canBuyProperty;
+                this.propertyToBuy = result.canBuyProperty ? result.newPosition : null;
+
+                // Get current player data before movement
+                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
+                const oldPosition = currentPlayerData.position;
+                const newPosition = result.newPosition;
+
+                // Show rent payment message if applicable (after movement completes)
+                if (result.rentOwed > 0) {
+                    setTimeout(() => {
+                        this.showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
+                    }, total * 600 + 1000);
                 }
-                
-                // Update title for bonus questions
-                const title = question.cardType === 'chance' ? '❓ Chance Bonus Question' : '📦 Community Chest Bonus Question';
-                questionTitle.textContent = title;
-                
-                // Add bonus reward notice
-                const existingReward = document.getElementById('bonus-reward');
-                if (existingReward) existingReward.remove();
-                
-                const rewardDiv = document.createElement('div');
-                rewardDiv.id = 'bonus-reward';
-                rewardDiv.className = 'bonus-reward';
-                rewardDiv.textContent = '💰 Answer correctly to win £200!';
-                
-                questionText.parentNode.insertBefore(rewardDiv, questionText);
-            } else {
-                // Regular business question
-                console.log('Setting up regular business question');
-                questionTitle.textContent = '📚 Business Question';
-                
-                // Remove any existing bonus reward notice
-                const existingReward = document.getElementById('bonus-reward');
-                if (existingReward) existingReward.remove();
-            }
-            
-            questionText.textContent = question.question;
-            console.log('Question text set to:', question.question);
-            
-            questionOptions.innerHTML = '';
-            
-            question.options.forEach((option, index) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'question-option';
-                optionDiv.textContent = option;
-                optionDiv.onclick = () => {
-                    console.log('Option clicked:', index);
-                    if (isBonus) {
-                        answerBonusQuestion(index, question.cardType);
-                    } else {
-                        answerQuestion(index);
-                    }
-                };
-                questionOptions.appendChild(optionDiv);
-            });
-            
-            console.log('Question options created:', question.options.length);
-            
-            // Start timer
-            let timeLeft = question.timeLimit || 30;
-            if (timerValue) {
-                timerValue.textContent = timeLeft;
-                
-                const timerInterval = setInterval(() => {
-                    timeLeft--;
-                    if (timerValue) {
-                        timerValue.textContent = timeLeft;
-                    }
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        console.log('Question timer expired');
-                    }
+
+                // Show property purchase option if applicable (after movement completes)
+                if (result.canBuyProperty) {
+                    const property = propertyManager.getProperty(newPosition);
+                    const propertyName = property?.name || 'Property';
+                    
+                    setTimeout(() => {
+                        this.showMessage(`🏠 You can buy ${propertyName}!`, 'info');
+                    }, total * 600 + 1500);
+                }
+
+                // Update the turn indicator
+                this.updateTurnIndicator();
+
+                // Start animated movement after short delay
+                setTimeout(() => {
+                    this.isPlayerMoving = true;
+                    this.animatePlayerMovement(this.gameData.currentPlayer, oldPosition, newPosition, total);
                 }, 1000);
             }
-        }
 
-        function showBonusQuestion(question) {
-            showQuestion(question, true);
-        }
+            animatePlayerMovement(playerIndex, fromPosition, toPosition, totalSteps) {
+                const piece = document.getElementById(`player-${playerIndex}`);
+                if (!piece) {
+                    console.error(`Player piece not found: player-${playerIndex}`);
+                    return;
+                }
 
-        function answerBonusQuestion(answerIndex, cardType) {
-            socket.emit('answerBonusQuestion', { 
-                roomCode: currentRoom, 
-                answerIndex, 
-                cardType 
-            });
-        }
+                console.log(`Animating player ${playerIndex} movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
 
-        function hideQuestion() {
-            document.getElementById('question-modal').classList.add('hidden');
-        }
+                let currentPosition = fromPosition;
+                let stepsRemaining = totalSteps;
 
-        function showMessage(text, type = 'success') {
-            const messageDiv = document.createElement('div');
-            const bgColor = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1';
-            const textColor = type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460';
-            const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
-            
-            messageDiv.style.cssText = `
-                position: fixed; top: 20px; right: 20px; 
-                background: ${bgColor}; color: ${textColor};
-                padding: 15px; border-radius: 10px; 
-                max-width: 300px; z-index: 1001;
-                border: 2px solid ${borderColor};
-                font-size: 14px; text-transform: none;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            `;
-            messageDiv.textContent = text;
-            document.body.appendChild(messageDiv);
-            
-            setTimeout(() => messageDiv.remove(), 5000);
-        }
+                // Highlight destination
+                const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
+                if (destinationSquare) {
+                    destinationSquare.style.boxShadow = '0 0 25px #FFD700';
+                    destinationSquare.style.border = '3px solid #FFD700';
+                    destinationSquare.style.transform = 'scale(1.05)';
+                    destinationSquare.style.zIndex = '50';
+                }
 
-        // Initialize Socket.IO connection
-        const socket = io('https://business-monopoly-server.onrender.com');
+                const moveOneStep = () => {
+                    if (stepsRemaining <= 0) {
+                        console.log(`Movement complete. Final position: ${currentPosition}`);
+                        
+                        // Clear movement flag
+                        this.isPlayerMoving = false;
+                        
+                        // Update game data with final position
+                        if (this.gameData && this.gameData.players[playerIndex]) {
+                            this.gameData.players[playerIndex].position = toPosition;
+                        }
+                        
+                        // Clear destination highlighting
+                        if (destinationSquare) {
+                            destinationSquare.style.boxShadow = '';
+                            destinationSquare.style.border = '';
+                            destinationSquare.style.transform = '';
+                            destinationSquare.style.zIndex = '';
+                        }
+                        
+                        // Remove moving animation
+                        piece.classList.remove('moving');
+                        
+                        // Handle special spaces after movement completes
+                        setTimeout(() => {
+                            this.handleSpecialSpace(playerIndex, toPosition);
+                            this.updateGameControls();
+                            this.updatePlayersDisplay(this.gameData.players);
+                        }, 500);
+                        
+                        return;
+                    }
 
-        // Socket connection debugging
-        socket.on('connect', () => {
-            console.log('✅ Connected to server');
-        });
+                    // Calculate next position (clockwise around board)
+                    currentPosition = (currentPosition + 1) % 40;
+                    stepsRemaining--;
 
-        socket.on('disconnect', () => {
-            console.log('❌ Disconnected from server');
-        });
+                    console.log(`Moving to position ${currentPosition}, ${stepsRemaining} steps remaining`);
 
-        // Debug all socket events
-        const originalEmit = socket.emit;
-        socket.emit = function(...args) {
-            console.log('📤 Emitting:', args[0], args.slice(1));
-            return originalEmit.apply(this, args);
-        };
+                    // Check if passing GO
+                    if (currentPosition === 0 && stepsRemaining > 0) {
+                        this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                        if (this.gameData && this.gameData.players[playerIndex]) {
+                            this.gameData.players[playerIndex].money += 200;
+                        }
+                    }
 
-        // Socket Event Listeners
-        socket.on('roomCreated', (roomCode) => {
-            currentRoom = roomCode;
-            currentPlayer = document.getElementById('playerName').value.trim();
-            document.getElementById('room-code').textContent = roomCode;
-            document.getElementById('room-created').classList.remove('hidden');
-        });
+                    // Move piece to new position
+                    const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
+                    if (newProperty) {
+                        // Remove piece from current location
+                        piece.remove();
+                        
+                        // Add to new location
+                        newProperty.appendChild(piece);
+                        
+                        // Reset positioning
+                        piece.style.left = '50%';
+                        piece.style.top = '50%';
+                        piece.style.transform = 'translate(-50%, -50%)';
+                        
+                        // Add moving animation
+                        piece.classList.add('moving');
+                        soundManager.play('playerMove');
+                        
+                        // Continue to next step after delay
+                        setTimeout(() => {
+                            moveOneStep();
+                        }, 600);
+                    } else {
+                        console.error(`Could not find property element for position ${currentPosition}`);
+                        setTimeout(moveOneStep, 600);
+                    }
+                };
 
-        socket.on('roomJoined', (data) => {
-            currentRoom = data.roomCode;
-            currentPlayer = document.getElementById('playerName').value.trim();
-            document.getElementById('room-setup').classList.add('hidden');
-            document.getElementById('game-container').classList.remove('hidden');
-            updatePlayersDisplay(data.players);
-        });
+                // Start the movement
+                moveOneStep();
+            }
 
-        socket.on('playersUpdated', (players) => {
-            updatePlayersDisplay(players);
-            
-            if (currentRoom && players.length >= 2) {
-                const hostPlayer = players.find(p => p.isHost);
-                if (hostPlayer && hostPlayer.name === currentPlayer) {
-                    document.getElementById('start-game-btn').classList.remove('hidden');
+            handleSpecialSpace(playerIndex, position) {
+                const space = document.querySelector(`[data-index="${position}"]`);
+                if (space) {
+                    space.classList.add('special-landed');
+                    setTimeout(() => space.classList.remove('special-landed'), 2000);
+                }
+
+                console.log(`Player ${playerIndex} landed on space ${position}`);
+                
+                // Only handle card effects if this is the current player's turn
+                const isCurrentPlayer = this.gameData && this.gameData.currentPlayer === playerIndex;
+                const isMyTurn = this.gameData && this.gameData.players[this.gameData.currentPlayer]?.name === this.currentPlayer;
+                
+                if (!isCurrentPlayer || !isMyTurn) {
+                    return;
+                }
+
+                // Handle different special spaces
+                switch(position) {
+                    case 2: // Community Chest
+                    case 17:
+                    case 33:
+                        setTimeout(() => this.handleCommunityChest(playerIndex), 1000);
+                        break;
+                    case 7: // Chance
+                    case 22:
+                    case 36:
+                        setTimeout(() => this.handleChance(playerIndex), 1000);
+                        break;
+                    case 30: // Go to Jail
+                        setTimeout(() => this.handleGoToJail(playerIndex), 1000);
+                        break;
+                    case 4: // Income Tax
+                        this.handleIncomeTax(playerIndex);
+                        break;
+                    case 38: // Super Tax
+                        this.handleSuperTax(playerIndex);
+                        break;
+                    case 0: // GO
+                        this.showMessage('🎯 Welcome to GO! Collect £200', 'success');
+                        break;
+                    case 10: // Just Visiting Jail
+                    case 20: // Free Parking
+                        // No special action needed
+                        break;
+                    default:
+                        // Regular property space
+                        break;
                 }
             }
-        });
 
-        socket.on('gameStarted', (room) => {
-            document.getElementById('room-setup').classList.add('hidden');
-            document.getElementById('game-container').classList.remove('hidden');
-            gameData = room;
-            
-            // Ensure all players start at GO (position 0)
-            gameData.players.forEach(player => {
-                if (player.position === undefined) {
-                    player.position = 0;
-                }
-            });
-            
-            updatePlayersDisplay(room.players);
-            updateTurnIndicator();
-            updateGameControls();
-            updatePlayerPieces();
-            updateCardsDisplay();
-        });
-
-        socket.on('gameUpdated', (room) => {
-            gameData = room;
-            updatePlayersDisplay(room.players);
-            updateTurnIndicator();
-            updateGameControls();
-            
-            // Only update player pieces if not currently animating movement
-            if (!isPlayerMoving) {
-                updatePlayerPieces();
-            }
-            
-            updatePropertiesDisplay();
-            updateCardsDisplay();
-        });
-
-        socket.on('questionReceived', (question) => {
-            showQuestion(question);
-        });
-
-        socket.on('answerResult', (result) => {
-            hideQuestion();
-            
-            const resultText = result.correct ? 
-                `✅ Correct! ${result.explanation}` : 
-                `❌ Wrong! ${result.explanation}`;
-            
-            showMessage(resultText, result.correct ? 'success' : 'error');
-        });
-
-        socket.on('diceRolled', (result) => {
-            // Re-enable roll button
-            const rollBtn = document.getElementById('roll-dice-btn');
-            rollBtn.disabled = false;
-            rollBtn.textContent = 'Roll Dice';
-
-            // Show final dice results
-            const diceResult = document.getElementById('dice-result');
-            const total = result.dice[0] + result.dice[1];
-            
-            diceResult.innerHTML = `
-                <div class="dice-container">
-                    <div class="dice" id="dice1">${result.dice[0]}</div>
-                    <div class="dice" id="dice2">${result.dice[1]}</div>
-                </div>
-                <div class="dice-total">Total: ${total} spaces</div>
-            `;
-
-            // Store movement data
-            canBuyProperty = result.canBuyProperty;
-            propertyToBuy = result.canBuyProperty ? result.newPosition : null;
-
-            // Get current player data before movement
-            const currentPlayerData = gameData.players[gameData.currentPlayer];
-            const oldPosition = currentPlayerData.position;
-            const newPosition = result.newPosition;
-
-            // Show rent payment message if applicable (after movement completes)
-            if (result.rentOwed > 0) {
+            handleChance(playerIndex) {
+                const card = this.drawRandomCard('chance');
+                console.log('Chance card drawn:', card);
+                
+                soundManager.play('cardDraw');
+                
+                const playerName = this.gameData.players[playerIndex]?.name || 'Player';
+                this.showMessage(`${playerName} drew a Chance card!`, 'info');
+                
+                this.showCardModal('❓ Chance Card', card.text, 'chance');
+                
                 setTimeout(() => {
-                    showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
-                }, total * 600 + 1000);
+                    this.executeCardAction(playerIndex, card);
+                }, 2000);
             }
 
-            // Show property purchase option if applicable (after movement completes)
-            if (result.canBuyProperty) {
+            handleCommunityChest(playerIndex) {
+                const card = this.drawRandomCard('community');
+                console.log('Community Chest card drawn:', card);
+                
+                soundManager.play('cardDraw');
+                
+                const playerName = this.gameData.players[playerIndex]?.name || 'Player';
+                this.showMessage(`${playerName} drew a Community Chest card!`, 'info');
+                
+                this.showCardModal('📦 Community Chest', card.text, 'community');
+                
+                setTimeout(() => {
+                    this.executeCardAction(playerIndex, card);
+                }, 2000);
+            }
+
+            handleGoToJail(playerIndex) {
+                const collegeMessage = document.createElement('div');
+                collegeMessage.style.cssText = `
+                    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #4CAF50, #45a049); 
+                    color: white; padding: 30px; border-radius: 20px; 
+                    max-width: 400px; z-index: 1002; text-align: center;
+                    border: 4px solid #2e7d32; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                    font-size: 18px; font-weight: bold;
+                `;
+                collegeMessage.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 15px;">🎓👮‍♂️</div>
+                    <div style="font-size: 20px; margin-bottom: 10px;">Go to Jail?</div>
+                    <div style="font-size: 16px; line-height: 1.5;">
+                        "I cannot send you to Jail whilst you are at college!"
+                    </div>
+                    <div style="font-size: 14px; margin-top: 15px; opacity: 0.9;">
+                        Education protects you! Stay on this space.
+                    </div>
+                `;
+                
+                document.body.appendChild(collegeMessage);
+                
+                setTimeout(() => {
+                    collegeMessage.style.transition = 'all 0.5s ease';
+                    collegeMessage.style.transform = 'translate(-50%, -50%) scale(1)';
+                    collegeMessage.style.opacity = '1';
+                }, 100);
+                
+                setTimeout(() => {
+                    collegeMessage.style.transition = 'all 0.5s ease';
+                    collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                    collegeMessage.style.opacity = '0';
+                    setTimeout(() => collegeMessage.remove(), 500);
+                }, 4000);
+                
+                this.showMessage('🎓 Education keeps you free! No jail time for students!', 'success');
+            }
+
+            handleIncomeTax(playerIndex) {
+                this.showMessage('💰 Income Tax - Pay £200', 'error');
+                if (this.gameData && this.gameData.players[playerIndex]) {
+                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 200);
+                    this.updatePlayersDisplay(this.gameData.players);
+                }
+            }
+
+            handleSuperTax(playerIndex) {
+                this.showMessage('💰 Super Tax - Pay £100', 'error');
+                if (this.gameData && this.gameData.players[playerIndex]) {
+                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 100);
+                    this.updatePlayersDisplay(this.gameData.players);
+                }
+            }
+
+            drawRandomCard(cardType) {
+                const chanceCards = [
+                    { text: "Advance to GO - Collect £200", action: "moveToGo" },
+                    { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
+                    { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
+                    { text: "Advance to Mayfair", action: "moveTo", position: 39 },
+                    { text: "Advance to nearest Railway Station and pay owner twice the rental", action: "moveToNearestRailway" },
+                    { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
+                    { text: "Pay poor tax of £15", action: "payMoney", amount: 15 },
+                    { text: "Your building loan matures - Collect £150", action: "receiveMoney", amount: 150 },
+                    { text: "You have won a crossword competition - Collect £100", action: "receiveMoney", amount: 100 },
+                    { text: "Bank pays you dividend of £50", action: "receiveMoney", amount: 50 },
+                    { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
+                    { text: "Advance to Pall Mall", action: "moveTo", position: 11 },
+                    { text: "Take a trip to King's Cross Station", action: "moveTo", position: 5 },
+                    { text: "Make general repairs on all your houses - £25 per house", action: "propertyRepairs", amount: 25 },
+                    { text: "Move forward to the nearest Utility", action: "moveToNearestUtility" }
+                ];
+
+                const communityChestCards = [
+                    { text: "Advance to GO - Collect £200", action: "moveToGo" },
+                    { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
+                    { text: "Doctor's fee - Pay £50", action: "payMoney", amount: 50 },
+                    { text: "From sale of stock you get £50", action: "receiveMoney", amount: 50 },
+                    { text: "Holiday fund matures - Receive £100", action: "receiveMoney", amount: 100 },
+                    { text: "Income tax refund - Collect £20", action: "receiveMoney", amount: 20 },
+                    { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
+                    { text: "Life insurance matures - Collect £100", action: "receiveMoney", amount: 100 },
+                    { text: "Hospital fees - Pay £100", action: "payMoney", amount: 100 },
+                    { text: "School fees - Pay £50", action: "payMoney", amount: 50 },
+                    { text: "Receive £25 consultancy fee", action: "receiveMoney", amount: 25 },
+                    { text: "You have won second prize in a beauty contest - Collect £10", action: "receiveMoney", amount: 10 },
+                    { text: "You inherit £100", action: "receiveMoney", amount: 100 },
+                    { text: "Pay hospital fees of £100", action: "payMoney", amount: 100 },
+                    { text: "Pay school fees of £150", action: "payMoney", amount: 150 },
+                    { text: "Receive £50 from sale of stock", action: "receiveMoney", amount: 50 }
+                ];
+
+                const cards = cardType === 'chance' ? chanceCards : communityChestCards;
+                return cards[Math.floor(Math.random() * cards.length)];
+            }
+
+            executeCardAction(playerIndex, card) {
+                if (!this.gameData || !this.gameData.players[playerIndex]) return;
+                
+                const player = this.gameData.players[playerIndex];
+                const currentPosition = player.position;
+                
+                console.log(`Executing card action: ${card.action}`, card);
+                
+                switch(card.action) {
+                    case 'moveToGo':
+                        this.movePlayerTo(playerIndex, 0);
+                        player.money += 200;
+                        this.showMessage('🎯 Moved to GO! Collect £200', 'success');
+                        break;
+                        
+                    case 'goToJail':
+                        this.handleGoToJail(playerIndex);
+                        break;
+                        
+                    case 'moveTo':
+                        this.movePlayerTo(playerIndex, card.position);
+                        if (card.position < currentPosition) {
+                            player.money += 200;
+                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                        }
+                        break;
+                        
+                    case 'moveBack':
+                        const newPos = Math.max(0, currentPosition - card.spaces);
+                        this.movePlayerTo(playerIndex, newPos);
+                        break;
+                        
+                    case 'moveToNearestRailway':
+                        const railways = [5, 15, 25, 35];
+                        let nearestRailway = railways.find(pos => pos > currentPosition);
+                        if (!nearestRailway) nearestRailway = railways[0];
+                        
+                        this.movePlayerTo(playerIndex, nearestRailway);
+                        if (nearestRailway < currentPosition) {
+                            player.money += 200;
+                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                        }
+                        this.showMessage('🚂 Moved to nearest Railway Station', 'info');
+                        break;
+                        
+                    case 'moveToNearestUtility':
+                        const utilities = [12, 28];
+                        let nearestUtility = utilities.find(pos => pos > currentPosition);
+                        if (!nearestUtility) nearestUtility = utilities[0];
+                        
+                        this.movePlayerTo(playerIndex, nearestUtility);
+                        if (nearestUtility < currentPosition) {
+                            player.money += 200;
+                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                        }
+                        this.showMessage('⚡ Moved to nearest Utility', 'info');
+                        break;
+                        
+                    case 'payMoney':
+                        player.money = Math.max(0, player.money - card.amount);
+                        this.showMessage(`💰 Pay £${card.amount}`, 'error');
+                        break;
+                        
+                    case 'receiveMoney':
+                        player.money += card.amount;
+                        this.showMessage(`💰 Receive £${card.amount}`, 'success');
+                        break;
+                        
+                    case 'getOutOfJail':
+                        if (!player.cards) player.cards = [];
+                        player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
+                        this.showMessage('🔓 Get Out of Jail Free card added!', 'info');
+                        this.updateCardsDisplay();
+                        break;
+                        
+                    case 'propertyRepairs':
+                        const repairCost = player.properties.length * card.amount;
+                        player.money = Math.max(0, player.money - repairCost);
+                        this.showMessage(`🔧 Property repairs: £${repairCost}`, 'error');
+                        break;
+                }
+                
+                this.updatePlayersDisplay(this.gameData.players);
+            }
+
+            movePlayerTo(playerIndex, targetPosition) {
+                if (!this.gameData || !this.gameData.players[playerIndex]) return;
+                
+                const player = this.gameData.players[playerIndex];
+                const currentPosition = player.position;
+                
+                console.log(`Moving player ${playerIndex} from ${currentPosition} to ${targetPosition}`);
+                
+                let steps;
+                if (targetPosition >= currentPosition) {
+                    steps = targetPosition - currentPosition;
+                } else {
+                    steps = (40 - currentPosition) + targetPosition;
+                }
+                
+                this.isPlayerMoving = true;
+                this.animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
+            }
+
+            // UI Update Methods
+            updatePlayersDisplay(players) {
+                const playersList = document.getElementById('players-list');
+                playersList.innerHTML = '';
+                
+                players.forEach((player, index) => {
+                    const playerItem = document.createElement('div');
+                    playerItem.className = `player-item ${this.gameData && this.gameData.currentPlayer === index ? 'current' : ''}`;
+                    
+                    const achievements = learningAnalytics.data.achievements.slice(0, 3).map(id => 
+                        `<div class="achievement-badge" title="${id}">🏆</div>`
+                    ).join('');
+                    
+                    playerItem.innerHTML = `
+                        <div>
+                            <div style="font-weight: bold;">${player.name} ${player.isHost ? '👑' : ''}</div>
+                            <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
+                            <div class="player-achievements">${achievements}</div>
+                        </div>
+                        <div class="player-money">£${player.money}</div>
+                    `;
+                    playersList.appendChild(playerItem);
+                });
+            }
+
+            updatePlayerPieces() {
+                document.querySelectorAll('.player-piece').forEach(piece => piece.remove());
+                
+                if (!this.gameData || !this.gameData.players) return;
+                
+                this.gameData.players.forEach((player, index) => {
+                    const piece = document.createElement('div');
+                    piece.className = `player-piece player-piece-${index}`;
+                    piece.textContent = player.name.charAt(0).toUpperCase();
+                    piece.title = `${player.name} - £${player.money}`;
+                    piece.id = `player-${index}`;
+                    
+                    const position = player.position || 0;
+                    const property = document.querySelector(`[data-index="${position}"]`);
+                    
+                    if (property) {
+                        property.appendChild(piece);
+                        
+                        const existingPieces = property.querySelectorAll('.player-piece').length;
+                        if (existingPieces > 1) {
+                            const angle = (existingPieces - 1) * (360 / this.gameData.players.length);
+                            const radius = 15;
+                            const x = Math.cos(angle * Math.PI / 180) * radius;
+                            const y = Math.sin(angle * Math.PI / 180) * radius;
+                            piece.style.left = `calc(50% + ${x}px)`;
+                            piece.style.top = `calc(50% + ${y}px)`;
+                        }
+                    }
+                });
+            }
+
+            updateTurnIndicator() {
+                const indicator = document.getElementById('turn-indicator');
+                if (!this.gameData || !this.gameData.gameStarted) {
+                    indicator.textContent = 'Waiting to start...';
+                    indicator.style.background = '#6c757d';
+                    return;
+                }
+                
+                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
+                const isMyTurn = currentPlayerData && currentPlayerData.name === this.currentPlayer;
+                
+                indicator.textContent = isMyTurn ? 'Your Turn' : `${currentPlayerData.name}'s Turn`;
+                indicator.style.background = isMyTurn ? '#ff6b6b' : '#4CAF50';
+                
+                if (isMyTurn) {
+                    indicator.style.animation = 'pulse 2s infinite';
+                } else {
+                    indicator.style.animation = 'none';
+                }
+            }
+
+            updateGameControls() {
+                const isMyTurn = this.gameData && this.gameData.players[this.gameData.currentPlayer]?.name === this.currentPlayer;
+                const gamePhase = this.gameData?.gamePhase || 'question';
+                const waitingForAnswer = this.gameData?.waitingForAnswer || false;
+                
+                document.querySelectorAll('#game-controls .btn').forEach(btn => btn.classList.add('hidden'));
+                
+                if (!isMyTurn || !this.gameData?.gameStarted) return;
+                
+                if (gamePhase === 'question' && !waitingForAnswer) {
+                    document.getElementById('start-turn-btn').classList.remove('hidden');
+                } else if (gamePhase === 'dice') {
+                    document.getElementById('roll-dice-btn').classList.remove('hidden');
+                    document.getElementById('dice-result').classList.add('hidden');
+                } else if (gamePhase === 'property' && this.canBuyProperty) {
+                    document.getElementById('buy-property-btn').classList.remove('hidden');
+                    document.getElementById('end-turn-btn').classList.remove('hidden');
+                } else if (gamePhase === 'endTurn') {
+                    document.getElementById('end-turn-btn').classList.remove('hidden');
+                }
+
+                // Always show additional controls when it's the player's turn
+                if (isMyTurn && gamePhase !== 'question') {
+                    document.getElementById('develop-property-btn').classList.remove('hidden');
+                    document.getElementById('trade-btn').classList.remove('hidden');
+                }
+            }
+
+            updatePropertiesDisplay() {
+                if (!this.gameData || !this.currentPlayer) return;
+                
+                const player = this.gameData.players.find(p => p.name === this.currentPlayer);
+                if (!player) return;
+                
+                const propertiesList = document.getElementById('properties-list');
+                if (player.properties.length === 0) {
+                    propertiesList.innerHTML = 'No properties owned';
+                    return;
+                }
+                
                 const propertyNames = [
                     'GO', 'Old Kent Road', 'Community Chest', 'Whitechapel Road', 'Income Tax',
                     "King's Cross Station", 'The Angel Islington', 'Chance', 'Euston Road', 'Pentonville Road',
@@ -2239,59 +2917,313 @@
                     'Go To Jail', 'Regent Street', 'Oxford Street', 'Community Chest', 'Bond Street',
                     'Liverpool St Station', 'Chance', 'Park Lane', 'Super Tax', 'Mayfair'
                 ];
-                const propertyName = propertyNames[newPosition] || 'Property';
+                
+                propertiesList.innerHTML = player.properties.map(propIndex => {
+                    const name = propertyNames[propIndex] || `Property ${propIndex}`;
+                    const property = propertyManager.getProperty(propIndex);
+                    const developable = propertyManager.canDevelop(this.gameData.currentPlayer, propIndex);
+                    
+                    return `
+                        <div style="padding: 8px; border-left: 3px solid #4CAF50; margin: 5px 0; font-size: 11px; text-transform: none; background: ${developable ? '#e8f5e8' : 'white'};">
+                            <div style="font-weight: bold;">${name}</div>
+                            ${property?.houses > 0 ? `<div style="font-size: 9px; color: #666;">Development: ${property.houses === 5 ? 'Hotel' : property.houses + ' Houses'}</div>` : ''}
+                            ${developable ? '<div style="font-size: 9px; color: #28a745;">Can develop!</div>' : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateCardsDisplay() {
+                if (!this.gameData || !this.currentPlayer) return;
+                
+                const player = this.gameData.players.find(p => p.name === this.currentPlayer);
+                if (!player) return;
+                
+                const cardsList = document.getElementById('cards-list');
+                if (!player.cards || player.cards.length === 0) {
+                    cardsList.innerHTML = 'No cards held';
+                    return;
+                }
+                
+                cardsList.innerHTML = player.cards.map(card => {
+                    const cardType = card.type.includes('Jail') ? 'chance' : 'community';
+                    return `<div class="card-item ${cardType}">${card.text}</div>`;
+                }).join('');
+            }
+
+            showQuestion(question, isBonus = false) {
+                console.log('showQuestion called with:', { question, isBonus });
+                
+                if (!question || !question.question || !question.options) {
+                    console.error('Invalid question object:', question);
+                    return;
+                }
+                
+                const modal = document.getElementById('question-modal');
+                const questionTitle = document.getElementById('question-title');
+                const questionText = document.getElementById('question-text');
+                const questionOptions = document.getElementById('question-options');
+                const timerValue = document.getElementById('timer-value');
+                const difficultyIndicator = document.getElementById('difficulty-indicator');
+                
+                modal.classList.remove('hidden');
+                
+                const questionContent = document.querySelector('.question-content');
+                if (questionContent) {
+                    questionContent.className = 'question-content';
+                }
+                
+                // Show difficulty level
+                const difficulty = learningAnalytics.getDifficulty();
+                difficultyIndicator.textContent = `${difficulty.toUpperCase()} LEVEL`;
+                difficultyIndicator.className = `difficulty-indicator difficulty-${difficulty}`;
+                difficultyIndicator.classList.remove('hidden');
+                
+                if (isBonus) {
+                    if (question.cardType === 'chance') {
+                        questionContent.classList.add('bonus-chance');
+                    } else {
+                        questionContent.classList.add('bonus-community');
+                    }
+                    
+                    const title = question.cardType === 'chance' ? '❓ Chance Bonus Question' : '📦 Community Chest Bonus Question';
+                    questionTitle.textContent = title;
+                    
+                    const existingReward = document.getElementById('bonus-reward');
+                    if (existingReward) existingReward.remove();
+                    
+                    const rewardDiv = document.createElement('div');
+                    rewardDiv.id = 'bonus-reward';
+                    rewardDiv.className = 'bonus-reward';
+                    rewardDiv.textContent = '💰 Answer correctly to win £200!';
+                    
+                    questionText.parentNode.insertBefore(rewardDiv, questionText);
+                } else {
+                    questionTitle.textContent = '📚 Business Question';
+                    
+                    const existingReward = document.getElementById('bonus-reward');
+                    if (existingReward) existingReward.remove();
+                }
+                
+                questionText.textContent = question.question;
+                questionOptions.innerHTML = '';
+                
+                question.options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'question-option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => {
+                        if (isBonus) {
+                            this.answerBonusQuestion(index, question.cardType);
+                        } else {
+                            this.answerQuestion(index);
+                        }
+                    };
+                    questionOptions.appendChild(optionDiv);
+                });
+                
+                // Start timer
+                let timeLeft = question.timeLimit || 30;
+                if (timerValue) {
+                    timerValue.textContent = timeLeft;
+                    
+                    const timerInterval = setInterval(() => {
+                        timeLeft--;
+                        if (timerValue) {
+                            timerValue.textContent = timeLeft;
+                        }
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                        }
+                    }, 1000);
+                }
+            }
+
+            answerQuestion(answerIndex) {
+                this.socket.emit('answerQuestion', { roomCode: this.currentRoom, answerIndex });
+            }
+
+            answerBonusQuestion(answerIndex, cardType) {
+                this.socket.emit('answerBonusQuestion', { 
+                    roomCode: this.currentRoom, 
+                    answerIndex, 
+                    cardType 
+                });
+            }
+
+            hideQuestion() {
+                document.getElementById('question-modal').classList.add('hidden');
+            }
+
+            showCardModal(title, text, cardType, actionText = "Card effect will be applied automatically...") {
+                const modal = document.getElementById('card-modal');
+                const content = document.getElementById('card-content');
+                
+                modal.classList.remove('hidden');
+                document.getElementById('card-title').textContent = title;
+                document.getElementById('card-text').textContent = text;
+                document.getElementById('card-action-text').textContent = actionText;
+                
+                content.className = `card-content ${cardType}`;
                 
                 setTimeout(() => {
-                    showMessage(`🏠 You can buy ${propertyName}!`, 'info');
-                }, total * 600 + 1500);
+                    this.hideCardModal();
+                }, 4000);
             }
 
-            // Update the turn indicator
-            updateTurnIndicator();
+            hideCardModal() {
+                document.getElementById('card-modal').classList.add('hidden');
+            }
 
-            // Start animated movement after short delay
-            setTimeout(() => {
-                isPlayerMoving = true;
-                animatePlayerMovement(gameData.currentPlayer, oldPosition, newPosition, total);
-            }, 1000);
-        });
+            showMessage(text, type = 'success') {
+                const messageDiv = document.createElement('div');
+                const bgColor = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1';
+                const textColor = type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460';
+                const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
+                
+                messageDiv.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; 
+                    background: ${bgColor}; color: ${textColor};
+                    padding: 15px; border-radius: 10px; 
+                    max-width: 300px; z-index: 1001;
+                    border: 2px solid ${borderColor};
+                    font-size: 14px; text-transform: none;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                `;
+                messageDiv.textContent = text;
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => messageDiv.remove(), 5000);
+            }
+        }
 
-        socket.on('propertyPurchased', (data) => {
-            showMessage(`🏠 ${data.playerName} bought ${data.propertyName} for £${data.price}`, 'info');
+        // ====== GLOBAL FUNCTIONS ======
+
+        function showPropertyInfo(propertyIndex) {
+            const property = propertyManager.getProperty(propertyIndex);
+            if (!property) return;
+
+            const modal = document.getElementById('property-modal');
+            const title = document.getElementById('property-title');
+            const details = document.getElementById('property-details');
+
+            title.textContent = property.name;
             
-            gameData = data.gameData;
-            canBuyProperty = false;
-            propertyToBuy = null;
-            updatePropertiesDisplay();
-            updateCardsDisplay();
-        });
-
-        socket.on('statsUpdated', (stats) => {
-            updateStatsDisplay(stats);
-        });
-
-        socket.on('timerTick', (timeLeft) => {
-            const timerValue = document.getElementById('timer-value');
-            if (timerValue) {
-                timerValue.textContent = timeLeft;
+            let rentStructure = '';
+            if (property.type === 'railroad') {
+                rentStructure = `
+                    <div class="rent-structure">
+                        <h4>Railroad Rent:</h4>
+                        <div class="rent-item"><span>1 Railroad owned:</span><span>£${property.rent[0]}</span></div>
+                        <div class="rent-item"><span>2 Railroads owned:</span><span>£${property.rent[1]}</span></div>
+                        <div class="rent-item"><span>3 Railroads owned:</span><span>£${property.rent[2]}</span></div>
+                        <div class="rent-item"><span>4 Railroads owned:</span><span>£${property.rent[3]}</span></div>
+                    </div>
+                `;
+            } else if (property.type === 'utility') {
+                rentStructure = `
+                    <div class="rent-structure">
+                        <h4>Utility Rent:</h4>
+                        <div class="rent-item"><span>1 Utility owned:</span><span>4x dice roll</span></div>
+                        <div class="rent-item"><span>2 Utilities owned:</span><span>10x dice roll</span></div>
+                    </div>
+                `;
+            } else if (property.rent) {
+                rentStructure = `
+                    <div class="rent-structure">
+                        <h4>Rent Structure:</h4>
+                        <div class="rent-item"><span>Base rent:</span><span>£${property.rent[0]}</span></div>
+                        <div class="rent-item"><span>With 1 house:</span><span>£${property.rent[1]}</span></div>
+                        <div class="rent-item"><span>With 2 houses:</span><span>£${property.rent[2]}</span></div>
+                        <div class="rent-item"><span>With 3 houses:</span><span>£${property.rent[3]}</span></div>
+                        <div class="rent-item"><span>With 4 houses:</span><span>£${property.rent[4]}</span></div>
+                        <div class="rent-item"><span>With hotel:</span><span>£${property.rent[5]}</span></div>
+                    </div>
+                `;
             }
-        });
 
-        socket.on('error', (message) => {
-            alert('Error: ' + message);
-        });
+            const ownership = property.owner !== null ? 
+                `<p><strong>Owner:</strong> Player ${property.owner + 1}</p>` : 
+                `<p><strong>Status:</strong> Available for purchase</p>`;
 
-        // Initialize
-        document.getElementById('playerName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                createRoom();
-            }
-        });
+            details.innerHTML = `
+                <p><strong>Purchase Price:</strong> £${property.price}</p>
+                ${ownership}
+                ${property.houses > 0 ? `<p><strong>Development:</strong> ${property.houses === 5 ? 'Hotel' : property.houses + ' houses'}</p>` : ''}
+                ${rentStructure}
+            `;
 
-        document.getElementById('roomCode').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                joinRoom();
-            }
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function hidePropertyModal() {
+            const modal = document.getElementById('property-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function hideTradeModal() {
+            document.getElementById('trade-modal').classList.add('hidden');
+        }
+
+        function executeTrade() {
+            gameController.showMessage('Trading system coming soon!', 'info');
+            hideTradeModal();
+        }
+
+        // Accessibility Functions
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const btn = document.querySelector('.accessibility-controls .accessibility-btn');
+            btn.classList.toggle('active');
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            event.target.classList.toggle('active');
+        }
+
+        function adjustFontSize() {
+            const currentSize = parseInt(getComputedStyle(document.body).fontSize);
+            const newSize = currentSize >= 14 ? 10 : currentSize + 1;
+            document.body.style.fontSize = newSize + 'px';
+        }
+
+        function toggleSound() {
+            const muted = soundManager.toggleMute();
+            const btn = document.querySelector('.sound-btn');
+            btn.textContent = muted ? '🔇' : '🔊';
+            btn.classList.toggle('muted', muted);
+        }
+
+        // ====== INITIALIZATION ======
+
+        // Initialize global instances
+        const soundManager = new SoundManager();
+        const learningAnalytics = new LearningAnalytics();
+        const propertyManager = new PropertyManager();
+        const gameController = new GameController();
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup keyboard listeners
+            document.getElementById('playerName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    gameController.createRoom();
+                }
+            });
+
+            document.getElementById('roomCode').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    gameController.joinRoom();
+                }
+            });
+
+            // Initialize learning analytics display
+            learningAnalytics.updateDisplay();
+
+            console.log('🎮 Game initialized successfully!');
         });
     </script>
 </body>
