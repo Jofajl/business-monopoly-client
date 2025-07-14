@@ -2311,1832 +2311,749 @@
     </div>
 
     <script>
-        // ====== GAME CLASSES AND MODULES ======
+        // Replace your entire <script> section with this
 
-        class SoundManager {
-            constructor() {
-                this.sounds = {};
-                this.muted = false;
-                this.initializeSounds();
-            }
+// ====== GLOBAL FUNCTIONS FIRST (Available immediately) ======
 
-            initializeSounds() {
-                // Create audio context for sound effects
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Simple sound effect generation
-                this.sounds = {
-                    diceRoll: () => this.playTone(440, 0.1),
-                    propertyPurchase: () => this.playTone(523, 0.2),
-                    correctAnswer: () => this.playMelody([523, 659, 784], 0.15),
-                    wrongAnswer: () => this.playTone(196, 0.3),
-                    cardDraw: () => this.playTone(349, 0.1),
-                    achievement: () => this.playMelody([523, 659, 784, 1047], 0.2),
-                    playerMove: () => this.playTone(294, 0.05)
-                };
-            }
+function selectPiece(piece) {
+    console.log('selectPiece called with:', piece);
+    
+    // Don't allow selection of taken pieces
+    if (window.gameController && window.gameController.takenPieces.includes(piece)) {
+        console.log('Piece is taken, aborting selection');
+        return;
+    }
 
-            playTone(frequency, duration) {
-                if (this.muted) return;
-                
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode = this.audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-                
-                oscillator.start(this.audioContext.currentTime);
-                oscillator.stop(this.audioContext.currentTime + duration);
-            }
+    // Remove previous selection
+    document.querySelectorAll('.piece-option').forEach(option => {
+        option.classList.remove('selected');
+    });
 
-            playMelody(frequencies, noteDuration) {
-                if (this.muted) return;
-                
-                frequencies.forEach((freq, index) => {
-                    setTimeout(() => {
-                        this.playTone(freq, noteDuration);
-                    }, index * noteDuration * 1000);
-                });
-            }
-
-            play(soundName) {
-                if (this.sounds[soundName]) {
-                    this.sounds[soundName]();
-                }
-            }
-
-            toggleMute() {
-                this.muted = !this.muted;
-                return this.muted;
-            }
+    // Select new piece
+    const selectedOption = document.querySelector(`[data-piece="${piece}"]`);
+    if (selectedOption) {
+        selectedOption.classList.add('selected');
+        
+        if (window.gameController) {
+            window.gameController.selectedPiece = piece;
+            console.log('Piece selected:', window.gameController.selectedPiece);
         }
 
-        class LearningAnalytics {
-            constructor() {
-                this.data = {
-                    questionsAnswered: 0,
-                    correctAnswers: 0,
-                    currentStreak: 0,
-                    maxStreak: 0,
-                    totalTime: 0,
-                    topicScores: {},
-                    achievements: [],
-                    difficultyProgression: 'easy'
-                };
-                this.loadData();
-            }
+        // Show selection info
+        const selectedInfo = document.getElementById('selected-piece-info');
+        const selectedName = document.getElementById('selected-piece-name');
+        
+        const pieceNames = {
+            'car': '🚗 Car',
+            'dog': '🐕 Dog',
+            'hat': '🎩 Top Hat',
+            'boot': '👠 Boot',
+            'ship': '⛵ Ship',
+            'plane': '✈️ Plane',
+            'cat': '🐱 Cat',
+            'rocket': '🚀 Rocket'
+        };
 
-            saveData() {
-                try {
-                    // Use temporary storage during session
-                    window.tempLearningData = this.data;
-                } catch (e) {
-                    console.warn('Could not save learning data');
-                }
-            }
+        if (selectedName) selectedName.textContent = pieceNames[piece];
+        if (selectedInfo) selectedInfo.classList.remove('hidden');
 
-            loadData() {
-                try {
-                    if (window.tempLearningData) {
-                        this.data = { ...this.data, ...window.tempLearningData };
-                    }
-                } catch (e) {
-                    console.warn('Could not load learning data');
-                }
-            }
-
-            recordAnswer(correct, topic = 'general', timeTaken = 0) {
-                this.data.questionsAnswered++;
-                this.data.totalTime += timeTaken;
-                
-                if (correct) {
-                    this.data.correctAnswers++;
-                    this.data.currentStreak++;
-                    this.data.maxStreak = Math.max(this.data.maxStreak, this.data.currentStreak);
-                } else {
-                    this.data.currentStreak = 0;
-                }
-
-                // Track topic performance
-                if (!this.data.topicScores[topic]) {
-                    this.data.topicScores[topic] = { correct: 0, total: 0 };
-                }
-                this.data.topicScores[topic].total++;
-                if (correct) {
-                    this.data.topicScores[topic].correct++;
-                }
-
-                this.saveData();
-                this.updateDifficulty();
-                this.checkAchievements();
-            }
-
-            updateDifficulty() {
-                const accuracy = this.getAccuracy();
-                if (accuracy >= 80 && this.data.questionsAnswered >= 5) {
-                    this.data.difficultyProgression = 'hard';
-                } else if (accuracy >= 60 && this.data.questionsAnswered >= 3) {
-                    this.data.difficultyProgression = 'medium';
-                } else {
-                    this.data.difficultyProgression = 'easy';
-                }
-            }
-
-            checkAchievements() {
-                const achievements = [
-                    { id: 'first_correct', name: 'First Success', icon: '🎯', condition: () => this.data.correctAnswers >= 1 },
-                    { id: 'streak_5', name: 'Learning Streak', icon: '🔥', condition: () => this.data.currentStreak >= 5 },
-                    { id: 'accuracy_master', name: 'Accuracy Master', icon: '🎖️', condition: () => this.getAccuracy() >= 90 && this.data.questionsAnswered >= 10 },
-                    { id: 'question_veteran', name: 'Question Veteran', icon: '📚', condition: () => this.data.questionsAnswered >= 25 },
-                    { id: 'streak_master', name: 'Streak Master', icon: '⚡', condition: () => this.data.maxStreak >= 10 }
-                ];
-
-                achievements.forEach(achievement => {
-                    if (!this.data.achievements.includes(achievement.id) && achievement.condition()) {
-                        this.data.achievements.push(achievement.id);
-                        this.showAchievement(achievement);
-                    }
-                });
-            }
-
-            showAchievement(achievement) {
-                soundManager.play('achievement');
-                
-                const popup = document.createElement('div');
-                popup.className = 'achievement-popup';
-                popup.innerHTML = `
-                    <div class="achievement-icon">${achievement.icon}</div>
-                    <div class="achievement-title">Achievement Unlocked!</div>
-                    <div class="achievement-description">${achievement.name}</div>
-                `;
-                
-                document.body.appendChild(popup);
-                
-                setTimeout(() => {
-                    popup.style.animation = 'achievementSlide 0.5s ease-out reverse';
-                    setTimeout(() => popup.remove(), 500);
-                }, 3000);
-            }
-
-            getAccuracy() {
-                return this.data.questionsAnswered > 0 ? 
-                    Math.round((this.data.correctAnswers / this.data.questionsAnswered) * 100) : 0;
-            }
-
-            getAverageTime() {
-                return this.data.questionsAnswered > 0 ? 
-                    Math.round(this.data.totalTime / this.data.questionsAnswered) : 0;
-            }
-
-            getDifficulty() {
-                return this.data.difficultyProgression;
-            }
-
-            updateDisplay() {
-                document.getElementById('questions-answered').textContent = this.data.questionsAnswered;
-                document.getElementById('accuracy-rate').textContent = `${this.getAccuracy()}%`;
-                document.getElementById('learning-streak').textContent = this.data.currentStreak;
-                document.getElementById('achievements-count').textContent = this.data.achievements.length;
-                
-                const progress = Math.min(100, (this.data.questionsAnswered / 50) * 100);
-                document.getElementById('learning-progress').style.width = `${progress}%`;
-            }
+        // Update button states
+        if (window.gameController) {
+            window.gameController.validateRoomActions();
         }
+    } else {
+        console.error('Could not find piece option element for:', piece);
+    }
+}
 
-        class PropertyManager {
-            constructor() {
-                this.properties = this.initializeProperties();
-            }
+function showPropertyInfo(propertyIndex) {
+    console.log('Property info for index:', propertyIndex);
+    // Property info implementation can go here
+}
 
-            initializeProperties() {
-                return {
-                    1: { name: 'Old Kent Road', price: 60, rent: [2, 10, 30, 90, 160, 250], color: 'dark-purple', houses: 0, owner: null },
-                    3: { name: 'Whitechapel Road', price: 60, rent: [4, 20, 60, 180, 320, 450], color: 'dark-purple', houses: 0, owner: null },
-                    6: { name: 'The Angel Islington', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
-                    8: { name: 'Euston Road', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
-                    9: { name: 'Pentonville Road', price: 120, rent: [8, 40, 100, 300, 450, 600], color: 'light-blue', houses: 0, owner: null },
-                    11: { name: 'Pall Mall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
-                    13: { name: 'Whitehall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
-                    14: { name: 'Northumberland Avenue', price: 160, rent: [12, 60, 180, 500, 700, 900], color: 'purple', houses: 0, owner: null },
-                    16: { name: 'Bow Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
-                    18: { name: 'Marlborough Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
-                    19: { name: 'Vine Street', price: 200, rent: [16, 80, 220, 600, 800, 1000], color: 'orange', houses: 0, owner: null },
-                    21: { name: 'The Strand', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
-                    23: { name: 'Fleet Street', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
-                    24: { name: 'Trafalgar Square', price: 240, rent: [20, 100, 300, 750, 925, 1100], color: 'red', houses: 0, owner: null },
-                    26: { name: 'Leicester Square', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
-                    27: { name: 'Coventry Street', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
-                    29: { name: 'Piccadilly', price: 280, rent: [24, 120, 360, 850, 1025, 1200], color: 'yellow', houses: 0, owner: null },
-                    31: { name: 'Regent Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
-                    32: { name: 'Oxford Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
-                    34: { name: 'Bond Street', price: 320, rent: [28, 150, 450, 1000, 1200, 1400], color: 'green', houses: 0, owner: null },
-                    37: { name: 'Park Lane', price: 350, rent: [35, 175, 500, 1100, 1300, 1500], color: 'dark-blue', houses: 0, owner: null },
-                    39: { name: 'Mayfair', price: 400, rent: [50, 200, 600, 1400, 1700, 2000], color: 'dark-blue', houses: 0, owner: null },
-                    // Railroads and Utilities
-                    5: { name: "King's Cross Station", price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
-                    15: { name: 'Marylebone Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
-                    25: { name: 'Fenchurch Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
-                    35: { name: 'Liverpool Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
-                    12: { name: 'Electric Company', price: 150, rent: [4, 10], type: 'utility', owner: null },
-                    28: { name: 'Water Works', price: 150, rent: [4, 10], type: 'utility', owner: null }
-                };
-            }
+function hidePropertyModal() {
+    const modal = document.getElementById('property-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+}
 
-            getProperty(index) {
-                return this.properties[index] || null;
-            }
-
-            buyProperty(index, playerId) {
-                if (this.properties[index] && !this.properties[index].owner) {
-                    this.properties[index].owner = playerId;
-                    return true;
-                }
-                return false;
-            }
-
-            developProperty(index) {
-                const property = this.properties[index];
-                if (property && property.houses < 5 && property.type !== 'railroad' && property.type !== 'utility') {
-                    property.houses++;
-                    return true;
-                }
-                return false;
-            }
-
-            calculateRent(index, diceRoll = 0) {
-                const property = this.properties[index];
-                if (!property || !property.owner) return 0;
-
-                if (property.type === 'railroad') {
-                    const ownedRailroads = Object.values(this.properties)
-                        .filter(p => p.type === 'railroad' && p.owner === property.owner).length;
-                    return property.rent[ownedRailroads - 1] || 0;
-                }
-
-                if (property.type === 'utility') {
-                    const ownedUtilities = Object.values(this.properties)
-                        .filter(p => p.type === 'utility' && p.owner === property.owner).length;
-                    const multiplier = ownedUtilities === 1 ? 4 : 10;
-                    return diceRoll * multiplier;
-                }
-
-                return property.rent[property.houses] || property.rent[0];
-            }
-
-            updatePropertyDisplay(index) {
-                const property = this.properties[index];
-                const element = document.querySelector(`[data-index="${index}"]`);
-                if (!element || !property) return;
-
-                // Add ownership styling
-                if (property.owner !== null) {
-                    element.classList.add('owned');
-                }
-
-                // Add development indicator
-                const indicator = element.querySelector('.development-indicator');
-                if (indicator && property.houses > 0) {
-                    indicator.innerHTML = '';
-                    for (let i = 0; i < Math.min(property.houses, 4); i++) {
-                        const house = document.createElement('div');
-                        house.className = 'development-house';
-                        indicator.appendChild(house);
-                    }
-                    if (property.houses === 5) {
-                        indicator.innerHTML = '<div class="development-hotel"></div>';
-                    }
-                    element.classList.add('developed');
-                }
-            }
-
-            getPlayerProperties(playerId) {
-                return Object.entries(this.properties)
-                    .filter(([index, property]) => property.owner === playerId)
-                    .map(([index, property]) => ({ index: parseInt(index), ...property }));
-            }
-
-            canDevelop(playerId, propertyIndex) {
-                const property = this.properties[propertyIndex];
-                if (!property || property.owner !== playerId || property.houses >= 5) return false;
-                if (property.type === 'railroad' || property.type === 'utility') return false;
-
-                // Check if player owns all properties in the color group
-                const colorGroup = Object.entries(this.properties)
-                    .filter(([index, prop]) => prop.color === property.color && prop.color);
-                
-                const allOwned = colorGroup.every(([index, prop]) => prop.owner === playerId);
-                return allOwned;
-            }
+function confirmPurchaseProperty() {
+    if (window.gameController) {
+        window.gameController.buyProperty();
+        if (window.gameController.hidePropertyPurchaseModal) {
+            window.gameController.hidePropertyPurchaseModal();
         }
-
-        class GameController {
-            constructor() {
-                this.socket = io('https://business-monopoly-server.onrender.com');
-                this.currentRoom = null;
-                this.currentPlayer = null;
-                this.selectedPiece = null;
-                this.takenPieces = [];
-                this.gameData = null;
-                this.canBuyProperty = false;
-                this.propertyToBuy = null;
-                this.isPlayerMoving = false;
-                this.initializeSocketEvents();
-                this.initializeKeyboardNavigation();
-            }
-
-            getPieceIcon(piece) {
-                const pieces = {
-                    'car': '🚗',
-                    'dog': '🐕',
-                    'hat': '🎩',
-                    'boot': '👠',
-                    'ship': '⛵',
-                    'plane': '✈️',
-                    'cat': '🐱',
-                    'rocket': '🚀'
-                };
-                return pieces[piece] || '🎯';
-            }
-
-            updatePieceAvailability(takenPieces) {
-                this.takenPieces = takenPieces || [];
-                
-                document.querySelectorAll('.piece-option').forEach(option => {
-                    const piece = option.dataset.piece;
-                    
-                    if (this.takenPieces.includes(piece)) {
-                        option.classList.add('taken');
-                        option.classList.remove('selected');
-                        option.onclick = null;
-                    } else {
-                        option.classList.remove('taken');
-                        option.onclick = () => selectPiece(piece);
-                    }
-                });
-
-                this.validateRoomActions();
-            }
-
-            validateRoomActions() {
-                const playerName = document.getElementById('playerName').value.trim();
-                const createBtn = document.getElementById('create-room-btn');
-                const joinBtn = document.getElementById('join-room-btn');
-                const roomCode = document.getElementById('roomCode').value.trim();
-
-                const isValid = playerName && this.selectedPiece;
-                
-                createBtn.disabled = !isValid;
-                joinBtn.disabled = !(isValid && roomCode);
-            }
-
-            initializeSocketEvents() {
-                this.socket.on('connect', () => {
-                    console.log('✅ Connected to server');
-                });
-
-                this.socket.on('disconnect', () => {
-                    console.log('❌ Disconnected from server');
-                    this.showReconnectMessage();
-                });
-
-                this.socket.on('roomCreated', (data) => {
-                    this.currentRoom = data.roomCode;
-                    this.currentPlayer = document.getElementById('playerName').value.trim();
-                    document.getElementById('room-code').textContent = data.roomCode;
-                    document.getElementById('room-created').classList.remove('hidden');
-                    
-                    // Update piece availability
-                    if (data.takenPieces) {
-                        this.updatePieceAvailability(data.takenPieces);
-                    }
-                });
-
-                this.socket.on('roomJoined', (data) => {
-                    this.currentRoom = data.roomCode;
-                    this.currentPlayer = document.getElementById('playerName').value.trim();
-                    document.getElementById('room-setup').classList.add('hidden');
-                    document.getElementById('game-container').classList.remove('hidden');
-                    this.updatePlayersDisplay(data.players);
-                    
-                    // Update piece availability for new room
-                    const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
-                    this.updatePieceAvailability(takenPieces);
-                });
-
-                this.socket.on('playersUpdated', (data) => {
-                    this.updatePlayersDisplay(data.players);
-                    
-                    // Update piece availability
-                    const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
-                    this.updatePieceAvailability(takenPieces);
-                    
-                    if (this.currentRoom && data.players.length >= 2) {
-                        const hostPlayer = data.players.find(p => p.isHost);
-                        if (hostPlayer && hostPlayer.name === this.currentPlayer) {
-                            document.getElementById('start-game-btn').classList.remove('hidden');
-                        }
-                    }
-                });
-
-                this.socket.on('gameStarted', (room) => {
-                    document.getElementById('room-setup').classList.add('hidden');
-                    document.getElementById('game-container').classList.remove('hidden');
-                    this.gameData = room;
-                    
-                    // Ensure all players start at GO (position 0)
-                    this.gameData.players.forEach(player => {
-                        if (player.position === undefined) {
-                            player.position = 0;
-                        }
-                    });
-                    
-                    this.updatePlayersDisplay(room.players);
-                    this.updateTurnIndicator();
-                    this.updateGameControls();
-                    this.updatePlayerPieces();
-                    this.updateCardsDisplay();
-                    learningAnalytics.updateDisplay();
-                });
-
-                this.socket.on('gameUpdated', (room) => {
-                    this.gameData = room;
-                    this.updatePlayersDisplay(room.players);
-                    this.updateTurnIndicator();
-                    this.updateGameControls();
-                    
-                    // Only update player pieces if not currently animating movement
-                    if (!this.isPlayerMoving) {
-                        this.updatePlayerPieces();
-                    }
-                    
-                    this.updatePropertiesDisplay();
-                    this.updateCardsDisplay();
-                });
-
-                this.socket.on('questionReceived', (question) => {
-                    this.showQuestion(question);
-                });
-
-                this.socket.on('answerResult', (result) => {
-                    this.hideQuestion();
-                    
-                    const correct = result.correct;
-                    learningAnalytics.recordAnswer(correct, 'business', result.timeTaken || 0);
-                    learningAnalytics.updateDisplay();
-                    
-                    soundManager.play(correct ? 'correctAnswer' : 'wrongAnswer');
-                    
-                    const resultText = correct ? 
-                        `✅ Correct! ${result.explanation}` : 
-                        `❌ Wrong! ${result.explanation}`;
-                    
-                    this.showMessage(resultText, correct ? 'success' : 'error');
-                });
-
-                this.socket.on('diceRolled', (result) => {
-                    this.handleDiceResult(result);
-                });
-
-                this.socket.on('propertyPurchased', (data) => {
-                    soundManager.play('propertyPurchase');
-                    this.showMessage(`🏠 ${data.playerName} bought ${data.propertyName} for £${data.price}`, 'info');
-                    
-                    this.gameData = data.gameData;
-                    this.canBuyProperty = false;
-                    this.propertyToBuy = null;
-                    
-                    // Update property display
-                    propertyManager.buyProperty(data.propertyIndex, data.playerId);
-                    propertyManager.updatePropertyDisplay(data.propertyIndex);
-                    
-                    this.updatePropertiesDisplay();
-                    this.updateCardsDisplay();
-                });
-
-                this.socket.on('pieceAvailabilityUpdate', (takenPieces) => {
-                    this.updatePieceAvailability(takenPieces);
-                });
-                    this.showMessage('Error: ' + message, 'error');
-                    
-                    // If piece was taken, refresh piece availability
-                    if (message.includes('piece') || message.includes('taken')) {
-                        // Reset piece selection
-                        this.selectedPiece = null;
-                        document.querySelectorAll('.piece-option').forEach(option => {
-                            option.classList.remove('selected');
-                        });
-                        document.getElementById('selected-piece-info').classList.add('hidden');
-                        this.validateRoomActions();
-                    }
-                });
-            }
-
-            initializeKeyboardNavigation() {
-                document.addEventListener('keydown', (e) => {
-                    if (e.target.tagName === 'INPUT') return;
-
-                    switch(e.key) {
-                        case ' ': // Spacebar
-                            e.preventDefault();
-                            const rollBtn = document.getElementById('roll-dice-btn');
-                            if (!rollBtn.classList.contains('hidden')) {
-                                this.rollDice();
-                            }
-                            break;
-                        case 'Enter':
-                            e.preventDefault();
-                            const startBtn = document.getElementById('start-turn-btn');
-                            if (!startBtn.classList.contains('hidden')) {
-                                this.startTurn();
-                            }
-                            break;
-                        case 'b':
-                            const buyBtn = document.getElementById('buy-property-btn');
-                            if (!buyBtn.classList.contains('hidden')) {
-                                this.buyProperty();
-                            }
-                            break;
-                        case 'e':
-                            const endBtn = document.getElementById('end-turn-btn');
-                            if (!endBtn.classList.contains('hidden')) {
-                                this.endTurn();
-                            }
-                            break;
-                    }
-                });
-            }
-
-            showReconnectMessage() {
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(0,0,0,0.8); display: flex; align-items: center;
-                    justify-content: center; z-index: 2000;
-                `;
-                overlay.innerHTML = `
-                    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
-                        <h3>Connection Lost</h3>
-                        <p>Attempting to reconnect...</p>
-                        <div style="animation: spin 1s linear infinite;">🔄</div>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-
-                // Remove overlay when reconnected
-                this.socket.on('connect', () => {
-                    overlay.remove();
-                });
-            }
-
-            createRoom() {
-                const playerName = document.getElementById('playerName').value.trim();
-                if (!playerName) {
-                    this.showMessage('Please enter your name', 'error');
-                    return;
-                }
-                
-                if (!this.selectedPiece) {
-                    this.showMessage('Please select a game piece', 'error');
-                    return;
-                }
-                
-                this.socket.emit('createRoom', { 
-                    playerName: playerName,
-                    selectedPiece: this.selectedPiece
-                });
-            }
-
-            showJoinForm() {
-                document.getElementById('join-form').classList.remove('hidden');
-                this.validateRoomActions();
-            }
-
-            joinRoom() {
-                const playerName = document.getElementById('playerName').value.trim();
-                const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
-                
-                if (!playerName || !roomCode) {
-                    this.showMessage('Please enter your name and room code', 'error');
-                    return;
-                }
-                
-                if (!this.selectedPiece) {
-                    this.showMessage('Please select a game piece', 'error');
-                    return;
-                }
-                
-                this.socket.emit('joinRoom', { 
-                    roomCode: roomCode, 
-                    playerName: playerName,
-                    selectedPiece: this.selectedPiece
-                });
-            }
-
-            startGame() {
-                this.socket.emit('startGame', this.currentRoom);
-            }
-
-            startTurn() {
-                this.socket.emit('startTurn', this.currentRoom);
-            }
-
-            rollDice() {
-                soundManager.play('diceRoll');
-                
-                // Disable roll button during animation
-                const rollBtn = document.getElementById('roll-dice-btn');
-                rollBtn.disabled = true;
-                rollBtn.textContent = 'Rolling...';
-
-                // Show dice rolling animation with "?" symbols in center
-                const diceResult = document.getElementById('center-dice-result');
-                diceResult.innerHTML = `
-                    <div class="dice-container">
-                        <div class="dice rolling" id="dice1">?</div>
-                        <div class="dice rolling" id="dice2">?</div>
-                    </div>
-                    <div class="dice-total">Rolling dice...</div>
-                `;
-                diceResult.classList.remove('hidden');
-
-                // Send actual roll request after 2 seconds of animation
-                setTimeout(() => {
-                    this.socket.emit('rollDice', this.currentRoom);
-                }, 2000);
-            }
-
-            buyProperty() {
-                if (this.canBuyProperty && this.propertyToBuy !== null) {
-                    const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
-                    const propertyIndex = currentPlayerData.position;
-                    this.socket.emit('buyProperty', { roomCode: this.currentRoom, propertyIndex: propertyIndex });
-                }
-            }
-
-            showDevelopmentOptions() {
-                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
-                const playerId = this.gameData.currentPlayer;
-                const properties = propertyManager.getPlayerProperties(playerId);
-                const developable = properties.filter(prop => propertyManager.canDevelop(playerId, prop.index));
-
-                if (developable.length === 0) {
-                    this.showMessage('No properties can be developed', 'info');
-                    return;
-                }
-
-                this.showMessage(`You can develop ${developable.length} properties`, 'info');
-                // Implementation for development UI would go here
-            }
-
-            showPropertyPurchaseModal(propertyIndex) {
-                const property = propertyManager.getProperty(propertyIndex);
-                if (!property) return;
-
-                const modal = document.getElementById('property-purchase-modal');
-                const card = document.getElementById('property-purchase-card');
-                const title = document.getElementById('purchase-property-title');
-                const colorBand = document.getElementById('purchase-color-band');
-                const price = document.getElementById('purchase-property-price');
-                const rentDetails = document.getElementById('purchase-rent-details');
-
-                title.textContent = property.name;
-                price.textContent = `£${property.price}`;
-
-                // Set color band
-                if (property.color) {
-                    colorBand.className = `property-color-band ${property.color}`;
-                } else if (property.type) {
-                    colorBand.className = `property-color-band ${property.type}`;
-                } else {
-                    colorBand.style.display = 'none';
-                }
-
-                // Set rent structure
-                let rentHTML = '';
-                if (property.type === 'railroad') {
-                    rentHTML = `
-                        <div class="property-rent-item"><span>1 Railroad owned:</span><span>£${property.rent[0]}</span></div>
-                        <div class="property-rent-item"><span>2 Railroads owned:</span><span>£${property.rent[1]}</span></div>
-                        <div class="property-rent-item"><span>3 Railroads owned:</span><span>£${property.rent[2]}</span></div>
-                        <div class="property-rent-item"><span>4 Railroads owned:</span><span>£${property.rent[3]}</span></div>
-                    `;
-                } else if (property.type === 'utility') {
-                    rentHTML = `
-                        <div class="property-rent-item"><span>1 Utility owned:</span><span>4x dice roll</span></div>
-                        <div class="property-rent-item"><span>2 Utilities owned:</span><span>10x dice roll</span></div>
-                    `;
-                } else if (property.rent) {
-                    rentHTML = `
-                        <div class="property-rent-item"><span>Base rent:</span><span>£${property.rent[0]}</span></div>
-                        <div class="property-rent-item"><span>With 1 house:</span><span>£${property.rent[1]}</span></div>
-                        <div class="property-rent-item"><span>With 2 houses:</span><span>£${property.rent[2]}</span></div>
-                        <div class="property-rent-item"><span>With 3 houses:</span><span>£${property.rent[3]}</span></div>
-                        <div class="property-rent-item"><span>With 4 houses:</span><span>£${property.rent[4]}</span></div>
-                        <div class="property-rent-item"><span>With hotel:</span><span>£${property.rent[5]}</span></div>
-                    `;
-                }
-                rentDetails.innerHTML = rentHTML;
-
-                modal.classList.remove('hidden');
-                setTimeout(() => card.classList.add('show'), 10);
-            }
-
-            hidePropertyPurchaseModal() {
-                const modal = document.getElementById('property-purchase-modal');
-                const card = document.getElementById('property-purchase-card');
-                
-                card.classList.remove('show');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
-            }
-
-            endTurn() {
-                this.socket.emit('endTurn', this.currentRoom);
-            }
-
-            handleDiceResult(result) {
-                // Re-enable roll button
-                const rollBtn = document.getElementById('roll-dice-btn');
-                rollBtn.disabled = false;
-                rollBtn.textContent = 'Roll Dice';
-
-                // Show final dice results in center
-                const diceResult = document.getElementById('center-dice-result');
-                const total = result.dice[0] + result.dice[1];
-                
-                diceResult.innerHTML = `
-                    <div class="dice-container">
-                        <div class="dice" id="dice1">${result.dice[0]}</div>
-                        <div class="dice" id="dice2">${result.dice[1]}</div>
-                    </div>
-                    <div class="dice-total">Total: ${total} spaces</div>
-                `;
-
-                // Store movement data
-                this.canBuyProperty = result.canBuyProperty;
-                this.propertyToBuy = result.canBuyProperty ? result.newPosition : null;
-
-                // Get current player data before movement
-                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
-                const oldPosition = currentPlayerData.position;
-                const newPosition = result.newPosition;
-
-                // Show rent payment message if applicable (after movement completes)
-                if (result.rentOwed > 0) {
-                    setTimeout(() => {
-                        this.showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
-                    }, total * 600 + 1000);
-                }
-
-                // Update the turn indicator
-                this.updateTurnIndicator();
-
-                // Start animated movement after short delay
-                setTimeout(() => {
-                    this.isPlayerMoving = true;
-                    this.animatePlayerMovement(this.gameData.currentPlayer, oldPosition, newPosition, total);
-                }, 1000);
-
-                // Show property purchase modal after movement (if applicable)
-                if (result.canBuyProperty) {
-                    setTimeout(() => {
-                        this.showPropertyPurchaseModal(newPosition);
-                    }, total * 600 + 1500);
-                }
-            }
-
-            animatePlayerMovement(playerIndex, fromPosition, toPosition, totalSteps) {
-                const piece = document.getElementById(`player-${playerIndex}`);
-                if (!piece) {
-                    console.error(`Player piece not found: player-${playerIndex}`);
-                    return;
-                }
-
-                console.log(`Animating player ${playerIndex} movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
-
-                let currentPosition = fromPosition;
-                let stepsRemaining = totalSteps;
-
-                // Highlight destination
-                const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
-                if (destinationSquare) {
-                    destinationSquare.style.boxShadow = '0 0 25px #FFD700';
-                    destinationSquare.style.border = '3px solid #FFD700';
-                    destinationSquare.style.transform = 'scale(1.05)';
-                    destinationSquare.style.zIndex = '50';
-                }
-
-                const moveOneStep = () => {
-                    if (stepsRemaining <= 0) {
-                        console.log(`Movement complete. Final position: ${currentPosition}`);
-                        
-                        // Clear movement flag
-                        this.isPlayerMoving = false;
-                        
-                        // Update game data with final position
-                        if (this.gameData && this.gameData.players[playerIndex]) {
-                            this.gameData.players[playerIndex].position = toPosition;
-                        }
-                        
-                        // Clear destination highlighting
-                        if (destinationSquare) {
-                            destinationSquare.style.boxShadow = '';
-                            destinationSquare.style.border = '';
-                            destinationSquare.style.transform = '';
-                            destinationSquare.style.zIndex = '';
-                        }
-                        
-                        // Remove moving animation
-                        piece.classList.remove('moving');
-                        
-                        // Handle special spaces after movement completes
-                        setTimeout(() => {
-                            this.handleSpecialSpace(playerIndex, toPosition);
-                            this.updateGameControls();
-                            this.updatePlayersDisplay(this.gameData.players);
-                        }, 500);
-                        
-                        return;
-                    }
-
-                    // Calculate next position (clockwise around board)
-                    currentPosition = (currentPosition + 1) % 40;
-                    stepsRemaining--;
-
-                    console.log(`Moving to position ${currentPosition}, ${stepsRemaining} steps remaining`);
-
-                    // Check if passing GO
-                    if (currentPosition === 0 && stepsRemaining > 0) {
-                        this.showMessage('🎯 Passed GO! Collect £200', 'success');
-                        if (this.gameData && this.gameData.players[playerIndex]) {
-                            this.gameData.players[playerIndex].money += 200;
-                        }
-                    }
-
-                    // Move piece to new position
-                    const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
-                    if (newProperty) {
-                        // Remove piece from current location
-                        piece.remove();
-                        
-                        // Add to new location
-                        newProperty.appendChild(piece);
-                        
-                        // Reset positioning
-                        piece.style.left = '50%';
-                        piece.style.top = '50%';
-                        piece.style.transform = 'translate(-50%, -50%)';
-                        
-                        // Add moving animation
-                        piece.classList.add('moving');
-                        soundManager.play('playerMove');
-                        
-                        // Continue to next step after delay
-                        setTimeout(() => {
-                            moveOneStep();
-                        }, 600);
-                    } else {
-                        console.error(`Could not find property element for position ${currentPosition}`);
-                        setTimeout(moveOneStep, 600);
-                    }
-                };
-
-                // Start the movement
-                moveOneStep();
-            }
-
-            handleSpecialSpace(playerIndex, position) {
-                const space = document.querySelector(`[data-index="${position}"]`);
-                if (space) {
-                    space.classList.add('special-landed');
-                    setTimeout(() => space.classList.remove('special-landed'), 2000);
-                }
-
-                console.log(`Player ${playerIndex} landed on space ${position}`);
-                
-                // Only handle card effects if this is the current player's turn
-                const isCurrentPlayer = this.gameData && this.gameData.currentPlayer === playerIndex;
-                const isMyTurn = this.gameData && this.gameData.players[this.gameData.currentPlayer]?.name === this.currentPlayer;
-                
-                if (!isCurrentPlayer || !isMyTurn) {
-                    return;
-                }
-
-                // Handle different special spaces
-                switch(position) {
-                    case 2: // Community Chest
-                    case 17:
-                    case 33:
-                        setTimeout(() => this.handleCommunityChest(playerIndex), 1000);
-                        break;
-                    case 7: // Chance
-                    case 22:
-                    case 36:
-                        setTimeout(() => this.handleChance(playerIndex), 1000);
-                        break;
-                    case 30: // Go to Jail
-                        setTimeout(() => this.handleGoToJail(playerIndex), 1000);
-                        break;
-                    case 4: // Income Tax
-                        this.handleIncomeTax(playerIndex);
-                        break;
-                    case 38: // Super Tax
-                        this.handleSuperTax(playerIndex);
-                        break;
-                    case 0: // GO
-                        this.showMessage('🎯 Welcome to GO! Collect £200', 'success');
-                        break;
-                    case 10: // Just Visiting Jail
-                    case 20: // Free Parking
-                        // No special action needed
-                        break;
-                    default:
-                        // Regular property space
-                        break;
-                }
-            }
-
-            handleChance(playerIndex) {
-                const card = this.drawRandomCard('chance');
-                console.log('Chance card drawn:', card);
-                
-                soundManager.play('cardDraw');
-                
-                const playerName = this.gameData.players[playerIndex]?.name || 'Player';
-                this.showMessage(`${playerName} drew a Chance card!`, 'info');
-                
-                this.showCardModal('❓ Chance Card', card.text, 'chance');
-                
-                setTimeout(() => {
-                    this.executeCardAction(playerIndex, card);
-                }, 2000);
-            }
-
-            handleCommunityChest(playerIndex) {
-                const card = this.drawRandomCard('community');
-                console.log('Community Chest card drawn:', card);
-                
-                soundManager.play('cardDraw');
-                
-                const playerName = this.gameData.players[playerIndex]?.name || 'Player';
-                this.showMessage(`${playerName} drew a Community Chest card!`, 'info');
-                
-                this.showCardModal('📦 Community Chest', card.text, 'community');
-                
-                setTimeout(() => {
-                    this.executeCardAction(playerIndex, card);
-                }, 2000);
-            }
-
-            handleGoToJail(playerIndex) {
-                const collegeMessage = document.createElement('div');
-                collegeMessage.style.cssText = `
-                    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                    background: linear-gradient(135deg, #4CAF50, #45a049); 
-                    color: white; padding: 24px; border-radius: 16px; 
-                    max-width: 315px; z-index: 1002; text-align: center;
-                    border: 3px solid #2e7d32; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-                    font-size: 14px; font-weight: bold;
-                `;
-                collegeMessage.innerHTML = `
-                    <div style="font-size: 38px; margin-bottom: 12px;">🎓👮‍♂️</div>
-                    <div style="font-size: 16px; margin-bottom: 8px;">Go to Jail?</div>
-                    <div style="font-size: 13px; line-height: 1.5;">
-                        "I cannot send you to Jail whilst you are at college!"
-                    </div>
-                    <div style="font-size: 11px; margin-top: 12px; opacity: 0.9;">
-                        Education protects you! Stay on this space.
-                    </div>
-                `;
-                
-                document.body.appendChild(collegeMessage);
-                
-                setTimeout(() => {
-                    collegeMessage.style.transition = 'all 0.5s ease';
-                    collegeMessage.style.transform = 'translate(-50%, -50%) scale(1)';
-                    collegeMessage.style.opacity = '1';
-                }, 100);
-                
-                setTimeout(() => {
-                    collegeMessage.style.transition = 'all 0.5s ease';
-                    collegeMessage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-                    collegeMessage.style.opacity = '0';
-                    setTimeout(() => collegeMessage.remove(), 500);
-                }, 4000);
-                
-                this.showMessage('🎓 Education keeps you free! No jail time for students!', 'success');
-            }
-
-            handleIncomeTax(playerIndex) {
-                this.showMessage('💰 Income Tax - Pay £200', 'error');
-                if (this.gameData && this.gameData.players[playerIndex]) {
-                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 200);
-                    this.updatePlayersDisplay(this.gameData.players);
-                }
-            }
-
-            handleSuperTax(playerIndex) {
-                this.showMessage('💰 Super Tax - Pay £100', 'error');
-                if (this.gameData && this.gameData.players[playerIndex]) {
-                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 100);
-                    this.updatePlayersDisplay(this.gameData.players);
-                }
-            }
-
-            drawRandomCard(cardType) {
-                const chanceCards = [
-                    { text: "Advance to GO - Collect £200", action: "moveToGo" },
-                    { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
-                    { text: "Advance to Trafalgar Square", action: "moveTo", position: 24 },
-                    { text: "Advance to Mayfair", action: "moveTo", position: 39 },
-                    { text: "Advance to nearest Railway Station and pay owner twice the rental", action: "moveToNearestRailway" },
-                    { text: "Go back 3 spaces", action: "moveBack", spaces: 3 },
-                    { text: "Pay poor tax of £15", action: "payMoney", amount: 15 },
-                    { text: "Your building loan matures - Collect £150", action: "receiveMoney", amount: 150 },
-                    { text: "You have won a crossword competition - Collect £100", action: "receiveMoney", amount: 100 },
-                    { text: "Bank pays you dividend of £50", action: "receiveMoney", amount: 50 },
-                    { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
-                    { text: "Advance to Pall Mall", action: "moveTo", position: 11 },
-                    { text: "Take a trip to King's Cross Station", action: "moveTo", position: 5 },
-                    { text: "Make general repairs on all your houses - £25 per house", action: "propertyRepairs", amount: 25 },
-                    { text: "Move forward to the nearest Utility", action: "moveToNearestUtility" }
-                ];
-
-                const communityChestCards = [
-                    { text: "Advance to GO - Collect £200", action: "moveToGo" },
-                    { text: "Go to Jail - Go directly to Jail", action: "goToJail" },
-                    { text: "Doctor's fee - Pay £50", action: "payMoney", amount: 50 },
-                    { text: "From sale of stock you get £50", action: "receiveMoney", amount: 50 },
-                    { text: "Holiday fund matures - Receive £100", action: "receiveMoney", amount: 100 },
-                    { text: "Income tax refund - Collect £20", action: "receiveMoney", amount: 20 },
-                    { text: "Get out of Jail Free - Keep until needed", action: "getOutOfJail" },
-                    { text: "Life insurance matures - Collect £100", action: "receiveMoney", amount: 100 },
-                    { text: "Hospital fees - Pay £100", action: "payMoney", amount: 100 },
-                    { text: "School fees - Pay £50", action: "payMoney", amount: 50 },
-                    { text: "Receive £25 consultancy fee", action: "receiveMoney", amount: 25 },
-                    { text: "You have won second prize in a beauty contest - Collect £10", action: "receiveMoney", amount: 10 },
-                    { text: "You inherit £100", action: "receiveMoney", amount: 100 },
-                    { text: "Pay hospital fees of £100", action: "payMoney", amount: 100 },
-                    { text: "Pay school fees of £150", action: "payMoney", amount: 150 },
-                    { text: "Receive £50 from sale of stock", action: "receiveMoney", amount: 50 }
-                ];
-
-                const cards = cardType === 'chance' ? chanceCards : communityChestCards;
-                return cards[Math.floor(Math.random() * cards.length)];
-            }
-
-            executeCardAction(playerIndex, card) {
-                if (!this.gameData || !this.gameData.players[playerIndex]) return;
-                
-                const player = this.gameData.players[playerIndex];
-                const currentPosition = player.position;
-                
-                console.log(`Executing card action: ${card.action}`, card);
-                
-                switch(card.action) {
-                    case 'moveToGo':
-                        this.movePlayerTo(playerIndex, 0);
-                        player.money += 200;
-                        this.showMessage('🎯 Moved to GO! Collect £200', 'success');
-                        break;
-                        
-                    case 'goToJail':
-                        this.handleGoToJail(playerIndex);
-                        break;
-                        
-                    case 'moveTo':
-                        this.movePlayerTo(playerIndex, card.position);
-                        if (card.position < currentPosition) {
-                            player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
-                        }
-                        break;
-                        
-                    case 'moveBack':
-                        this.movePlayerBack(playerIndex, card.spaces);
-                        break;
-                        
-                    case 'moveToNearestRailway':
-                        const railways = [5, 15, 25, 35];
-                        let nearestRailway = railways.find(pos => pos > currentPosition);
-                        if (!nearestRailway) nearestRailway = railways[0];
-                        
-                        this.movePlayerTo(playerIndex, nearestRailway);
-                        if (nearestRailway < currentPosition) {
-                            player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
-                        }
-                        this.showMessage('🚂 Moved to nearest Railway Station', 'info');
-                        break;
-                        
-                    case 'moveToNearestUtility':
-                        const utilities = [12, 28];
-                        let nearestUtility = utilities.find(pos => pos > currentPosition);
-                        if (!nearestUtility) nearestUtility = utilities[0];
-                        
-                        this.movePlayerTo(playerIndex, nearestUtility);
-                        if (nearestUtility < currentPosition) {
-                            player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
-                        }
-                        this.showMessage('⚡ Moved to nearest Utility', 'info');
-                        break;
-                        
-                    case 'payMoney':
-                        player.money = Math.max(0, player.money - card.amount);
-                        this.showMessage(`💰 Pay £${card.amount}`, 'error');
-                        break;
-                        
-                    case 'receiveMoney':
-                        player.money += card.amount;
-                        this.showMessage(`💰 Receive £${card.amount}`, 'success');
-                        break;
-                        
-                    case 'getOutOfJail':
-                        if (!player.cards) player.cards = [];
-                        player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
-                        this.showMessage('🔓 Get Out of Jail Free card added!', 'info');
-                        this.updateCardsDisplay();
-                        break;
-                        
-                    case 'propertyRepairs':
-                        const repairCost = player.properties.length * card.amount;
-                        player.money = Math.max(0, player.money - repairCost);
-                        this.showMessage(`🔧 Property repairs: £${repairCost}`, 'error');
-                        break;
-                }
-                
-                this.updatePlayersDisplay(this.gameData.players);
-            }
-
-            movePlayerTo(playerIndex, targetPosition) {
-                if (!this.gameData || !this.gameData.players[playerIndex]) return;
-                
-                const player = this.gameData.players[playerIndex];
-                const currentPosition = player.position;
-                
-                console.log(`Moving player ${playerIndex} from ${currentPosition} to ${targetPosition}`);
-                
-                let steps;
-                if (targetPosition >= currentPosition) {
-                    steps = targetPosition - currentPosition;
-                } else {
-                    steps = (40 - currentPosition) + targetPosition;
-                }
-                
-                this.isPlayerMoving = true;
-                this.animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
-            }
-
-            movePlayerBack(playerIndex, spacesToMoveBack) {
-                if (!this.gameData || !this.gameData.players[playerIndex]) return;
-                
-                const player = this.gameData.players[playerIndex];
-                const currentPosition = player.position;
-                const targetPosition = (currentPosition - spacesToMoveBack + 40) % 40;
-                
-                console.log(`Moving player ${playerIndex} BACKWARD from ${currentPosition} to ${targetPosition} (${spacesToMoveBack} spaces back)`);
-                
-                this.isPlayerMoving = true;
-                this.animatePlayerMovementBackward(playerIndex, currentPosition, targetPosition, spacesToMoveBack);
-            }
-
-            animatePlayerMovementBackward(playerIndex, fromPosition, toPosition, totalSteps) {
-                const piece = document.getElementById(`player-${playerIndex}`);
-                if (!piece) {
-                    console.error(`Player piece not found: player-${playerIndex}`);
-                    return;
-                }
-
-                console.log(`Animating player ${playerIndex} BACKWARD movement: ${fromPosition} → ${toPosition} (${totalSteps} steps)`);
-
-                let currentPosition = fromPosition;
-                let stepsRemaining = totalSteps;
-
-                // Highlight destination
-                const destinationSquare = document.querySelector(`[data-index="${toPosition}"]`);
-                if (destinationSquare) {
-                    destinationSquare.style.boxShadow = '0 0 25px #FFD700';
-                    destinationSquare.style.border = '3px solid #FFD700';
-                    destinationSquare.style.transform = 'scale(1.05)';
-                    destinationSquare.style.zIndex = '50';
-                }
-
-                const moveOneStepBackward = () => {
-                    if (stepsRemaining <= 0) {
-                        console.log(`Backward movement complete. Final position: ${currentPosition}`);
-                        
-                        // Clear movement flag
-                        this.isPlayerMoving = false;
-                        
-                        // Update game data with final position
-                        if (this.gameData && this.gameData.players[playerIndex]) {
-                            this.gameData.players[playerIndex].position = toPosition;
-                        }
-                        
-                        // Clear destination highlighting
-                        if (destinationSquare) {
-                            destinationSquare.style.boxShadow = '';
-                            destinationSquare.style.border = '';
-                            destinationSquare.style.transform = '';
-                            destinationSquare.style.zIndex = '';
-                        }
-                        
-                        // Remove moving animation
-                        piece.classList.remove('moving');
-                        
-                        // Handle special spaces after movement completes
-                        setTimeout(() => {
-                            this.handleSpecialSpace(playerIndex, toPosition);
-                            this.updateGameControls();
-                            this.updatePlayersDisplay(this.gameData.players);
-                        }, 500);
-                        
-                        return;
-                    }
-
-                    // Calculate next position (anticlockwise around board)
-                    currentPosition = (currentPosition - 1 + 40) % 40;
-                    stepsRemaining--;
-
-                    console.log(`Moving backward to position ${currentPosition}, ${stepsRemaining} steps remaining`);
-
-                    // Move piece to new position
-                    const newProperty = document.querySelector(`[data-index="${currentPosition}"]`);
-                    if (newProperty) {
-                        // Remove piece from current location
-                        piece.remove();
-                        
-                        // Add to new location
-                        newProperty.appendChild(piece);
-                        
-                        // Reset positioning
-                        piece.style.left = '50%';
-                        piece.style.top = '50%';
-                        piece.style.transform = 'translate(-50%, -50%)';
-                        
-                        // Add moving animation
-                        piece.classList.add('moving');
-                        soundManager.play('playerMove');
-                        
-                        // Continue to next step after delay
-                        setTimeout(() => {
-                            moveOneStepBackward();
-                        }, 600);
-                    } else {
-                        console.error(`Could not find property element for position ${currentPosition}`);
-                        setTimeout(moveOneStepBackward, 600);
-                    }
-                };
-
-                // Start the backward movement
-                moveOneStepBackward();
-            }
-
-            // UI Update Methods
-            updatePlayersDisplay(players) {
-                const playersList = document.getElementById('players-list');
-                playersList.innerHTML = '';
-                
-                players.forEach((player, index) => {
-                    const playerItem = document.createElement('div');
-                    playerItem.className = `player-item ${this.gameData && this.gameData.currentPlayer === index ? 'current' : ''}`;
-                    
-                    const achievements = learningAnalytics.data.achievements.slice(0, 3).map(id => 
-                        `<div class="achievement-badge" title="${id}">🏆</div>`
-                    ).join('');
-
-                    const pieceIcon = player.selectedPiece ? gameController.getPieceIcon(player.selectedPiece) : player.name.charAt(0).toUpperCase();
-                    
-                    playerItem.innerHTML = `
-                        <div>
-                            <div style="font-weight: bold;">
-                                <span style="font-size: 16px; margin-right: 8px;">${pieceIcon}</span>
-                                ${player.name} ${player.isHost ? '👑' : ''}
-                            </div>
-                            <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
-                            <div class="player-achievements">${achievements}</div>
-                        </div>
-                        <div class="player-money">£${player.money}</div>
-                    `;
-                    playersList.appendChild(playerItem);
-                });
-            }
-
-            updatePlayerPieces() {
-                document.querySelectorAll('.player-piece').forEach(piece => piece.remove());
-                
-                if (!this.gameData || !this.gameData.players) return;
-                
-                this.gameData.players.forEach((player, index) => {
-                    const piece = document.createElement('div');
-                    piece.className = `player-piece player-piece-${index}`;
-                    
-                    // Use selected piece icon or fallback to name initial
-                    if (player.selectedPiece) {
-                        piece.textContent = this.getPieceIcon(player.selectedPiece);
-                        piece.style.fontSize = '16px'; // Slightly larger for emojis
-                    } else {
-                        piece.textContent = player.name.charAt(0).toUpperCase();
-                        piece.style.fontSize = '9px'; // Original size for letters
-                    }
-                    
-                    piece.title = `${player.name} - £${player.money}`;
-                    piece.id = `player-${index}`;
-                    
-                    const position = player.position || 0;
-                    const property = document.querySelector(`[data-index="${position}"]`);
-                    
-                    if (property) {
-                        property.appendChild(piece);
-                        
-                        const existingPieces = property.querySelectorAll('.player-piece').length;
-                        if (existingPieces > 1) {
-                            const angle = (existingPieces - 1) * (360 / this.gameData.players.length);
-                            const radius = 12;
-                            const x = Math.cos(angle * Math.PI / 180) * radius;
-                            const y = Math.sin(angle * Math.PI / 180) * radius;
-                            piece.style.left = `calc(50% + ${x}px)`;
-                            piece.style.top = `calc(50% + ${y}px)`;
-                        }
-                    }
-                });
-            }
-
-            updateTurnIndicator() {
-                const indicator = document.getElementById('turn-indicator');
-                if (!this.gameData || !this.gameData.gameStarted) {
-                    indicator.textContent = 'Waiting to start...';
-                    indicator.style.background = '#6c757d';
-                    return;
-                }
-                
-                const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
-                const isMyTurn = currentPlayerData && currentPlayerData.name === this.currentPlayer;
-                
-                indicator.textContent = isMyTurn ? 'Your Turn' : `${currentPlayerData.name}'s Turn`;
-                indicator.style.background = isMyTurn ? '#ff6b6b' : '#4CAF50';
-                
-                if (isMyTurn) {
-                    indicator.style.animation = 'pulse 2s infinite';
-                } else {
-                    indicator.style.animation = 'none';
-                }
-            }
-
-            updateGameControls() {
-                const isMyTurn = this.gameData && this.gameData.players[this.gameData.currentPlayer]?.name === this.currentPlayer;
-                const gamePhase = this.gameData?.gamePhase || 'question';
-                const waitingForAnswer = this.gameData?.waitingForAnswer || false;
-                
-                document.querySelectorAll('#center-game-controls .btn').forEach(btn => btn.classList.add('hidden'));
-                
-                if (!isMyTurn || !this.gameData?.gameStarted) return;
-                
-                if (gamePhase === 'question' && !waitingForAnswer) {
-                    document.getElementById('start-turn-btn').classList.remove('hidden');
-                } else if (gamePhase === 'dice') {
-                    document.getElementById('roll-dice-btn').classList.remove('hidden');
-                    document.getElementById('center-dice-result').classList.add('hidden');
-                } else if (gamePhase === 'property' && this.canBuyProperty) {
-                    // Don't show buy button here - the modal handles it
-                    document.getElementById('end-turn-btn').classList.remove('hidden');
-                } else if (gamePhase === 'endTurn') {
-                    document.getElementById('end-turn-btn').classList.remove('hidden');
-                }
-
-                // Always show development button when it's the player's turn (except during questions)
-                if (isMyTurn && gamePhase !== 'question') {
-                    document.getElementById('develop-property-btn').classList.remove('hidden');
-                }
-            }
-
-            updatePropertiesDisplay() {
-                if (!this.gameData || !this.currentPlayer) return;
-                
-                const player = this.gameData.players.find(p => p.name === this.currentPlayer);
-                if (!player) return;
-                
-                const propertiesList = document.getElementById('properties-list');
-                if (player.properties.length === 0) {
-                    propertiesList.innerHTML = 'No properties owned';
-                    return;
-                }
-                
-                // Group properties by color/type
-                const propertyGroups = {
-                    'dark-purple': [],
-                    'light-blue': [],
-                    'purple': [],
-                    'orange': [],
-                    'red': [],
-                    'yellow': [],
-                    'green': [],
-                    'dark-blue': [],
-                    'railroad': [],
-                    'utility': []
-                };
-
-                const colorNames = {
-                    'dark-purple': 'Brown Properties',
-                    'light-blue': 'Light Blue Properties',
-                    'purple': 'Pink Properties',
-                    'orange': 'Orange Properties',
-                    'red': 'Red Properties',
-                    'yellow': 'Yellow Properties',
-                    'green': 'Green Properties',
-                    'dark-blue': 'Dark Blue Properties',
-                    'railroad': 'Railroads',
-                    'utility': 'Utilities'
-                };
-                
-                player.properties.forEach(propIndex => {
-                    const property = propertyManager.getProperty(propIndex);
-                    if (property) {
-                        const group = property.color || property.type || 'other';
-                        if (propertyGroups[group]) {
-                            propertyGroups[group].push({ index: propIndex, ...property });
-                        }
-                    }
-                });
-                
-                let html = '';
-                Object.entries(propertyGroups).forEach(([colorGroup, properties]) => {
-                    if (properties.length > 0) {
-                        html += `<div class="property-group">`;
-                        html += `<div class="property-group-title">${colorNames[colorGroup]} (${properties.length})</div>`;
-                        
-                        properties.forEach(property => {
-                            const developable = propertyManager.canDevelop(this.gameData.currentPlayer, property.index);
-                            const developmentInfo = property.houses > 0 ? 
-                                `<div class="property-details">Development: ${property.houses === 5 ? 'Hotel' : property.houses + ' Houses'}</div>` : '';
-                            const canDevelopInfo = developable ? 
-                                '<div class="property-details" style="color: #28a745;">Can develop!</div>' : '';
-                            
-                            html += `
-                                <div class="property-list-item ${colorGroup} ${developable ? 'developable' : ''}">
-                                    <div class="property-name">${property.name}</div>
-                                    ${developmentInfo}
-                                    ${canDevelopInfo}
-                                </div>
-                            `;
-                        });
-                        html += `</div>`;
-                    }
-                });
-                
-                propertiesList.innerHTML = html;
-            }
-
-            updateCardsDisplay() {
-                if (!this.gameData || !this.currentPlayer) return;
-                
-                const player = this.gameData.players.find(p => p.name === this.currentPlayer);
-                if (!player) return;
-                
-                const cardsList = document.getElementById('cards-list');
-                if (!player.cards || player.cards.length === 0) {
-                    cardsList.innerHTML = 'No cards held';
-                    return;
-                }
-                
-                cardsList.innerHTML = player.cards.map(card => {
-                    const cardType = card.type.includes('Jail') ? 'chance' : 'community';
-                    return `<div class="card-item ${cardType}">${card.text}</div>`;
-                }).join('');
-            }
-
-            showQuestion(question, isBonus = false) {
-                console.log('showQuestion called with:', { question, isBonus });
-                
-                if (!question || !question.question || !question.options) {
-                    console.error('Invalid question object:', question);
-                    return;
-                }
-                
-                const modal = document.getElementById('question-modal');
-                const questionTitle = document.getElementById('question-title');
-                const questionText = document.getElementById('question-text');
-                const questionOptions = document.getElementById('question-options');
-                const timerValue = document.getElementById('timer-value');
-                const difficultyIndicator = document.getElementById('difficulty-indicator');
-                
-                modal.classList.remove('hidden');
-                
-                const questionContent = document.querySelector('.question-content');
-                if (questionContent) {
-                    questionContent.className = 'question-content';
-                }
-                
-                // Show difficulty level
-                const difficulty = learningAnalytics.getDifficulty();
-                difficultyIndicator.textContent = `${difficulty.toUpperCase()} LEVEL`;
-                difficultyIndicator.className = `difficulty-indicator difficulty-${difficulty}`;
-                difficultyIndicator.classList.remove('hidden');
-                
-                if (isBonus) {
-                    if (question.cardType === 'chance') {
-                        questionContent.classList.add('bonus-chance');
-                    } else {
-                        questionContent.classList.add('bonus-community');
-                    }
-                    
-                    const title = question.cardType === 'chance' ? '❓ Chance Bonus Question' : '📦 Community Chest Bonus Question';
-                    questionTitle.textContent = title;
-                    
-                    const existingReward = document.getElementById('bonus-reward');
-                    if (existingReward) existingReward.remove();
-                    
-                    const rewardDiv = document.createElement('div');
-                    rewardDiv.id = 'bonus-reward';
-                    rewardDiv.className = 'bonus-reward';
-                    rewardDiv.textContent = '💰 Answer correctly to win £200!';
-                    
-                    questionText.parentNode.insertBefore(rewardDiv, questionText);
-                } else {
-                    questionTitle.textContent = '📚 Business Question';
-                    
-                    const existingReward = document.getElementById('bonus-reward');
-                    if (existingReward) existingReward.remove();
-                }
-                
-                questionText.textContent = question.question;
-                questionOptions.innerHTML = '';
-                
-                question.options.forEach((option, index) => {
-                    const optionDiv = document.createElement('div');
-                    optionDiv.className = 'question-option';
-                    optionDiv.textContent = option;
-                    optionDiv.onclick = () => {
-                        if (isBonus) {
-                            this.answerBonusQuestion(index, question.cardType);
-                        } else {
-                            this.answerQuestion(index);
-                        }
-                    };
-                    questionOptions.appendChild(optionDiv);
-                });
-                
-                // Start timer
-                let timeLeft = question.timeLimit || 30;
-                if (timerValue) {
-                    timerValue.textContent = timeLeft;
-                    
-                    const timerInterval = setInterval(() => {
-                        timeLeft--;
-                        if (timerValue) {
-                            timerValue.textContent = timeLeft;
-                        }
-                        if (timeLeft <= 0) {
-                            clearInterval(timerInterval);
-                        }
-                    }, 1000);
-                }
-            }
-
-            answerQuestion(answerIndex) {
-                this.socket.emit('answerQuestion', { roomCode: this.currentRoom, answerIndex });
-            }
-
-            answerBonusQuestion(answerIndex, cardType) {
-                this.socket.emit('answerBonusQuestion', { 
-                    roomCode: this.currentRoom, 
-                    answerIndex, 
-                    cardType 
-                });
-            }
-
-            hideQuestion() {
-                document.getElementById('question-modal').classList.add('hidden');
-            }
-
-            showCardModal(title, text, cardType, actionText = "Card effect will be applied automatically...") {
-                const modal = document.getElementById('card-modal');
-                const content = document.getElementById('card-content');
-                
-                modal.classList.remove('hidden');
-                document.getElementById('card-title').textContent = title;
-                document.getElementById('card-text').textContent = text;
-                document.getElementById('card-action-text').textContent = actionText;
-                
-                content.className = `card-content ${cardType}`;
-                
-                setTimeout(() => {
-                    this.hideCardModal();
-                }, 4000);
-            }
-
-            hideCardModal() {
-                document.getElementById('card-modal').classList.add('hidden');
-            }
-
-            showMessage(text, type = 'success') {
-                const messageDiv = document.createElement('div');
-                const bgColor = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1';
-                const textColor = type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460';
-                const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
-                
-                messageDiv.style.cssText = `
-                    position: fixed; top: 16px; right: 16px; 
-                    background: ${bgColor}; color: ${textColor};
-                    padding: 12px; border-radius: 8px; 
-                    max-width: 235px; z-index: 1001;
-                    border: 2px solid ${borderColor};
-                    font-size: 11px; text-transform: none;
-                    box-shadow: 0 3px 9px rgba(0,0,0,0.2);
-                `;
-                messageDiv.textContent = text;
-                document.body.appendChild(messageDiv);
-                
-                setTimeout(() => messageDiv.remove(), 5000);
-            }
+    }
+}
+
+function declineProperty() {
+    if (window.gameController) {
+        if (window.gameController.hidePropertyPurchaseModal) {
+            window.gameController.hidePropertyPurchaseModal();
         }
+        window.gameController.showMessage('Property purchase declined', 'info');
+    }
+}
 
-        // ====== GLOBAL FUNCTIONS ======
+// Accessibility Functions
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const btn = document.querySelector('.accessibility-controls .accessibility-btn');
+    if (btn) btn.classList.toggle('active');
+}
 
-        function selectPiece(piece) {
-            // Don't allow selection of taken pieces
-            if (gameController.takenPieces.includes(piece)) {
-                return;
-            }
+function toggleHighContrast() {
+    document.body.classList.toggle('high-contrast');
+    if (event && event.target) event.target.classList.toggle('active');
+}
 
-            // Remove previous selection
-            document.querySelectorAll('.piece-option').forEach(option => {
-                option.classList.remove('selected');
-            });
+function adjustFontSize() {
+    const currentSize = parseInt(getComputedStyle(document.body).fontSize);
+    const newSize = currentSize >= 14 ? 10 : currentSize + 1;
+    document.body.style.fontSize = newSize + 'px';
+}
 
-            // Select new piece
-            const selectedOption = document.querySelector(`[data-piece="${piece}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
-                gameController.selectedPiece = piece;
-
-                // Show selection info
-                const selectedInfo = document.getElementById('selected-piece-info');
-                const selectedName = document.getElementById('selected-piece-name');
-                
-                const pieceNames = {
-                    'car': '🚗 Car',
-                    'dog': '🐕 Dog',
-                    'hat': '🎩 Top Hat',
-                    'boot': '👠 Boot',
-                    'ship': '⛵ Ship',
-                    'plane': '✈️ Plane',
-                    'cat': '🐱 Cat',
-                    'rocket': '🚀 Rocket'
-                };
-
-                selectedName.textContent = pieceNames[piece];
-                selectedInfo.classList.remove('hidden');
-
-                // Update button states
-                gameController.validateRoomActions();
-            }
-        }
-
-        function showPropertyInfo(propertyIndex) {
-            const property = propertyManager.getProperty(propertyIndex);
-            if (!property) return;
-
-            const modal = document.getElementById('property-modal');
-            const title = document.getElementById('property-title');
-            const details = document.getElementById('property-details');
-
-            title.textContent = property.name;
-            
-            let rentStructure = '';
-            if (property.type === 'railroad') {
-                rentStructure = `
-                    <div class="rent-structure">
-                        <h4>Railroad Rent:</h4>
-                        <div class="rent-item"><span>1 Railroad owned:</span><span>£${property.rent[0]}</span></div>
-                        <div class="rent-item"><span>2 Railroads owned:</span><span>£${property.rent[1]}</span></div>
-                        <div class="rent-item"><span>3 Railroads owned:</span><span>£${property.rent[2]}</span></div>
-                        <div class="rent-item"><span>4 Railroads owned:</span><span>£${property.rent[3]}</span></div>
-                    </div>
-                `;
-            } else if (property.type === 'utility') {
-                rentStructure = `
-                    <div class="rent-structure">
-                        <h4>Utility Rent:</h4>
-                        <div class="rent-item"><span>1 Utility owned:</span><span>4x dice roll</span></div>
-                        <div class="rent-item"><span>2 Utilities owned:</span><span>10x dice roll</span></div>
-                    </div>
-                `;
-            } else if (property.rent) {
-                rentStructure = `
-                    <div class="rent-structure">
-                        <h4>Rent Structure:</h4>
-                        <div class="rent-item"><span>Base rent:</span><span>£${property.rent[0]}</span></div>
-                        <div class="rent-item"><span>With 1 house:</span><span>£${property.rent[1]}</span></div>
-                        <div class="rent-item"><span>With 2 houses:</span><span>£${property.rent[2]}</span></div>
-                        <div class="rent-item"><span>With 3 houses:</span><span>£${property.rent[3]}</span></div>
-                        <div class="rent-item"><span>With 4 houses:</span><span>£${property.rent[4]}</span></div>
-                        <div class="rent-item"><span>With hotel:</span><span>£${property.rent[5]}</span></div>
-                    </div>
-                `;
-            }
-
-            const ownership = property.owner !== null ? 
-                `<p><strong>Owner:</strong> Player ${property.owner + 1}</p>` : 
-                `<p><strong>Status:</strong> Available for purchase</p>`;
-
-            details.innerHTML = `
-                <p><strong>Purchase Price:</strong> £${property.price}</p>
-                ${ownership}
-                ${property.houses > 0 ? `<p><strong>Development:</strong> ${property.houses === 5 ? 'Hotel' : property.houses + ' houses'}</p>` : ''}
-                ${rentStructure}
-            `;
-
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('show'), 10);
-        }
-
-        function hidePropertyModal() {
-            const modal = document.getElementById('property-modal');
-            modal.classList.remove('show');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function confirmPurchaseProperty() {
-            gameController.buyProperty();
-            gameController.hidePropertyPurchaseModal();
-        }
-
-        function declineProperty() {
-            gameController.hidePropertyPurchaseModal();
-            gameController.showMessage('Property purchase declined', 'info');
-        }
-
-        // Accessibility Functions
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            const btn = document.querySelector('.accessibility-controls .accessibility-btn');
-            btn.classList.toggle('active');
-        }
-
-        function toggleHighContrast() {
-            document.body.classList.toggle('high-contrast');
-            event.target.classList.toggle('active');
-        }
-
-        function adjustFontSize() {
-            const currentSize = parseInt(getComputedStyle(document.body).fontSize);
-            const newSize = currentSize >= 14 ? 10 : currentSize + 1;
-            document.body.style.fontSize = newSize + 'px';
-        }
-
-        function toggleSound() {
-            const muted = soundManager.toggleMute();
-            const btn = document.querySelector('.sound-btn');
+function toggleSound() {
+    if (window.soundManager) {
+        const muted = window.soundManager.toggleMute();
+        const btn = document.querySelector('.sound-btn');
+        if (btn) {
             btn.textContent = muted ? '🔇' : '🔊';
             btn.classList.toggle('muted', muted);
         }
+    }
+}
 
-        // ====== INITIALIZATION ======
+// ====== GAME CLASSES ======
 
-        // Initialize global instances
-        const soundManager = new SoundManager();
-        const learningAnalytics = new LearningAnalytics();
-        const propertyManager = new PropertyManager();
-        const gameController = new GameController();
+class SoundManager {
+    constructor() {
+        this.sounds = {};
+        this.muted = false;
+        this.initializeSounds();
+    }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup keyboard listeners
-            document.getElementById('playerName').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    gameController.createRoom();
-                }
-            });
+    initializeSounds() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn('Audio context not supported');
+            this.audioContext = null;
+        }
+        
+        this.sounds = {
+            diceRoll: () => this.playTone(440, 0.1),
+            propertyPurchase: () => this.playTone(523, 0.2),
+            correctAnswer: () => this.playMelody([523, 659, 784], 0.15),
+            wrongAnswer: () => this.playTone(196, 0.3),
+            cardDraw: () => this.playTone(349, 0.1),
+            achievement: () => this.playMelody([523, 659, 784, 1047], 0.2),
+            playerMove: () => this.playTone(294, 0.05)
+        };
+    }
 
-            // Setup form validation
-            document.getElementById('playerName').addEventListener('input', () => {
-                gameController.validateRoomActions();
-            });
+    playTone(frequency, duration) {
+        if (this.muted || !this.audioContext) return;
+        
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+            
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+        } catch (e) {
+            console.warn('Audio playback failed');
+        }
+    }
 
-            document.getElementById('roomCode').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    gameController.joinRoom();
-                }
-            });
-
-            document.getElementById('roomCode').addEventListener('input', () => {
-                gameController.validateRoomActions();
-            });
-
-            // Initialize learning analytics display
-            learningAnalytics.updateDisplay();
-
-            console.log('🎮 Game initialized successfully!');
+    playMelody(frequencies, noteDuration) {
+        if (this.muted || !this.audioContext) return;
+        
+        frequencies.forEach((freq, index) => {
+            setTimeout(() => {
+                this.playTone(freq, noteDuration);
+            }, index * noteDuration * 1000);
         });
+    }
+
+    play(soundName) {
+        if (this.sounds[soundName]) {
+            this.sounds[soundName]();
+        }
+    }
+
+    toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+    }
+}
+
+class LearningAnalytics {
+    constructor() {
+        this.data = {
+            questionsAnswered: 0,
+            correctAnswers: 0,
+            currentStreak: 0,
+            maxStreak: 0,
+            totalTime: 0,
+            topicScores: {},
+            achievements: [],
+            difficultyProgression: 'easy'
+        };
+        this.loadData();
+    }
+
+    saveData() {
+        try {
+            window.tempLearningData = this.data;
+        } catch (e) {
+            console.warn('Could not save learning data');
+        }
+    }
+
+    loadData() {
+        try {
+            if (window.tempLearningData) {
+                this.data = { ...this.data, ...window.tempLearningData };
+            }
+        } catch (e) {
+            console.warn('Could not load learning data');
+        }
+    }
+
+    recordAnswer(correct, topic = 'general', timeTaken = 0) {
+        this.data.questionsAnswered++;
+        this.data.totalTime += timeTaken;
+        
+        if (correct) {
+            this.data.correctAnswers++;
+            this.data.currentStreak++;
+            this.data.maxStreak = Math.max(this.data.maxStreak, this.data.currentStreak);
+        } else {
+            this.data.currentStreak = 0;
+        }
+
+        if (!this.data.topicScores[topic]) {
+            this.data.topicScores[topic] = { correct: 0, total: 0 };
+        }
+        this.data.topicScores[topic].total++;
+        if (correct) {
+            this.data.topicScores[topic].correct++;
+        }
+
+        this.saveData();
+        this.updateDifficulty();
+        this.checkAchievements();
+    }
+
+    updateDifficulty() {
+        const accuracy = this.getAccuracy();
+        if (accuracy >= 80 && this.data.questionsAnswered >= 5) {
+            this.data.difficultyProgression = 'hard';
+        } else if (accuracy >= 60 && this.data.questionsAnswered >= 3) {
+            this.data.difficultyProgression = 'medium';
+        } else {
+            this.data.difficultyProgression = 'easy';
+        }
+    }
+
+    checkAchievements() {
+        const achievements = [
+            { id: 'first_correct', name: 'First Success', icon: '🎯', condition: () => this.data.correctAnswers >= 1 },
+            { id: 'streak_5', name: 'Learning Streak', icon: '🔥', condition: () => this.data.currentStreak >= 5 },
+            { id: 'accuracy_master', name: 'Accuracy Master', icon: '🎖️', condition: () => this.getAccuracy() >= 90 && this.data.questionsAnswered >= 10 },
+            { id: 'question_veteran', name: 'Question Veteran', icon: '📚', condition: () => this.data.questionsAnswered >= 25 },
+            { id: 'streak_master', name: 'Streak Master', icon: '⚡', condition: () => this.data.maxStreak >= 10 }
+        ];
+
+        achievements.forEach(achievement => {
+            if (!this.data.achievements.includes(achievement.id) && achievement.condition()) {
+                this.data.achievements.push(achievement.id);
+                this.showAchievement(achievement);
+            }
+        });
+    }
+
+    showAchievement(achievement) {
+        if (window.soundManager) {
+            window.soundManager.play('achievement');
+        }
+        
+        const popup = document.createElement('div');
+        popup.className = 'achievement-popup';
+        popup.innerHTML = `
+            <div class="achievement-icon">${achievement.icon}</div>
+            <div class="achievement-title">Achievement Unlocked!</div>
+            <div class="achievement-description">${achievement.name}</div>
+        `;
+        
+        document.body.appendChild(popup);
+        
+        setTimeout(() => {
+            popup.style.animation = 'achievementSlide 0.5s ease-out reverse';
+            setTimeout(() => popup.remove(), 500);
+        }, 3000);
+    }
+
+    getAccuracy() {
+        return this.data.questionsAnswered > 0 ? 
+            Math.round((this.data.correctAnswers / this.data.questionsAnswered) * 100) : 0;
+    }
+
+    getAverageTime() {
+        return this.data.questionsAnswered > 0 ? 
+            Math.round(this.data.totalTime / this.data.questionsAnswered) : 0;
+    }
+
+    getDifficulty() {
+        return this.data.difficultyProgression;
+    }
+
+    updateDisplay() {
+        const questionsEl = document.getElementById('questions-answered');
+        const accuracyEl = document.getElementById('accuracy-rate');
+        const streakEl = document.getElementById('learning-streak');
+        const achievementsEl = document.getElementById('achievements-count');
+        const progressEl = document.getElementById('learning-progress');
+        
+        if (questionsEl) questionsEl.textContent = this.data.questionsAnswered;
+        if (accuracyEl) accuracyEl.textContent = `${this.getAccuracy()}%`;
+        if (streakEl) streakEl.textContent = this.data.currentStreak;
+        if (achievementsEl) achievementsEl.textContent = this.data.achievements.length;
+        
+        if (progressEl) {
+            const progress = Math.min(100, (this.data.questionsAnswered / 50) * 100);
+            progressEl.style.width = `${progress}%`;
+        }
+    }
+}
+
+class PropertyManager {
+    constructor() {
+        this.properties = this.initializeProperties();
+    }
+
+    initializeProperties() {
+        return {
+            1: { name: 'Old Kent Road', price: 60, rent: [2, 10, 30, 90, 160, 250], color: 'dark-purple', houses: 0, owner: null },
+            3: { name: 'Whitechapel Road', price: 60, rent: [4, 20, 60, 180, 320, 450], color: 'dark-purple', houses: 0, owner: null },
+            6: { name: 'The Angel Islington', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
+            8: { name: 'Euston Road', price: 100, rent: [6, 30, 90, 270, 400, 550], color: 'light-blue', houses: 0, owner: null },
+            9: { name: 'Pentonville Road', price: 120, rent: [8, 40, 100, 300, 450, 600], color: 'light-blue', houses: 0, owner: null },
+            11: { name: 'Pall Mall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
+            13: { name: 'Whitehall', price: 140, rent: [10, 50, 150, 450, 625, 750], color: 'purple', houses: 0, owner: null },
+            14: { name: 'Northumberland Avenue', price: 160, rent: [12, 60, 180, 500, 700, 900], color: 'purple', houses: 0, owner: null },
+            16: { name: 'Bow Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
+            18: { name: 'Marlborough Street', price: 180, rent: [14, 70, 200, 550, 750, 950], color: 'orange', houses: 0, owner: null },
+            19: { name: 'Vine Street', price: 200, rent: [16, 80, 220, 600, 800, 1000], color: 'orange', houses: 0, owner: null },
+            21: { name: 'The Strand', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
+            23: { name: 'Fleet Street', price: 220, rent: [18, 90, 250, 700, 875, 1050], color: 'red', houses: 0, owner: null },
+            24: { name: 'Trafalgar Square', price: 240, rent: [20, 100, 300, 750, 925, 1100], color: 'red', houses: 0, owner: null },
+            26: { name: 'Leicester Square', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
+            27: { name: 'Coventry Street', price: 260, rent: [22, 110, 330, 800, 975, 1150], color: 'yellow', houses: 0, owner: null },
+            29: { name: 'Piccadilly', price: 280, rent: [24, 120, 360, 850, 1025, 1200], color: 'yellow', houses: 0, owner: null },
+            31: { name: 'Regent Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
+            32: { name: 'Oxford Street', price: 300, rent: [26, 130, 390, 900, 1100, 1275], color: 'green', houses: 0, owner: null },
+            34: { name: 'Bond Street', price: 320, rent: [28, 150, 450, 1000, 1200, 1400], color: 'green', houses: 0, owner: null },
+            37: { name: 'Park Lane', price: 350, rent: [35, 175, 500, 1100, 1300, 1500], color: 'dark-blue', houses: 0, owner: null },
+            39: { name: 'Mayfair', price: 400, rent: [50, 200, 600, 1400, 1700, 2000], color: 'dark-blue', houses: 0, owner: null },
+            5: { name: "King's Cross Station", price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+            15: { name: 'Marylebone Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+            25: { name: 'Fenchurch Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+            35: { name: 'Liverpool Street Station', price: 200, rent: [25, 50, 100, 200], type: 'railroad', owner: null },
+            12: { name: 'Electric Company', price: 150, rent: [4, 10], type: 'utility', owner: null },
+            28: { name: 'Water Works', price: 150, rent: [4, 10], type: 'utility', owner: null }
+        };
+    }
+
+    getProperty(index) {
+        return this.properties[index] || null;
+    }
+}
+
+class GameController {
+    constructor() {
+        this.socket = io('https://business-monopoly-server.onrender.com');
+        this.currentRoom = null;
+        this.currentPlayer = null;
+        this.selectedPiece = null;
+        this.takenPieces = [];
+        this.gameData = null;
+        this.canBuyProperty = false;
+        this.propertyToBuy = null;
+        this.isPlayerMoving = false;
+        this.initializeSocketEvents();
+        this.initializeKeyboardNavigation();
+    }
+
+    getPieceIcon(piece) {
+        const pieces = {
+            'car': '🚗',
+            'dog': '🐕',
+            'hat': '🎩',
+            'boot': '👠',
+            'ship': '⛵',
+            'plane': '✈️',
+            'cat': '🐱',
+            'rocket': '🚀'
+        };
+        return pieces[piece] || '🎯';
+    }
+
+    updatePieceAvailability(takenPieces) {
+        this.takenPieces = takenPieces || [];
+        console.log('Updating piece availability. Taken pieces:', this.takenPieces);
+        
+        document.querySelectorAll('.piece-option').forEach(option => {
+            const piece = option.dataset.piece;
+            
+            if (this.takenPieces.includes(piece)) {
+                option.classList.add('taken');
+                option.classList.remove('selected');
+                option.onclick = null;
+            } else {
+                option.classList.remove('taken');
+                option.onclick = () => selectPiece(piece);
+            }
+        });
+
+        this.validateRoomActions();
+    }
+
+    validateRoomActions() {
+        const playerName = document.getElementById('playerName').value.trim();
+        const createBtn = document.getElementById('create-room-btn');
+        const joinBtn = document.getElementById('join-room-btn');
+        const roomCode = document.getElementById('roomCode').value.trim();
+
+        console.log('Validating room actions:', {
+            playerName: playerName,
+            selectedPiece: this.selectedPiece,
+            roomCode: roomCode
+        });
+
+        const isValid = playerName && this.selectedPiece;
+        
+        if (createBtn) {
+            createBtn.disabled = !isValid;
+            createBtn.style.backgroundColor = isValid ? '#4CAF50' : '#ccc';
+            createBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+        }
+        if (joinBtn) {
+            joinBtn.disabled = !(isValid && roomCode);
+        }
+    }
+
+    initializeSocketEvents() {
+        this.socket.on('connect', () => {
+            console.log('✅ Connected to server');
+        });
+
+        this.socket.on('disconnect', () => {
+            console.log('❌ Disconnected from server');
+            this.showReconnectMessage();
+        });
+
+        this.socket.on('roomCreated', (data) => {
+            console.log('Room created:', data);
+            this.currentRoom = data.roomCode;
+            this.currentPlayer = document.getElementById('playerName').value.trim();
+            document.getElementById('room-code').textContent = data.roomCode;
+            document.getElementById('room-created').classList.remove('hidden');
+            
+            if (data.takenPieces) {
+                this.updatePieceAvailability(data.takenPieces);
+            }
+        });
+
+        this.socket.on('roomJoined', (data) => {
+            this.currentRoom = data.roomCode;
+            this.currentPlayer = document.getElementById('playerName').value.trim();
+            document.getElementById('room-setup').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            this.updatePlayersDisplay(data.players);
+            
+            const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
+            this.updatePieceAvailability(takenPieces);
+        });
+
+        this.socket.on('playersUpdated', (data) => {
+            this.updatePlayersDisplay(data.players);
+            
+            const takenPieces = data.players.map(p => p.selectedPiece).filter(p => p);
+            this.updatePieceAvailability(takenPieces);
+            
+            if (this.currentRoom && data.players.length >= 2) {
+                const hostPlayer = data.players.find(p => p.isHost);
+                if (hostPlayer && hostPlayer.name === this.currentPlayer) {
+                    document.getElementById('start-game-btn').classList.remove('hidden');
+                }
+            }
+        });
+
+        this.socket.on('error', (message) => {
+            this.showMessage('Error: ' + message, 'error');
+            console.error('Socket error:', message);
+            
+            if (message.includes('piece') || message.includes('taken')) {
+                this.selectedPiece = null;
+                document.querySelectorAll('.piece-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                document.getElementById('selected-piece-info').classList.add('hidden');
+                this.validateRoomActions();
+            }
+        });
+    }
+
+    initializeKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    const rollBtn = document.getElementById('roll-dice-btn');
+                    if (rollBtn && !rollBtn.classList.contains('hidden')) {
+                        this.rollDice();
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    const startBtn = document.getElementById('start-turn-btn');
+                    if (startBtn && !startBtn.classList.contains('hidden')) {
+                        this.startTurn();
+                    }
+                    break;
+            }
+        });
+    }
+
+    createRoom() {
+        const playerName = document.getElementById('playerName').value.trim();
+        if (!playerName) {
+            this.showMessage('Please enter your name', 'error');
+            return;
+        }
+        
+        if (!this.selectedPiece) {
+            this.showMessage('Please select a game piece', 'error');
+            return;
+        }
+        
+        console.log('Creating room with:', { playerName, selectedPiece: this.selectedPiece });
+        
+        this.socket.emit('createRoom', { 
+            playerName: playerName,
+            selectedPiece: this.selectedPiece
+        });
+    }
+
+    showJoinForm() {
+        document.getElementById('join-form').classList.remove('hidden');
+        this.validateRoomActions();
+    }
+
+    joinRoom() {
+        const playerName = document.getElementById('playerName').value.trim();
+        const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+        
+        if (!playerName || !roomCode) {
+            this.showMessage('Please enter your name and room code', 'error');
+            return;
+        }
+        
+        if (!this.selectedPiece) {
+            this.showMessage('Please select a game piece', 'error');
+            return;
+        }
+        
+        this.socket.emit('joinRoom', { 
+            roomCode: roomCode, 
+            playerName: playerName,
+            selectedPiece: this.selectedPiece
+        });
+    }
+
+    startGame() {
+        this.socket.emit('startGame', this.currentRoom);
+    }
+
+    startTurn() {
+        this.socket.emit('startTurn', this.currentRoom);
+    }
+
+    rollDice() {
+        if (window.soundManager) {
+            window.soundManager.play('diceRoll');
+        }
+        this.socket.emit('rollDice', this.currentRoom);
+    }
+
+    buyProperty() {
+        if (this.canBuyProperty && this.propertyToBuy !== null) {
+            const currentPlayerData = this.gameData.players[this.gameData.currentPlayer];
+            const propertyIndex = currentPlayerData.position;
+            this.socket.emit('buyProperty', { roomCode: this.currentRoom, propertyIndex: propertyIndex });
+        }
+    }
+
+    endTurn() {
+        this.socket.emit('endTurn', this.currentRoom);
+    }
+
+    updatePlayersDisplay(players) {
+        const playersList = document.getElementById('players-list');
+        if (!playersList) return;
+        
+        playersList.innerHTML = '';
+        
+        players.forEach((player, index) => {
+            const playerItem = document.createElement('div');
+            playerItem.className = `player-item ${this.gameData && this.gameData.currentPlayer === index ? 'current' : ''}`;
+            
+            const pieceIcon = player.selectedPiece ? this.getPieceIcon(player.selectedPiece) : player.name.charAt(0).toUpperCase();
+            
+            playerItem.innerHTML = `
+                <div>
+                    <div style="font-weight: bold;">
+                        <span style="font-size: 16px; margin-right: 8px;">${pieceIcon}</span>
+                        ${player.name} ${player.isHost ? '👑' : ''}
+                    </div>
+                    <div style="font-size: 10px; color: #666;">${player.properties.length} properties</div>
+                </div>
+                <div class="player-money">£${player.money}</div>
+            `;
+            playersList.appendChild(playerItem);
+        });
+    }
+
+    showMessage(text, type = 'success') {
+        const messageDiv = document.createElement('div');
+        const bgColor = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1';
+        const textColor = type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460';
+        const borderColor = type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb';
+        
+        messageDiv.style.cssText = `
+            position: fixed; top: 16px; right: 16px; 
+            background: ${bgColor}; color: ${textColor};
+            padding: 12px; border-radius: 8px; 
+            max-width: 235px; z-index: 1001;
+            border: 2px solid ${borderColor};
+            font-size: 11px; text-transform: none;
+            box-shadow: 0 3px 9px rgba(0,0,0,0.2);
+        `;
+        messageDiv.textContent = text;
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => messageDiv.remove(), 5000);
+    }
+
+    showReconnectMessage() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); display: flex; align-items: center;
+            justify-content: center; z-index: 2000;
+        `;
+        overlay.innerHTML = `
+            <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                <h3>Connection Lost</h3>
+                <p>Attempting to reconnect...</p>
+                <div style="animation: spin 1s linear infinite;">🔄</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        this.socket.on('connect', () => {
+            overlay.remove();
+        });
+    }
+}
+
+// ====== INITIALIZATION ======
+
+// Initialize global instances immediately
+window.soundManager = new SoundManager();
+window.learningAnalytics = new LearningAnalytics();
+window.propertyManager = new PropertyManager();
+window.gameController = new GameController();
+
+// Ensure selectPiece is globally available
+window.selectPiece = selectPiece;
+
+console.log('JavaScript loaded! Functions available:', {
+    selectPiece: typeof selectPiece,
+    gameController: typeof window.gameController,
+    soundManager: typeof window.soundManager
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing game...');
+    
+    // Force piece selection to work immediately
+    document.querySelectorAll('.piece-option').forEach(option => {
+        const piece = option.dataset.piece;
+        option.onclick = () => selectPiece(piece);
+    });
+    
+    // Setup form event listeners
+    const playerNameInput = document.getElementById('playerName');
+    if (playerNameInput) {
+        playerNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && window.gameController) {
+                window.gameController.createRoom();
+            }
+        });
+
+        playerNameInput.addEventListener('input', () => {
+            if (window.gameController) {
+                window.gameController.validateRoomActions();
+            }
+        });
+    }
+
+    const roomCodeInput = document.getElementById('roomCode');
+    if (roomCodeInput) {
+        roomCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && window.gameController) {
+                window.gameController.joinRoom();
+            }
+        });
+
+        roomCodeInput.addEventListener('input', () => {
+            if (window.gameController) {
+                window.gameController.validateRoomActions();
+            }
+        });
+    }
+
+    // Initialize learning analytics display
+    if (window.learningAnalytics) {
+        window.learningAnalytics.updateDisplay();
+    }
+
+    // Initial validation
+    setTimeout(() => {
+        if (window.gameController) {
+            window.gameController.validateRoomActions();
+        }
+    }, 100);
+
+    console.log('🎮 Game initialized successfully!');
+});
     </script>
 </body>
 </html>
