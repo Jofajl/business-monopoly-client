@@ -1976,7 +1976,12 @@
 
             initializeSounds() {
                 // Create audio context for sound effects
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Audio context not supported');
+                    this.audioContext = null;
+                }
                 
                 // Simple sound effect generation
                 this.sounds = {
@@ -1991,26 +1996,30 @@
             }
 
             playTone(frequency, duration) {
-                if (this.muted) return;
+                if (this.muted || !this.audioContext) return;
                 
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode = this.audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-                
-                oscillator.start(this.audioContext.currentTime);
-                oscillator.stop(this.audioContext.currentTime + duration);
+                try {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + duration);
+                } catch (e) {
+                    console.warn('Sound playback failed:', e);
+                }
             }
 
             playMelody(frequencies, noteDuration) {
-                if (this.muted) return;
+                if (this.muted || !this.audioContext) return;
                 
                 frequencies.forEach((freq, index) => {
                     setTimeout(() => {
@@ -2777,8 +2786,6 @@
                 // Start the movement
                 moveOneStep();
             }
-            // UI Update Methods
-            updatePlayersDisplay(players) {
 
             handleSpecialSpace(playerIndex, position) {
                 const space = document.querySelector(`[data-index="${position}"]`);
@@ -3164,7 +3171,11 @@
                     }
                 };
 
-                // UI Update Methods
+                // Start the backward movement
+                moveOneStepBackward();
+            }
+
+            // UI Update Methods
             updatePlayersDisplay(players) {
                 const playersList = document.getElementById('players-list');
                 playersList.innerHTML = '';
@@ -3610,37 +3621,37 @@
             btn.classList.toggle('muted', muted);
         }
 
-   // ====== INITIALIZATION ======
+        // ====== INITIALIZATION ======
 
-// Declare global instances
-let soundManager, learningAnalytics, propertyManager, gameController;
+        // Declare global instances
+        let soundManager, learningAnalytics, propertyManager, gameController;
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize global instances
-    soundManager = new SoundManager();
-    learningAnalytics = new LearningAnalytics();
-    propertyManager = new PropertyManager();
-    gameController = new GameController();
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize global instances
+            soundManager = new SoundManager();
+            learningAnalytics = new LearningAnalytics();
+            propertyManager = new PropertyManager();
+            gameController = new GameController();
 
-    // Setup keyboard listeners
-    document.getElementById('playerName').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            gameController.createRoom();
-        }
-    });
+            // Setup keyboard listeners
+            document.getElementById('playerName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    gameController.createRoom();
+                }
+            });
 
-    document.getElementById('roomCode').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            gameController.joinRoom();
-        }
-    });
+            document.getElementById('roomCode').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    gameController.joinRoom();
+                }
+            });
 
-    // Initialize learning analytics display
-    learningAnalytics.updateDisplay();
+            // Initialize learning analytics display
+            learningAnalytics.updateDisplay();
 
-    console.log('🎮 Game initialized successfully!');
-});
+            console.log('🎮 Game initialized successfully!');
+        });
     </script>
 </body>
 </html>
