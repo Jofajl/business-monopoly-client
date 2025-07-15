@@ -3608,13 +3608,18 @@
             btn.classList.toggle('muted', muted);
         }
 
-        // ====== INITIALIZATION ======
+    // ====== INITIALIZATION ======
 
-        // Initialize global instances
-        const soundManager = new SoundManager();
-        const learningAnalytics = new LearningAnalytics();
-        const propertyManager = new PropertyManager();
-        const gameController = new GameController();
+        // Declare global instances
+        let soundManager, learningAnalytics, propertyManager, gameController;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize global instances
+            soundManager = new SoundManager();
+            learningAnalytics = new LearningAnalytics();
+            propertyManager = new PropertyManager();
+            gameController = new GameController();
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
