@@ -2777,6 +2777,8 @@
                 // Start the movement
                 moveOneStep();
             }
+            // UI Update Methods
+            updatePlayersDisplay(players) {
 
             handleSpecialSpace(playerIndex, position) {
                 const space = document.querySelector(`[data-index="${position}"]`);
@@ -3608,39 +3610,37 @@
             btn.classList.toggle('muted', muted);
         }
 
-    // ====== INITIALIZATION ======
+   // ====== INITIALIZATION ======
 
-        // Declare global instances
-        let soundManager, learningAnalytics, propertyManager, gameController;
+// Declare global instances
+let soundManager, learningAnalytics, propertyManager, gameController;
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize global instances
-            soundManager = new SoundManager();
-            learningAnalytics = new LearningAnalytics();
-            propertyManager = new PropertyManager();
-            gameController = new GameController();
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize global instances
+    soundManager = new SoundManager();
+    learningAnalytics = new LearningAnalytics();
+    propertyManager = new PropertyManager();
+    gameController = new GameController();
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup keyboard listeners
-            document.getElementById('playerName').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    gameController.createRoom();
-                }
-            });
+    // Setup keyboard listeners
+    document.getElementById('playerName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            gameController.createRoom();
+        }
+    });
 
-            document.getElementById('roomCode').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    gameController.joinRoom();
-                }
-            });
+    document.getElementById('roomCode').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            gameController.joinRoom();
+        }
+    });
 
-            // Initialize learning analytics display
-            learningAnalytics.updateDisplay();
+    // Initialize learning analytics display
+    learningAnalytics.updateDisplay();
 
-            console.log('🎮 Game initialized successfully!');
-        });
+    console.log('🎮 Game initialized successfully!');
+});
     </script>
 </body>
 </html>
