@@ -2761,7 +2761,13 @@
                 // Show property purchase modal after movement (ONLY for the current player)
                 if (result.canBuyProperty && isMyTurn) {
                     setTimeout(() => {
-                        this.showPropertyPurchaseModal(newPosition);
+                        // Double-check that the property is actually available for purchase
+                        const property = propertyManager.getProperty(newPosition);
+                        if (property && property.owner === null) {
+                            this.showPropertyPurchaseModal(newPosition);
+                        } else {
+                            console.log(`Property at ${newPosition} is already owned by ${property?.owner}, not showing purchase modal`);
+                        }
                     }, total * 600 + 1500);
                 }
             }
@@ -2932,14 +2938,22 @@
 
                 const player = this.gameData.players[playerIndex];
                 
-                if (property.owner === null) {
+                // Double-check ownership from both client data and game data
+                const serverProperty = this.gameData.properties ? this.gameData.properties[position] : null;
+                const isPropertyAvailable = property.owner === null && (!serverProperty || serverProperty.owner === null);
+                
+                if (isPropertyAvailable) {
                     // Property is available for purchase
                     this.canBuyProperty = true;
                     this.propertyToBuy = position;
                     setTimeout(() => {
-                        this.showPropertyPurchaseModal(position);
+                        // Final check before showing modal
+                        const currentProperty = propertyManager.getProperty(position);
+                        if (currentProperty && currentProperty.owner === null) {
+                            this.showPropertyPurchaseModal(position);
+                        }
                     }, 500);
-                } else if (property.owner !== playerIndex) {
+                } else if (property.owner !== null && property.owner !== playerIndex) {
                     // Property is owned by someone else - pay rent
                     let rent = 0;
                     let rentDescription = `Paid rent to ${this.gameData.players[property.owner]?.name || 'Player'} for ${property.name}`;
