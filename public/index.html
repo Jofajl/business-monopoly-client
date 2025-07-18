@@ -2731,11 +2731,11 @@
                 const oldPosition = currentPlayerData.position;
                 const newPosition = result.newPosition;
 
-                // Check if this is the current player's turn
+                // Check if this is the current player's turn (the one who rolled the dice)
                 const isMyTurn = currentPlayerData && currentPlayerData.name === this.currentPlayer;
 
-                // Show rent payment message if applicable (after movement completes)
-                if (result.rentOwed > 0) {
+                // Show rent payment message ONLY to the player who paid rent
+                if (result.rentOwed > 0 && isMyTurn) {
                     setTimeout(() => {
                         const propertyName = propertyManager.getProperty(newPosition)?.name || 'Property';
                         this.showGameEffect(
@@ -2956,30 +2956,29 @@
                             rent = normalRent * 2;
                             rentDescription += ' (Double rent from Chance card)';
                         } else {
-                            rent = propertyManager.calculateRent(position, this.lastDiceRoll || 7);
+                            rent = propertyManager.calculateRent(position, this.lastDiceRoll);
                         }
                     } else {
                         rent = propertyManager.calculateRent(position, this.lastDiceRoll || 7);
                     }
                     
-           if (rent > 0) {
+                    if (rent > 0) {
                         player.money = Math.max(0, player.money - rent);
                         const ownerName = this.gameData.players[property.owner]?.name || 'Player';
                             
-                            // Show notification to current player (the one paying)
-                            setTimeout(() => {
-                                this.showGameEffect(
-                                    '🏠', 
-                                    'Rent Payment', 
-                                    rentDescription, 
-                                    `£${rent}`, 
-                                    'error'
-                                );
-                            }, 500);
-                        }
-                        
-                        this.updatePlayersDisplay(this.gameData.players);
+                        // Show notification to current player (the one paying)
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '🏠', 
+                                'Rent Payment', 
+                                rentDescription, 
+                                `£${rent}`, 
+                                'error'
+                            );
+                        }, 500);
                     }
+                        
+                    this.updatePlayersDisplay(this.gameData.players);
                 }
                 
                 // Reset chance movement flag after processing
@@ -3917,17 +3916,14 @@
 
         // ====== INITIALIZATION ======
 
-        // Declare global instances
-        let soundManager, learningAnalytics, propertyManager, gameController;
+        // Initialize global instances immediately
+        const soundManager = new SoundManager();
+        const learningAnalytics = new LearningAnalytics();
+        const propertyManager = new PropertyManager();
+        const gameController = new GameController();
 
-        // Initialize on page load
+        // Setup additional initialization on page load
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize global instances
-            soundManager = new SoundManager();
-            learningAnalytics = new LearningAnalytics();
-            propertyManager = new PropertyManager();
-            gameController = new GameController();
-
             // Setup keyboard listeners
             document.getElementById('playerName').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
