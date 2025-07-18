@@ -844,6 +844,18 @@
             opacity: 1;
         }
 
+        .property-purchase-card.effect-success {
+            border: calc(3px * var(--scale)) solid #28a745;
+        }
+
+        .property-purchase-card.effect-error {
+            border: calc(3px * var(--scale)) solid #dc3545;
+        }
+
+        .property-purchase-card.effect-info {
+            border: calc(3px * var(--scale)) solid #17a2b8;
+        }
+
         .property-purchase-header {
             margin-bottom: calc(25px * var(--scale));
         }
@@ -1990,6 +2002,25 @@
         </div>
     </div>
 
+    <!-- Game Effect Modal -->
+    <div id="game-effect-modal" class="property-purchase-modal hidden">
+        <div id="game-effect-card" class="property-purchase-card">
+            <div class="property-purchase-header">
+                <h2 id="effect-title" class="property-purchase-title">Game Effect</h2>
+                <div id="effect-icon" style="font-size: calc(60px * var(--scale)); text-align: center; margin: calc(20px * var(--scale)) 0;">💰</div>
+            </div>
+            
+            <div id="effect-amount" class="property-purchase-price">£200</div>
+            <div id="effect-description" class="property-purchase-rent">
+                <div id="effect-text" style="text-align: center; font-size: calc(16px * var(--scale)); line-height: 1.5; text-transform: none;"></div>
+            </div>
+            
+            <div class="property-purchase-actions">
+                <button class="btn btn-primary" onclick="closeGameEffectModal()" style="width: 100%;">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Property Info Modal -->
     <div id="property-modal" class="property-card hidden">
         <div class="property-header">
@@ -2342,6 +2373,8 @@
                 this.canBuyProperty = false;
                 this.propertyToBuy = null;
                 this.isPlayerMoving = false;
+                this.lastDiceRoll = 7; // Default dice roll for rent calculations
+                this.isChanceMovement = false; // Track if movement is from chance card
                 this.initializeSocketEvents();
                 this.initializeKeyboardNavigation();
             }
@@ -2674,6 +2707,9 @@
                 rollBtn.disabled = false;
                 rollBtn.textContent = 'Roll Dice';
 
+                // Store dice roll for rent calculations
+                this.lastDiceRoll = result.dice[0] + result.dice[1];
+
                 // Show final dice results in center
                 const diceResult = document.getElementById('center-dice-result');
                 const total = result.dice[0] + result.dice[1];
@@ -2701,7 +2737,14 @@
                 // Show rent payment message if applicable (after movement completes)
                 if (result.rentOwed > 0) {
                     setTimeout(() => {
-                        this.showMessage(`💰 Paid £${result.rentOwed} rent`, 'error');
+                        const propertyName = propertyManager.getProperty(newPosition)?.name || 'Property';
+                        this.showGameEffect(
+                            '🏠',
+                            'Rent Payment',
+                            `Paid rent for ${propertyName}`,
+                            `£${result.rentOwed}`,
+                            'error'
+                        );
                     }, total * 600 + 1000);
                 }
 
@@ -2711,6 +2754,7 @@
                 // Start animated movement after short delay
                 setTimeout(() => {
                     this.isPlayerMoving = true;
+                    this.isChanceMovement = false; // Regular dice movement
                     this.animatePlayerMovement(this.gameData.currentPlayer, oldPosition, newPosition, total);
                 }, 1000);
 
@@ -2784,10 +2828,18 @@
 
                     // Check if passing GO
                     if (currentPosition === 0 && stepsRemaining > 0) {
-                        this.showMessage('🎯 Passed GO! Collect £200', 'success');
                         if (this.gameData && this.gameData.players[playerIndex]) {
                             this.gameData.players[playerIndex].money += 200;
                         }
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '🎯',
+                                'Passed GO',
+                                'Collected salary for passing GO',
+                                '£200',
+                                'success'
+                            );
+                        }, 500);
                     }
 
                     // Move piece to new position
@@ -2831,7 +2883,7 @@
 
                 console.log(`Player ${playerIndex} landed on space ${position}`);
                 
-                // Only handle card effects if this is the current player's turn
+                // Only handle effects if this is the current player's turn
                 const isCurrentPlayer = this.gameData && this.gameData.currentPlayer === playerIndex;
                 const isMyTurn = this.gameData && this.gameData.players[this.gameData.currentPlayer]?.name === this.currentPlayer;
                 
@@ -2861,16 +2913,81 @@
                         this.handleSuperTax(playerIndex);
                         break;
                     case 0: // GO
-                        this.showMessage('🎯 Welcome to GO! Collect £200', 'success');
+                        this.showGameEffect('🎯', 'Welcome to GO!', 'Collect £200', '£200', 'success');
                         break;
                     case 10: // Just Visiting Jail
                     case 20: // Free Parking
                         // No special action needed
                         break;
                     default:
-                        // Regular property space
+                        // Check if it's a property space
+                        this.handlePropertyLanding(playerIndex, position);
                         break;
                 }
+            }
+
+            handlePropertyLanding(playerIndex, position) {
+                const property = propertyManager.getProperty(position);
+                if (!property) return;
+
+                const player = this.gameData.players[playerIndex];
+                
+                if (property.owner === null) {
+                    // Property is available for purchase
+                    this.canBuyProperty = true;
+                    this.propertyToBuy = position;
+                    setTimeout(() => {
+                        this.showPropertyPurchaseModal(position);
+                    }, 500);
+                } else if (property.owner !== playerIndex) {
+                    // Property is owned by someone else - pay rent
+                    let rent = 0;
+                    let rentDescription = `Paid rent to ${this.gameData.players[property.owner]?.name || 'Player'} for ${property.name}`;
+                    
+                    // Special handling for chance card movements
+                    if (this.isChanceMovement) {
+                        if (property.type === 'utility') {
+                            // If moved to utility via chance card, rent is 10x dice roll
+                            rent = this.lastDiceRoll * 10;
+                            rentDescription += ' (10x dice roll from Chance card)';
+                        } else if (property.type === 'railroad') {
+                            // If moved to railroad via chance card, rent is double
+                            const normalRent = propertyManager.calculateRent(position, this.lastDiceRoll);
+                            rent = normalRent * 2;
+                            rentDescription += ' (Double rent from Chance card)';
+                        } else {
+                            rent = propertyManager.calculateRent(position, this.lastDiceRoll || 7);
+                        }
+                    } else {
+                        rent = propertyManager.calculateRent(position, this.lastDiceRoll || 7);
+                    }
+                    
+                    if (rent > 0) {
+                        player.money = Math.max(0, player.money - rent);
+                        const ownerName = this.gameData.players[property.owner]?.name || 'Player';
+                        
+                        // Add money to property owner
+                        if (this.gameData.players[property.owner]) {
+                            this.gameData.players[property.owner].money += rent;
+                            
+                            // Show notification to current player (the one paying)
+                            setTimeout(() => {
+                                this.showGameEffect(
+                                    '🏠', 
+                                    'Rent Payment', 
+                                    rentDescription, 
+                                    `£${rent}`, 
+                                    'error'
+                                );
+                            }, 500);
+                        }
+                        
+                        this.updatePlayersDisplay(this.gameData.players);
+                    }
+                }
+                
+                // Reset chance movement flag after processing
+                this.isChanceMovement = false;
             }
 
             handleChance(playerIndex) {
@@ -2945,19 +3062,86 @@
             }
 
             handleIncomeTax(playerIndex) {
-                this.showMessage('💰 Income Tax - Pay £200', 'error');
+                const taxAmount = 200;
                 if (this.gameData && this.gameData.players[playerIndex]) {
-                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 200);
+                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - taxAmount);
                     this.updatePlayersDisplay(this.gameData.players);
                 }
+                
+                setTimeout(() => {
+                    this.showGameEffect(
+                        '💰',
+                        'Income Tax',
+                        'Government taxation on your earnings',
+                        `£${taxAmount}`,
+                        'error'
+                    );
+                }, 500);
             }
 
             handleSuperTax(playerIndex) {
-                this.showMessage('💰 Super Tax - Pay £100', 'error');
+                const taxAmount = 100;
                 if (this.gameData && this.gameData.players[playerIndex]) {
-                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - 100);
+                    this.gameData.players[playerIndex].money = Math.max(0, this.gameData.players[playerIndex].money - taxAmount);
                     this.updatePlayersDisplay(this.gameData.players);
                 }
+                
+                setTimeout(() => {
+                    this.showGameEffect(
+                        '💰',
+                        'Super Tax',
+                        'Additional luxury tax payment',
+                        `£${taxAmount}`,
+                        'error'
+                    );
+                }, 500);
+            }
+
+            showGameEffect(icon, title, description, amount, type) {
+                const modal = document.getElementById('game-effect-modal');
+                const card = document.getElementById('game-effect-card');
+                const effectTitle = document.getElementById('effect-title');
+                const effectIcon = document.getElementById('effect-icon');
+                const effectAmount = document.getElementById('effect-amount');
+                const effectText = document.getElementById('effect-text');
+
+                effectTitle.textContent = title;
+                effectIcon.textContent = icon;
+                effectAmount.textContent = amount;
+                effectText.textContent = description;
+
+                // Reset card classes
+                card.className = 'property-purchase-card';
+
+                // Set color and border based on type
+                if (type === 'error') {
+                    effectAmount.style.color = '#dc3545';
+                    card.classList.add('effect-error');
+                } else if (type === 'success') {
+                    effectAmount.style.color = '#28a745';
+                    card.classList.add('effect-success');
+                } else {
+                    effectAmount.style.color = '#17a2b8';
+                    card.classList.add('effect-info');
+                }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => card.classList.add('show'), 10);
+
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    this.closeGameEffectModal();
+                }, 3000);
+            }
+
+            closeGameEffectModal() {
+                const modal = document.getElementById('game-effect-modal');
+                const card = document.getElementById('game-effect-card');
+                
+                card.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
             }
 
             drawRandomCard(cardType) {
@@ -3014,7 +3198,15 @@
                     case 'moveToGo':
                         this.movePlayerTo(playerIndex, 0);
                         player.money += 200;
-                        this.showMessage('🎯 Moved to GO! Collect £200', 'success');
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '🎯',
+                                'Advance to GO',
+                                'Moved to GO and collected salary',
+                                '£200',
+                                'success'
+                            );
+                        }, 2000);
                         break;
                         
                     case 'goToJail':
@@ -3025,7 +3217,15 @@
                         this.movePlayerTo(playerIndex, card.position);
                         if (card.position < currentPosition) {
                             player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                            setTimeout(() => {
+                                this.showGameEffect(
+                                    '🎯',
+                                    'Passed GO',
+                                    'Collected salary for passing GO',
+                                    '£200',
+                                    'success'
+                                );
+                            }, 1500);
                         }
                         break;
                         
@@ -3041,9 +3241,21 @@
                         this.movePlayerTo(playerIndex, nearestRailway);
                         if (nearestRailway < currentPosition) {
                             player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                            setTimeout(() => {
+                                this.showGameEffect(
+                                    '🎯',
+                                    'Passed GO',
+                                    'Collected salary for passing GO',
+                                    '£200',
+                                    'success'
+                                );
+                            }, 1500);
                         }
-                        this.showMessage('🚂 Moved to nearest Railway Station', 'info');
+                        
+                        // Special message for railway movement
+                        setTimeout(() => {
+                            this.showMessage('🚂 Moved to nearest Railway Station', 'info');
+                        }, 2500);
                         break;
                         
                     case 'moveToNearestUtility':
@@ -3054,32 +3266,76 @@
                         this.movePlayerTo(playerIndex, nearestUtility);
                         if (nearestUtility < currentPosition) {
                             player.money += 200;
-                            this.showMessage('🎯 Passed GO! Collect £200', 'success');
+                            setTimeout(() => {
+                                this.showGameEffect(
+                                    '🎯',
+                                    'Passed GO',
+                                    'Collected salary for passing GO',
+                                    '£200',
+                                    'success'
+                                );
+                            }, 1500);
                         }
-                        this.showMessage('⚡ Moved to nearest Utility', 'info');
+                        
+                        // Special message for utility movement
+                        setTimeout(() => {
+                            this.showMessage('⚡ Moved to nearest Utility', 'info');
+                        }, 2500);
                         break;
                         
                     case 'payMoney':
                         player.money = Math.max(0, player.money - card.amount);
-                        this.showMessage(`💰 Pay £${card.amount}`, 'error');
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '💸',
+                                'Payment Required',
+                                card.text,
+                                `£${card.amount}`,
+                                'error'
+                            );
+                        }, 1000);
                         break;
                         
                     case 'receiveMoney':
                         player.money += card.amount;
-                        this.showMessage(`💰 Receive £${card.amount}`, 'success');
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '💰',
+                                'Money Received',
+                                card.text,
+                                `£${card.amount}`,
+                                'success'
+                            );
+                        }, 1000);
                         break;
                         
                     case 'getOutOfJail':
                         if (!player.cards) player.cards = [];
                         player.cards.push({ type: 'Get Out of Jail Free', text: card.text });
-                        this.showMessage('🔓 Get Out of Jail Free card added!', 'info');
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '🔓',
+                                'Special Card Received',
+                                'Get Out of Jail Free card added to your collection',
+                                'CARD',
+                                'info'
+                            );
+                        }, 1000);
                         this.updateCardsDisplay();
                         break;
                         
                     case 'propertyRepairs':
                         const repairCost = player.properties.length * card.amount;
                         player.money = Math.max(0, player.money - repairCost);
-                        this.showMessage(`🔧 Property repairs: £${repairCost}`, 'error');
+                        setTimeout(() => {
+                            this.showGameEffect(
+                                '🔧',
+                                'Property Repairs',
+                                `Maintenance costs for ${player.properties.length} properties`,
+                                `£${repairCost}`,
+                                'error'
+                            );
+                        }, 1000);
                         break;
                 }
                 
@@ -3100,6 +3356,9 @@
                 } else {
                     steps = (40 - currentPosition) + targetPosition;
                 }
+                
+                // Mark as special chance movement for rent calculations
+                this.isChanceMovement = true;
                 
                 this.isPlayerMoving = true;
                 this.animatePlayerMovement(playerIndex, currentPosition, targetPosition, steps);
@@ -3629,6 +3888,10 @@
         function declineProperty() {
             gameController.hidePropertyPurchaseModal();
             gameController.showMessage('Property purchase declined', 'info');
+        }
+
+        function closeGameEffectModal() {
+            gameController.closeGameEffectModal();
         }
 
         // Accessibility Functions
