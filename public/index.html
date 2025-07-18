@@ -26,13 +26,14 @@
             --danger: #dc3545;
             --info: #17a2b8;
             
-            /* Scaling variables */
+            /* Scaling variables - Fixed calculations */
             --scale: 1;
-            --board-size: 780px;
-            --corner-size: 98px;
-            --space-size: 63px;
-            --container-height: 98px;
-            --container-width: 63px;
+            --corner-size: 120px;
+            --space-size: 78px;
+            --grid-gap: 3px;
+            --board-size: 972px; /* 2*120 + 9*78 + 10*3 = 240 + 702 + 30 = 972 */
+            --container-height: 120px;
+            --container-width: 78px;
         }
 
         /* Global Styles */
@@ -42,6 +43,7 @@
 
         body {
             margin: 0;
+            padding: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Oswald', sans-serif;
             font-weight: 400;
@@ -52,6 +54,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-x: auto;
         }
 
         body.dark-theme {
@@ -111,13 +114,14 @@
 
         /* Game Container */
         .game-container {
-            max-width: 1100px;
+            max-width: 1600px;
             width: 100%;
             display: flex;
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             min-height: 100vh;
             align-items: flex-start;
+            justify-content: center;
         }
 
         .game-container.single-column {
@@ -127,20 +131,27 @@
 
         /* Board Layout */
         .table {
-            padding: calc(12px * var(--scale));
+            padding: calc(15px * var(--scale));
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .board {
             display: grid;
             grid-template-columns: var(--corner-size) repeat(9, var(--space-size)) var(--corner-size);
             grid-template-rows: var(--corner-size) repeat(9, var(--space-size)) var(--corner-size);
-            grid-gap: calc(2px * var(--scale));
+            grid-gap: var(--grid-gap);
             width: var(--board-size);
             height: var(--board-size);
+            min-width: var(--board-size);
+            min-height: var(--board-size);
             background: var(--black);
-            border: calc(2px * var(--scale)) solid var(--black);
-            border-radius: calc(8px * var(--scale));
-            box-shadow: 0 calc(16px * var(--scale)) calc(47px * var(--scale)) rgba(0,0,0,0.3);
+            border: calc(3px * var(--scale)) solid var(--black);
+            border-radius: calc(12px * var(--scale));
+            box-shadow: 0 calc(20px * var(--scale)) calc(60px * var(--scale)) rgba(0,0,0,0.3);
+            position: relative;
         }
 
         /* Center Area */
@@ -153,16 +164,16 @@
             grid-template-rows: repeat(9, 1fr);
             justify-items: center;
             align-items: center;
-            border-radius: calc(6px * var(--scale));
-            padding: calc(16px * var(--scale));
+            border-radius: calc(8px * var(--scale));
+            padding: calc(20px * var(--scale));
         }
 
         .title {
             grid-column: 1 / 8;
             grid-row: 2 / 3;
-            font-size: calc(38px * var(--scale));
+            font-size: calc(46px * var(--scale));
             font-weight: 600;
-            letter-spacing: calc(6px * var(--scale));
+            letter-spacing: calc(8px * var(--scale));
             color: var(--red);
             text-align: center;
         }
@@ -170,9 +181,9 @@
         .business-subtitle {
             grid-column: 1 / 8;
             grid-row: 3 / 4;
-            font-size: calc(13px * var(--scale));
+            font-size: calc(16px * var(--scale));
             font-weight: 400;
-            letter-spacing: calc(2px * var(--scale));
+            letter-spacing: calc(3px * var(--scale));
             color: var(--black);
             text-align: center;
         }
@@ -182,12 +193,12 @@
             grid-row: 4 / 5;
             background: #4CAF50;
             color: white;
-            padding: calc(12px * var(--scale)) calc(24px * var(--scale));
-            border-radius: calc(20px * var(--scale));
+            padding: calc(15px * var(--scale)) calc(30px * var(--scale));
+            border-radius: calc(25px * var(--scale));
             font-weight: bold;
             text-align: center;
-            font-size: calc(11px * var(--scale));
-            letter-spacing: calc(1px * var(--scale));
+            font-size: calc(14px * var(--scale));
+            letter-spacing: calc(2px * var(--scale));
         }
 
         .center-controls {
@@ -195,22 +206,22 @@
             grid-row: 5 / 8;
             display: flex;
             flex-direction: column;
-            gap: calc(8px * var(--scale));
+            gap: calc(12px * var(--scale));
             width: 100%;
-            max-width: calc(235px * var(--scale));
+            max-width: calc(280px * var(--scale));
         }
 
         .center-controls .btn {
-            padding: calc(12px * var(--scale)) calc(20px * var(--scale));
-            font-size: calc(11px * var(--scale));
-            border-radius: calc(9px * var(--scale));
-            box-shadow: 0 calc(3px * var(--scale)) calc(9px * var(--scale)) rgba(0,0,0,0.2);
+            padding: calc(15px * var(--scale)) calc(25px * var(--scale));
+            font-size: calc(14px * var(--scale));
+            border-radius: calc(12px * var(--scale));
+            box-shadow: 0 calc(4px * var(--scale)) calc(12px * var(--scale)) rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
 
         .center-controls .btn:hover {
-            transform: translateY(calc(-2px * var(--scale)));
-            box-shadow: 0 calc(5px * var(--scale)) calc(16px * var(--scale)) rgba(0,0,0,0.3);
+            transform: translateY(calc(-3px * var(--scale)));
+            box-shadow: 0 calc(6px * var(--scale)) calc(20px * var(--scale)) rgba(0,0,0,0.3);
         }
 
         .center-dice-result {
@@ -220,28 +231,28 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: calc(8px * var(--scale)) 0;
-            padding: calc(12px * var(--scale));
+            margin: calc(12px * var(--scale)) 0;
+            padding: calc(15px * var(--scale));
             background: rgba(255, 255, 255, 0.9);
-            border-radius: calc(9px * var(--scale));
-            border: calc(2px * var(--scale)) solid #ddd;
-            min-height: calc(63px * var(--scale));
+            border-radius: calc(12px * var(--scale));
+            border: calc(3px * var(--scale)) solid #ddd;
+            min-height: calc(80px * var(--scale));
         }
 
         /* Rows of spaces */
         .row {
             display: grid;
-            grid-gap: calc(2px * var(--scale));
+            grid-gap: var(--grid-gap);
         }
 
         .horizontal-row {
-            grid-template-columns: repeat(9, calc(80px * var(--scale)));
-            grid-template-rows: calc(125px * var(--scale));
+            grid-template-columns: repeat(9, var(--space-size));
+            grid-template-rows: var(--corner-size);
         }
 
         .vertical-row {
-            grid-template-columns: calc(125px * var(--scale));
-            grid-template-rows: repeat(9, calc(80px * var(--scale)));
+            grid-template-columns: var(--corner-size);
+            grid-template-rows: repeat(9, var(--space-size));
         }
 
         .vertical-row .container {
@@ -317,40 +328,40 @@
 
         .name,
         .instructions {
-            padding-left: calc(6px * var(--scale));
-            padding-right: calc(6px * var(--scale));
-            font-size: calc(7px * var(--scale));
-            line-height: 1.0;
+            padding-left: calc(8px * var(--scale));
+            padding-right: calc(8px * var(--scale));
+            font-size: calc(9px * var(--scale));
+            line-height: 1.2;
         }
 
         .price {
-            font-size: calc(5px * var(--scale));
+            font-size: calc(7px * var(--scale));
             font-weight: 400;
-            padding-bottom: calc(4px * var(--scale));
+            padding-bottom: calc(6px * var(--scale));
         }
 
         /* Property Development Indicators */
         .development-indicator {
             position: absolute;
-            bottom: calc(4px * var(--scale));
+            bottom: calc(6px * var(--scale));
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: calc(1px * var(--scale));
+            gap: calc(2px * var(--scale));
         }
 
         .development-house {
-            width: calc(6px * var(--scale));
-            height: calc(6px * var(--scale));
+            width: calc(8px * var(--scale));
+            height: calc(8px * var(--scale));
             background: var(--success);
-            border-radius: calc(1px * var(--scale));
+            border-radius: calc(2px * var(--scale));
         }
 
         .development-hotel {
-            width: calc(9px * var(--scale));
-            height: calc(6px * var(--scale));
+            width: calc(12px * var(--scale));
+            height: calc(8px * var(--scale));
             background: var(--red);
-            border-radius: calc(1px * var(--scale));
+            border-radius: calc(2px * var(--scale));
         }
 
         /* Corner Spaces */
@@ -362,18 +373,18 @@
 
         .corner .name {
             padding: 0;
-            font-size: calc(9px * var(--scale));
+            font-size: calc(11px * var(--scale));
             font-weight: 600;
         }
 
         /* Property Spaces */
         .property .color-bar {
-            height: calc(20px * var(--scale));
-            border-bottom: calc(2px * var(--scale)) solid var(--black);
+            height: calc(25px * var(--scale));
+            border-bottom: calc(3px * var(--scale)) solid var(--black);
         }
 
         .property .name {
-            padding-bottom: calc(31px * var(--scale));
+            padding-bottom: calc(38px * var(--scale));
             font-weight: 500;
         }
 
@@ -382,7 +393,7 @@
             grid-column: 11;
             grid-row: 11;
             background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            border-radius: 0 0 calc(10px * var(--scale)) 0;
+            border-radius: 0 0 calc(12px * var(--scale)) 0;
         }
 
         .go .container {
@@ -391,7 +402,7 @@
         }
 
         .go .go-word {
-            font-size: calc(28px * var(--scale));
+            font-size: calc(34px * var(--scale));
             color: white;
             font-weight: 600;
         }
@@ -400,14 +411,14 @@
             grid-column: 1;
             grid-row: 11;
             background: linear-gradient(45deg, #ffa500, #ffb84d);
-            border-radius: 0 0 0 calc(10px * var(--scale));
+            border-radius: 0 0 0 calc(12px * var(--scale));
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .jail .name {
-            font-size: calc(13px * var(--scale));
+            font-size: calc(16px * var(--scale));
             font-weight: 600;
             color: white;
         }
@@ -416,7 +427,7 @@
             grid-column: 1;
             grid-row: 1;
             background: linear-gradient(45deg, #4ecdc4, #6ed0ca);
-            border-radius: calc(10px * var(--scale)) 0 0 0;
+            border-radius: calc(12px * var(--scale)) 0 0 0;
         }
 
         .free-parking .container {
@@ -425,7 +436,7 @@
         }
 
         .free-parking .name {
-            font-size: calc(11px * var(--scale));
+            font-size: calc(13px * var(--scale));
             color: white;
             font-weight: 600;
         }
@@ -434,7 +445,7 @@
             grid-column: 11;
             grid-row: 1;
             background: linear-gradient(45deg, #ff4757, #ff6b7a);
-            border-radius: 0 calc(10px * var(--scale)) 0 0;
+            border-radius: 0 calc(12px * var(--scale)) 0 0;
         }
 
         .go-to-jail .container {
@@ -443,7 +454,7 @@
         }
 
         .go-to-jail .name {
-            font-size: calc(9px * var(--scale));
+            font-size: calc(11px * var(--scale));
             color: white;
             font-weight: 600;
         }
@@ -455,37 +466,37 @@
         }
 
         .chance .drawing {
-            font-size: calc(31px * var(--scale));
+            font-size: calc(38px * var(--scale));
             color: var(--red);
         }
 
         .community-chest .drawing {
-            font-size: calc(24px * var(--scale));
+            font-size: calc(30px * var(--scale));
             color: var(--light-blue);
         }
 
         .railroad .drawing,
         .utility .drawing {
-            font-size: calc(24px * var(--scale));
+            font-size: calc(30px * var(--scale));
             color: var(--black);
         }
 
         /* Player Pieces */
         .player-piece {
             position: absolute;
-            width: calc(24px * var(--scale));
-            height: calc(24px * var(--scale));
+            width: calc(30px * var(--scale));
+            height: calc(30px * var(--scale));
             border-radius: 50%;
-            border: calc(2px * var(--scale)) solid white;
+            border: calc(3px * var(--scale)) solid white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: calc(9px * var(--scale));
+            font-size: calc(12px * var(--scale));
             color: white;
             z-index: 100;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 calc(3px * var(--scale)) calc(9px * var(--scale)) rgba(0,0,0,0.4);
+            box-shadow: 0 calc(4px * var(--scale)) calc(12px * var(--scale)) rgba(0,0,0,0.4);
             cursor: pointer;
             top: 50%;
             left: 50%;
@@ -494,13 +505,13 @@
 
         .player-piece:hover {
             transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 calc(5px * var(--scale)) calc(16px * var(--scale)) rgba(0,0,0,0.5);
+            box-shadow: 0 calc(6px * var(--scale)) calc(20px * var(--scale)) rgba(0,0,0,0.5);
         }
 
         .player-piece.moving {
             animation: bounce 0.5s ease-in-out;
             transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 calc(6px * var(--scale)) calc(20px * var(--scale)) rgba(0,0,0,0.6);
+            box-shadow: 0 calc(8px * var(--scale)) calc(25px * var(--scale)) rgba(0,0,0,0.6);
         }
 
         @keyframes bounce {
@@ -522,30 +533,31 @@
 
         /* Game Panel */
         .game-panel {
-            width: calc(275px * var(--scale));
+            width: calc(320px * var(--scale));
             background: white;
-            border-radius: calc(12px * var(--scale));
-            padding: calc(16px * var(--scale));
-            box-shadow: 0 calc(8px * var(--scale)) calc(24px * var(--scale)) rgba(0,0,0,0.2);
+            border-radius: calc(15px * var(--scale));
+            padding: calc(20px * var(--scale));
+            box-shadow: 0 calc(10px * var(--scale)) calc(30px * var(--scale)) rgba(0,0,0,0.2);
             max-height: var(--board-size);
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         /* Dice */
         .dice {
-            width: calc(47px * var(--scale));
-            height: calc(47px * var(--scale));
+            width: calc(58px * var(--scale));
+            height: calc(58px * var(--scale));
             background: white;
-            border: calc(2px * var(--scale)) solid var(--black);
-            border-radius: calc(9px * var(--scale));
+            border: calc(3px * var(--scale)) solid var(--black);
+            border-radius: calc(12px * var(--scale));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: calc(22px * var(--scale));
+            font-size: calc(28px * var(--scale));
             font-weight: bold;
-            box-shadow: 0 calc(3px * var(--scale)) calc(9px * var(--scale)) rgba(0,0,0,0.3);
+            box-shadow: 0 calc(4px * var(--scale)) calc(12px * var(--scale)) rgba(0,0,0,0.3);
             position: relative;
-            margin: 0 calc(4px * var(--scale));
+            margin: 0 calc(6px * var(--scale));
             transition: all 0.3s ease;
         }
 
@@ -553,52 +565,52 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: calc(12px * var(--scale));
-            margin: calc(12px * var(--scale)) 0;
+            gap: calc(15px * var(--scale));
+            margin: calc(15px * var(--scale)) 0;
             flex-wrap: wrap;
         }
 
         .dice-total {
-            font-size: calc(13px * var(--scale));
+            font-size: calc(16px * var(--scale));
             font-weight: bold;
             color: var(--red);
-            margin: calc(8px * var(--scale)) 0;
-            padding: calc(6px * var(--scale)) calc(13px * var(--scale));
+            margin: calc(10px * var(--scale)) 0;
+            padding: calc(8px * var(--scale)) calc(16px * var(--scale));
             background: #f8f9fa;
-            border-radius: calc(16px * var(--scale));
-            border: calc(2px * var(--scale)) solid var(--red);
+            border-radius: calc(20px * var(--scale));
+            border: calc(3px * var(--scale)) solid var(--red);
         }
 
         .panel-section {
-            margin-bottom: calc(20px * var(--scale));
-            padding: calc(15px * var(--scale));
-            border-radius: calc(10px * var(--scale));
+            margin-bottom: calc(25px * var(--scale));
+            padding: calc(18px * var(--scale));
+            border-radius: calc(12px * var(--scale));
             background: #f8f9fa;
         }
 
         .panel-section h3 {
-            margin-bottom: calc(15px * var(--scale));
+            margin-bottom: calc(18px * var(--scale));
             color: #2c5f2d;
-            border-bottom: calc(2px * var(--scale)) solid #4CAF50;
-            padding-bottom: calc(5px * var(--scale));
-            font-size: calc(16px * var(--scale));
+            border-bottom: calc(3px * var(--scale)) solid #4CAF50;
+            padding-bottom: calc(6px * var(--scale));
+            font-size: calc(18px * var(--scale));
         }
 
         .players-list {
             display: flex;
             flex-direction: column;
-            gap: calc(10px * var(--scale));
+            gap: calc(12px * var(--scale));
         }
 
         .player-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: calc(12px * var(--scale));
+            padding: calc(15px * var(--scale));
             background: white;
-            border-radius: calc(8px * var(--scale));
-            border-left: calc(4px * var(--scale)) solid #4CAF50;
-            font-size: calc(12px * var(--scale));
+            border-radius: calc(10px * var(--scale));
+            border-left: calc(5px * var(--scale)) solid #4CAF50;
+            font-size: calc(14px * var(--scale));
         }
 
         .player-item.current {
@@ -613,19 +625,19 @@
 
         .player-achievements {
             display: flex;
-            gap: calc(5px * var(--scale));
-            margin-top: calc(5px * var(--scale));
+            gap: calc(6px * var(--scale));
+            margin-top: calc(6px * var(--scale));
         }
 
         .achievement-badge {
-            width: calc(16px * var(--scale));
-            height: calc(16px * var(--scale));
+            width: calc(20px * var(--scale));
+            height: calc(20px * var(--scale));
             border-radius: 50%;
             background: #ffd700;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: calc(8px * var(--scale));
+            font-size: calc(10px * var(--scale));
             color: #333;
         }
 
@@ -1315,27 +1327,27 @@
         .room-setup {
             text-align: center;
             background: white;
-            padding: calc(40px * var(--scale));
-            border-radius: calc(15px * var(--scale));
-            box-shadow: 0 calc(10px * var(--scale)) calc(30px * var(--scale)) rgba(0,0,0,0.2);
-            max-width: calc(400px * var(--scale));
+            padding: calc(50px * var(--scale));
+            border-radius: calc(20px * var(--scale));
+            box-shadow: 0 calc(12px * var(--scale)) calc(40px * var(--scale)) rgba(0,0,0,0.2);
+            max-width: calc(500px * var(--scale));
             margin: 0 auto;
         }
 
         .room-setup h1 {
             color: #2c5f2d;
-            margin-bottom: calc(30px * var(--scale));
-            font-size: calc(28px * var(--scale));
+            margin-bottom: calc(40px * var(--scale));
+            font-size: calc(36px * var(--scale));
         }
 
         .input-group {
-            margin-bottom: calc(20px * var(--scale));
+            margin-bottom: calc(25px * var(--scale));
             text-align: left;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: calc(5px * var(--scale));
+            margin-bottom: calc(8px * var(--scale));
             font-weight: bold;
             color: #333;
             text-transform: none;
@@ -1343,9 +1355,9 @@
 
         .input-group input {
             width: 100%;
-            padding: calc(12px * var(--scale));
+            padding: calc(15px * var(--scale));
             border: calc(2px * var(--scale)) solid #ddd;
-            border-radius: calc(8px * var(--scale));
+            border-radius: calc(10px * var(--scale));
             font-size: calc(16px * var(--scale));
         }
 
@@ -1356,21 +1368,21 @@
 
         .room-actions {
             display: flex;
-            gap: calc(10px * var(--scale));
+            gap: calc(12px * var(--scale));
         }
 
         .room-code-display {
             background: #f8f9fa;
-            padding: calc(20px * var(--scale));
-            border-radius: calc(10px * var(--scale));
-            margin-bottom: calc(20px * var(--scale));
+            padding: calc(25px * var(--scale));
+            border-radius: calc(12px * var(--scale));
+            margin-bottom: calc(25px * var(--scale));
         }
 
         .room-code {
-            font-size: calc(24px * var(--scale));
+            font-size: calc(30px * var(--scale));
             font-weight: bold;
             color: #2c5f2d;
-            letter-spacing: calc(2px * var(--scale));
+            letter-spacing: calc(3px * var(--scale));
         }
 
         .hidden {
@@ -1409,19 +1421,21 @@
         }
 
         /* Responsive Design with Proper Scaling */
-        @media (max-width: 1200px) {
+        @media (max-width: 1350px) {
             :root {
-                --scale: 0.8;
-                --board-size: 624px;
-                --corner-size: 78px;
-                --space-size: 50px;
-                --container-height: 78px;
-                --container-width: 50px;
+                --scale: 0.85;
+                --corner-size: 102px; /* 120 * 0.85 */
+                --space-size: 66px; /* 78 * 0.85 */
+                --grid-gap: 2.5px; /* 3 * 0.85 */
+                --board-size: 826px; /* 972 * 0.85 */
+                --container-height: 102px;
+                --container-width: 66px;
             }
             
             .game-container {
                 flex-direction: column;
                 align-items: center;
+                max-width: 100%;
             }
             
             .game-panel {
@@ -1431,24 +1445,32 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
             :root {
-                --scale: 0.6;
-                --board-size: 468px;
-                --corner-size: 59px;
-                --space-size: 37px;
-                --container-height: 59px;
-                --container-width: 37px;
+                --scale: 0.75;
+                --corner-size: 90px; /* 120 * 0.75 */
+                --space-size: 58px; /* 78 * 0.75 */
+                --grid-gap: 2px; /* 3 * 0.75 */
+                --board-size: 729px; /* 972 * 0.75 */
+                --container-height: 90px;
+                --container-width: 58px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            :root {
+                --scale: 0.65;
+                --corner-size: 78px; /* 120 * 0.65 */
+                --space-size: 51px; /* 78 * 0.65 */
+                --grid-gap: 2px; /* 3 * 0.65 */
+                --board-size: 632px; /* 972 * 0.65 */
+                --container-height: 78px;
+                --container-width: 51px;
             }
 
             .game-container {
-                padding: calc(10px * var(--scale));
-                gap: calc(10px * var(--scale));
-            }
-
-            .game-panel {
-                width: 100%;
-                max-width: var(--board-size);
+                padding: calc(15px * var(--scale));
+                gap: calc(15px * var(--scale));
             }
 
             .property-purchase-card,
@@ -1460,14 +1482,15 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 700px) {
             :root {
-                --scale: 0.5;
-                --board-size: 390px;
-                --corner-size: 49px;
-                --space-size: 31px;
-                --container-height: 49px;
-                --container-width: 31px;
+                --scale: 0.55;
+                --corner-size: 66px; /* 120 * 0.55 */
+                --space-size: 43px; /* 78 * 0.55 */
+                --grid-gap: 1.5px; /* 3 * 0.55 */
+                --board-size: 535px; /* 972 * 0.55 */
+                --container-height: 66px;
+                --container-width: 43px;
             }
 
             .question-options {
@@ -1476,6 +1499,18 @@
 
             .property-purchase-actions {
                 flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --scale: 0.5;
+                --corner-size: 60px; /* 120 * 0.5 */
+                --space-size: 39px; /* 78 * 0.5 */
+                --grid-gap: 1.5px; /* 3 * 0.5 */
+                --board-size: 486px; /* 972 * 0.5 */
+                --container-height: 60px;
+                --container-width: 39px;
             }
         }
     </style>
@@ -3221,7 +3256,7 @@
                         const existingPieces = property.querySelectorAll('.player-piece').length;
                         if (existingPieces > 1) {
                             const angle = (existingPieces - 1) * (360 / this.gameData.players.length);
-                            const radius = 12 * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale'));
+                            const radius = 15; // Fixed radius instead of scale-dependent
                             const x = Math.cos(angle * Math.PI / 180) * radius;
                             const y = Math.sin(angle * Math.PI / 180) * radius;
                             piece.style.left = `calc(50% + ${x}px)`;
