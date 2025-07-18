@@ -2962,13 +2962,9 @@
                         rent = propertyManager.calculateRent(position, this.lastDiceRoll || 7);
                     }
                     
-                    if (rent > 0) {
+           if (rent > 0) {
                         player.money = Math.max(0, player.money - rent);
                         const ownerName = this.gameData.players[property.owner]?.name || 'Player';
-                        
-                        // Add money to property owner
-                        if (this.gameData.players[property.owner]) {
-                            this.gameData.players[property.owner].money += rent;
                             
                             // Show notification to current player (the one paying)
                             setTimeout(() => {
